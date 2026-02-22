@@ -1,0 +1,580 @@
+<!-- index.html（八戒超厉害模型｜新比赛场·黄金T版｜2号删除｜最多输出No1/No2） -->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#b00000" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="八戒超厉害模型">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <title>八戒超厉害模型</title>
+
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#11111a; --line:rgba(255,255,255,.10);
+      --text:#f5f5f7; --muted:rgba(255,255,255,.65);
+      --red:#ff2d2d; --red2:#b00000; --green:#2dff7a; --amber:#ffcc33;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background:
+        radial-gradient(800px 400px at 50% 20%, rgba(255,45,45,.18), transparent 60%),
+        radial-gradient(900px 500px at 50% 120%, rgba(176,0,0,.22), transparent 60%),
+        var(--bg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+      color:var(--text);
+      padding:18px;
+    }
+    .app{width:min(860px,100%);}
+    .title{
+      font-size:22px;font-weight:900;letter-spacing:.5px;margin:0 0 12px;
+      display:flex;align-items:center;gap:10px;
+    }
+    .title::before{
+      content:"";width:10px;height:10px;border-radius:50%;
+      background:var(--red);box-shadow:0 0 18px rgba(255,45,45,.8);
+    }
+    .panel{
+      background:linear-gradient(180deg, rgba(255,45,45,.08), transparent 50%), var(--card);
+      border:1px solid var(--line);border-radius:18px;padding:16px;
+      box-shadow:0 18px 60px rgba(0,0,0,.55);
+    }
+
+    input{
+      width:100%;padding:14px 14px;font-size:20px;border-radius:14px;
+      border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--text);outline:none;
+    }
+    input:focus{border-color:rgba(255,45,45,.6);box-shadow:0 0 0 3px rgba(255,45,45,.15);}
+
+    .row{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;}
+    button{
+      flex:1;
+      min-width:140px;
+      padding:12px 14px;font-size:15px;font-weight:900;
+      border-radius:14px;border:1px solid rgba(255,45,45,.55);
+      background:linear-gradient(180deg, rgba(255,45,45,.95), rgba(176,0,0,.95));
+      color:#fff;cursor:pointer;
+    }
+    button:active{transform:translateY(1px);}
+    .btnGhost{
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:rgba(255,255,255,.9);
+    }
+    .btnDanger{
+      background:rgba(255,45,45,.10);
+      border:1px solid rgba(255,45,45,.35);
+      color:#fff;
+    }
+    .msg{margin-top:10px;font-size:13px;color:var(--muted);min-height:18px;}
+
+    .grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:10px;
+    }
+    @media (max-width: 720px){ .grid{grid-template-columns:1fr;} }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      padding:12px 12px;
+    }
+    .cardHead{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-bottom:8px;
+    }
+    .name{
+      font-weight:900;letter-spacing:.3px;font-size:14px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);box-shadow:0 0 14px rgba(255,255,255,.12);}
+    .seatBig{
+      font-size:30px;font-weight:1000;color:var(--red);
+      text-shadow:0 0 18px rgba(255,45,45,.28);
+      line-height:1.05;
+      text-align:right;
+      white-space:nowrap;
+    }
+    .meta{
+      margin-top:6px;font-size:12px;color:var(--muted);
+      display:flex;flex-wrap:wrap;gap:8px;
+    }
+    .tag{
+      font-size:11px;padding:4px 8px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);
+      color:rgba(255,255,255,.75);
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .tag.green{border-color:rgba(45,255,122,.25); color:rgba(45,255,122,.9); background:rgba(45,255,122,.06);}
+    .tag.amber{border-color:rgba(255,204,51,.25); color:rgba(255,204,51,.95); background:rgba(255,204,51,.06);}
+    .tag.red{border-color:rgba(255,45,45,.25); color:rgba(255,120,120,.95); background:rgba(255,45,45,.06);}
+
+    .history{
+      margin-top:14px;
+      border-top:1px solid var(--line);
+      padding-top:14px;
+    }
+    .hTitle{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .hTitle h3{
+      margin:0; font-size:14px; font-weight:900; letter-spacing:.3px; color:rgba(255,255,255,.9);
+      display:flex; align-items:center; gap:8px;
+    }
+    .hTitle h3::before{content:""; width:8px;height:8px;border-radius:50%; background:rgba(255,255,255,.35);}
+    .hActions{display:flex; gap:10px; flex-wrap:wrap;}
+    .hActions button{min-width:auto; flex:0 0 auto; padding:10px 12px; font-size:13px; border-radius:12px;}
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(0,0,0,.18);
+    }
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color:rgba(255,255,255,.75);
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    tbody td{
+      padding:10px 10px;
+      font-size:12px;
+      color:rgba(255,255,255,.86);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:top;
+    }
+    tbody tr:last-child td{border-bottom:none;}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
+    .del{
+      cursor:pointer;
+      color:rgba(255,45,45,.95);
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.08);
+      padding:6px 10px;
+      border-radius:10px;
+      font-weight:900;
+      font-size:12px;
+      display:inline-block;
+      user-select:none;
+    }
+    .tiny{margin-top:12px;font-size:12px;color:rgba(255,255,255,.5)}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="title">八戒超厉害模型（黄金T｜2号删除）</div>
+
+    <div class="panel">
+      <input id="room" inputmode="numeric" placeholder="输入5位房号（例如：51330）" maxlength="5" />
+      <div class="row">
+        <button id="go">开干</button>
+        <button class="btnGhost" id="copyLast">复制本次结果</button>
+      </div>
+
+      <div class="msg" id="msg"></div>
+
+      <div class="grid" id="grid" style="display:none;"></div>
+
+      <div class="history">
+        <div class="hTitle">
+          <h3>战绩记录（本机保存）</h3>
+          <div class="hActions">
+            <button class="btnGhost" id="copyAll">复制全部</button>
+            <button class="btnGhost" id="exportCsv">导出CSV</button>
+            <button class="btnDanger" id="clearAll">清空</button>
+          </div>
+        </div>
+
+        <div style="max-height:320px; overflow:auto; border-radius:14px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px;">时间</th>
+                <th style="width:86px;">房号</th>
+                <th>结果</th>
+                <th>明细</th>
+                <th style="width:70px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="histBody">
+              <tr><td colspan="5" style="color:rgba(255,255,255,.55);">暂无记录</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tiny">
+        规则：只打命中黄金T的局；最多输出No1/No2；2号位永久删除。<br/>
+        T：S=A+B+C+D+E；T1=S-A；T3=S-C；T4=S-D；T5=S-E；T6=S-A（与T1同值但对应6号）。<br/>
+        白名单：T1∈{16}；T3∈{17,14}；T4∈{12,14,15,18,19,21}；T5∈{16,22,23}且E≠7；T6∈{16,17,20,23,31}。<br/>
+        优先级：<code>4 &gt; 5 &gt; 6 &gt; 3 &gt; 1</code>。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== 基础工具 ======
+    function parseABCDE(room5){
+      const A=+room5[0], B=+room5[1], C=+room5[2], D=+room5[3], E=+room5[4];
+      return {A,B,C,D,E};
+    }
+
+    function fmtTime(ts){
+      const d = new Date(ts);
+      const pad = (x)=>String(x).padStart(2,"0");
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ============================================================
+    // ✅ 八戒超厉害模型（黄金T｜2号删除｜最多输出2个位子）
+    // 计算：
+    //   S=A+B+C+D+E
+    //   T1=S-A  (1号位)
+    //   T3=S-C  (3号位)
+    //   T4=S-D  (4号位)
+    //   T5=S-E  (5号位) 且 E!=7
+    //   T6=S-A  (6号位)  (与T1同值，但按位子对应)
+    // 白名单：
+    //   1: {16}
+    //   3: {17,14}
+    //   4: {12,14,15,18,19,21}
+    //   5: {16,22,23} 且 E!=7
+    //   6: {16,17,20,23,31}
+    // 优先级：
+    //   4 > 5 > 6 > 3 > 1
+    // 输出：
+    //   No1 / No2（最多2个）；无命中 -> 跳
+    // ============================================================
+
+    function model_bajie_super(room5){
+      const {A,B,C,D,E} = parseABCDE(room5);
+      const S = A + B + C + D + E;
+
+      const T1 = S - A;
+      const T3 = S - C;
+      const T4 = S - D;
+      const T5 = S - E;
+      const T6 = S - A; // 与T1同值
+
+      const sweet = {
+        1: new Set([16]),
+        3: new Set([17,14]),
+        4: new Set([12,14,15,18,19,21]),
+        5: new Set([16,22,23]),
+        6: new Set([16,17,20,23,31])
+      };
+
+      // 命中判定（2号位删除，不存在）
+      const hits = [];
+
+      if(sweet[4].has(T4)) hits.push(4);
+      // 5号位额外条件：E!=7
+      if(sweet[5].has(T5) && E !== 7) hits.push(5);
+      if(sweet[6].has(T6)) hits.push(6);
+      if(sweet[3].has(T3)) hits.push(3);
+      if(sweet[1].has(T1)) hits.push(1);
+
+      // 排序（严格与口径一致）
+      const priority = [4,5,6,3,1];
+      const ordered = hits.slice().sort((x,y)=>priority.indexOf(x)-priority.indexOf(y));
+
+      const no1 = ordered[0] ?? null;
+      const no2 = ordered[1] ?? null;
+
+      const seatBig = no1
+        ? (no2 ? `No1 ${no1}｜No2 ${no2}` : `${no1}号`)
+        : "跳";
+
+      const tMap = {1:T1,3:T3,4:T4,5:T5,6:T6};
+      const no1Text = no1 ? `推荐No1:${no1}号（T${no1}=${tMap[no1]}）` : "跳";
+      const no2Text = no2 ? `推荐No2:${no2}号（T${no2}=${tMap[no2]}）` : "";
+
+      const extra = [
+        `A=${A} B=${B} C=${C} D=${D} E=${E}`,
+        `S=${S}`,
+        `T1=${T1} T3=${T3} T4=${T4} T5=${T5} T6=${T6}`,
+        `命中位=[${ordered.join(",") || ""}]`,
+        `${no1Text}${no2Text ? "｜" + no2Text : ""}`,
+        (E===7 ? "注：E=7 → 5号位自动失效" : "")
+      ].filter(Boolean).join("｜");
+
+      const tags = [];
+      if(no1){
+        tags.push({t:"优质T", cls:"green"});
+        tags.push({t:"✅可打", cls:"green"});
+      }else{
+        tags.push({t:"跳（未命中黄金T）", cls:"red"});
+      }
+
+      return {
+        action: no1 ? "play" : "skip",
+        no1, no2,
+        seatBig,
+        extra,
+        tags
+      };
+    }
+
+    // ====== UI 渲染 ======
+    const roomEl = document.getElementById("room");
+    const goEl = document.getElementById("go");
+    const copyLastEl = document.getElementById("copyLast");
+    const msgEl = document.getElementById("msg");
+    const gridEl = document.getElementById("grid");
+    const histBodyEl = document.getElementById("histBody");
+
+    const copyAllEl = document.getElementById("copyAll");
+    const exportCsvEl = document.getElementById("exportCsv");
+    const clearAllEl = document.getElementById("clearAll");
+
+    const LS_KEY = "bajie_super_T_v1";
+    const MAX_KEEP = 200;
+
+    let lastTextToCopy = "";
+
+    function cardHTML({name, seatText, extra, tags=[]}){
+      const tagHTML = tags.map(x => `<span class="tag ${x.cls||""}">${escapeHtml(x.t)}</span>`).join("");
+      return `
+        <div class="card">
+          <div class="cardHead">
+            <div class="name"><span class="dot"></span>${escapeHtml(name)}</div>
+            <div class="seatBig">${escapeHtml(seatText)}</div>
+          </div>
+          <div class="meta">
+            <span class="tag">${escapeHtml(extra)}</span>
+            ${tagHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    function loadHistory(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      }catch(e){
+        return [];
+      }
+    }
+
+    function saveHistory(arr){
+      localStorage.setItem(LS_KEY, JSON.stringify(arr));
+    }
+
+    function addHistory(item){
+      const arr = loadHistory();
+      arr.unshift(item);
+      if(arr.length > MAX_KEEP) arr.length = MAX_KEEP;
+      saveHistory(arr);
+      renderHistory();
+    }
+
+    function deleteHistory(id){
+      const arr = loadHistory().filter(x => x.id !== id);
+      saveHistory(arr);
+      renderHistory();
+    }
+
+    function clearHistory(){
+      saveHistory([]);
+      renderHistory();
+    }
+
+    function renderHistory(){
+      const arr = loadHistory();
+      if(arr.length === 0){
+        histBodyEl.innerHTML = `<tr><td colspan="5" style="color:rgba(255,255,255,.55);">暂无记录</td></tr>`;
+        return;
+      }
+
+      histBodyEl.innerHTML = arr.map(row => `
+        <tr>
+          <td class="mono">${escapeHtml(fmtTime(row.ts))}</td>
+          <td class="mono">${escapeHtml(row.room)}</td>
+          <td class="mono">${escapeHtml(row.result)}</td>
+          <td class="mono">${escapeHtml(row.detail)}</td>
+          <td><span class="del" data-del="${escapeHtml(row.id)}">删</span></td>
+        </tr>
+      `).join("");
+
+      histBodyEl.querySelectorAll("[data-del]").forEach(el=>{
+        el.addEventListener("click", ()=>deleteHistory(el.getAttribute("data-del")));
+      });
+    }
+
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        msgEl.textContent = "✅ 已复制到剪贴板";
+      }catch(e){
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        msgEl.textContent = "✅ 已复制到剪贴板";
+      }
+      setTimeout(()=>{ msgEl.textContent=""; }, 900);
+    }
+
+    function buildCopyLine(room5, out){
+      // 保证与你问我时输出口径一致：最多No1/No2
+      // 例：23:01:02 51330 ｜ 优质T ✅ 推荐No1:4 推荐No2:6 ｜ (明细省略)
+      const t = fmtTime(Date.now());
+      if(out.action === "skip"){
+        return `${t} ${room5} ｜ 跳（未命中黄金T）`;
+      }
+      const no1 = out.no1;
+      const no2 = out.no2;
+      return `${t} ${room5} ｜ 优质T ✅ 推荐No1:${no1}` + (no2 ? ` 推荐No2:${no2}` : "");
+    }
+
+    function exportCSV(){
+      const arr = loadHistory();
+      if(arr.length===0){
+        msgEl.textContent = "暂无记录可导出";
+        setTimeout(()=>{ msgEl.textContent=""; }, 900);
+        return;
+      }
+      const header = ["time","room","result","detail"];
+      const rows = arr.map(r => [new Date(r.ts).toISOString(), r.room, r.result, r.detail]);
+      const csv = [header, ...rows]
+        .map(line => line.map(x => `"${String(x).replaceAll('"','""')}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "bajie_super_history.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      msgEl.textContent = "✅ CSV 已导出";
+      setTimeout(()=>{ msgEl.textContent=""; }, 900);
+    }
+
+    function run(){
+      const s = roomEl.value.trim().replace(/\s+/g,"");
+      if(!/^\d{5}$/.test(s)){
+        msgEl.textContent = "请输入正确的5位数字（例如：51330）";
+        gridEl.style.display = "none";
+        gridEl.innerHTML = "";
+        return;
+      }
+
+      const out = model_bajie_super(s);
+
+      // 卡片展示
+      gridEl.innerHTML = [
+        cardHTML({
+          name:"八戒超厉害模型（黄金T｜2号删除）",
+          seatText: out.seatBig,
+          extra: out.extra,
+          tags: out.tags || []
+        })
+      ].join("");
+      gridEl.style.display = "grid";
+
+      // 本次复制文本
+      lastTextToCopy = buildCopyLine(s, out);
+
+      // 写入历史
+      const resultText = (out.action === "play")
+        ? (out.no2 ? `推荐No1:${out.no1}｜推荐No2:${out.no2}` : `推荐No1:${out.no1}`)
+        : "跳";
+
+      addHistory({
+        id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
+        ts: Date.now(),
+        room: s,
+        result: resultText,
+        detail: out.extra
+      });
+
+      msgEl.textContent = "";
+      setTimeout(()=>{ roomEl.value=""; roomEl.focus(); }, 250);
+    }
+
+    goEl.addEventListener("click", run);
+    roomEl.addEventListener("keydown", e => { if(e.key==="Enter") run(); });
+
+    copyLastEl.addEventListener("click", ()=>{
+      if(!lastTextToCopy){
+        msgEl.textContent = "还没有本次结果可复制";
+        setTimeout(()=>{ msgEl.textContent=""; }, 900);
+        return;
+      }
+      copyText(lastTextToCopy);
+    });
+
+    copyAllEl.addEventListener("click", ()=>{
+      const arr = loadHistory();
+      if(arr.length===0){
+        msgEl.textContent = "暂无记录可复制";
+        setTimeout(()=>{ msgEl.textContent=""; }, 900);
+        return;
+      }
+      const lines = arr
+        .slice()
+        .reverse()
+        .map(r => `${fmtTime(r.ts)} ${r.room} ｜ ${r.result}`);
+      copyText(lines.join("\n"));
+    });
+
+    exportCsvEl.addEventListener("click", exportCSV);
+
+    clearAllEl.addEventListener("click", ()=>{
+      if(confirm("确认清空所有战绩记录？（本机保存会被删除）")){
+        clearHistory();
+        msgEl.textContent = "✅ 已清空";
+        setTimeout(()=>{ msgEl.textContent=""; }, 900);
+      }
+    });
+
+    // 初始化
+    renderHistory();
+    roomEl.focus();
+
+    // 注册离线
+    if("serviceWorker" in navigator){
+      window.addEventListener("load", ()=>navigator.serviceWorker.register("./sw.js"));
+    }
+  </script>
+</body>
+</html>
