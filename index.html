@@ -1,4 +1,4 @@
-<!-- index.html（八戒超厉害模型｜新比赛场·黄金T版｜2号删除｜最多输出No1/No2） -->
+<!-- index.html（八戒新逻辑模型 v0.9｜No1优先级：6>5>3>4>2｜只输出No1或跳） -->
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -7,10 +7,10 @@
   <meta name="theme-color" content="#b00000" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="八戒超厉害模型">
+  <meta name="apple-mobile-web-app-title" content="八戒v0.9">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
-  <title>八戒超厉害模型</title>
+  <title>八戒新逻辑模型 v0.9</title>
 
   <style>
     :root{
@@ -185,7 +185,7 @@
 
 <body>
   <div class="app">
-    <div class="title">八戒超厉害模型（黄金T｜2号删除）</div>
+    <div class="title">八戒新逻辑模型 v0.9（No1）</div>
 
     <div class="panel">
       <input id="room" inputmode="numeric" placeholder="输入5位房号（例如：51330）" maxlength="5" />
@@ -214,8 +214,8 @@
               <tr>
                 <th style="width:110px;">时间</th>
                 <th style="width:86px;">房号</th>
-                <th>结果</th>
-                <th>明细</th>
+                <th style="width:110px;">No1结果</th>
+                <th>命中明细</th>
                 <th style="width:70px;">操作</th>
               </tr>
             </thead>
@@ -227,10 +227,8 @@
       </div>
 
       <div class="tiny">
-        规则：只打命中黄金T的局；最多输出No1/No2；2号位永久删除。<br/>
-        T：S=A+B+C+D+E；T1=S-A；T3=S-C；T4=S-D；T5=S-E；T6=S-A（与T1同值但对应6号）。<br/>
-        白名单：T1∈{16,8,9}；T3∈{17,14}；T4∈{12,14,15,18,19,21}；T5∈{16,22,23}且E≠7；T6∈{16,17,20,23,31}。<br/>
-        优先级：<code>4 &gt; 5 &gt; 6 &gt; 3 &gt; 1</code>。
+        规则：2看B∈{6,4,2,1}；3看C∈{8,7}；4看D∈{8,5,1,0}；5看E∈{9,1,5}；6看AD*∈{6,8}（A+D≤9用A+D，否则用A-D）。<br/>
+        No1优先级：<code>6 &gt; 5 &gt; 3 &gt; 4 &gt; 2</code>。只输出No1或跳。
       </div>
     </div>
   </div>
@@ -257,116 +255,55 @@
         .replaceAll("'","&#039;");
     }
 
-    // ============================================================
-    // ✅ 八戒超厉害模型（黄金T｜2号删除｜最多输出2个位子）
-    // 计算：
-    //   S=A+B+C+D+E
-    //   T1=S-A  (1号位)
-    //   T3=S-C  (3号位)
-    //   T4=S-D  (4号位)
-    //   T5=S-E  (5号位) 且 E!=7
-    //   T6=S-A  (6号位)  (与T1同值，但按位子对应)
-    //
-    // ✅ 总阀门（Master Gate）：
-    //   只要【任意一个位子的黄金T命中】才允许进入排序/输出；否则直接跳。
-    //
-    // 白名单：
-    //   1: {16,8,9}   ← 新增：1号位 T=8/9 也进
-    //   3: {17,14}
-    //   4: {12,14,15,18,19,21}
-    //   5: {16,22,23} 且 E!=7
-    //   6: {16,17,20,23,31}
-    //
-    // 优先级：
-    //   4 > 5 > 6 > 3 > 1
-    //
-    // 输出：
-    //   No1 / No2（最多2个）；无命中 -> 跳
-    // ============================================================
-
-    function model_bajie_super(room5){
-      const {A,B,C,D,E} = parseABCDE(room5);
-      const S = A + B + C + D + E;
-
-      const T1 = S - A;
-      const T3 = S - C;
-      const T4 = S - D;
-      const T5 = S - E;
-      const T6 = S - A; // 与T1同值
-
-      const sweet = {
-        1: new Set([16,8,9]),     // ✅ 只加了8/9
-        3: new Set([17,14]),
-        4: new Set([12,14,15,18,19,21]),
-        5: new Set([16,22,23]),
-        6: new Set([16,17,20,23,31])
-      };
-
-      // 命中判定（2号位删除，不存在）
-      const hits = [];
-      if(sweet[4].has(T4)) hits.push(4);
-      if(sweet[5].has(T5) && E !== 7) hits.push(5);  // 5号位额外条件：E!=7
-      if(sweet[6].has(T6)) hits.push(6);
-      if(sweet[3].has(T3)) hits.push(3);
-      if(sweet[1].has(T1)) hits.push(1);
-
-      // ✅ 总阀门：没命中任何黄金T -> 直接跳
-      const gateOk = (hits.length > 0);
-      if(!gateOk){
-        const extra = [
-          `A=${A} B=${B} C=${C} D=${D} E=${E}`,
-          `S=${S}`,
-          `T1=${T1} T3=${T3} T4=${T4} T5=${T5} T6=${T6}`,
-          `总阀门=未通过（未命中任意黄金T）`
-        ].join("｜");
-
-        return {
-          action: "skip",
-          no1: null,
-          no2: null,
-          seatBig: "跳",
-          extra,
-          tags: [{t:"跳（总阀门未过）", cls:"red"}]
-        };
-      }
-
-      // 排序（严格与口径一致）
-      const priority = [4,5,6,3,1];
-      const ordered = hits.slice().sort((x,y)=>priority.indexOf(x)-priority.indexOf(y));
-
-      const no1 = ordered[0] ?? null;
-      const no2 = ordered[1] ?? null;
-
-      const seatBig = no1
-        ? (no2 ? `No1 ${no1}｜No2 ${no2}` : `${no1}号`)
-        : "跳";
-
-      const tMap = {1:T1,3:T3,4:T4,5:T5,6:T6};
-      const no1Text = no1 ? `推荐No1:${no1}号（T${no1}=${tMap[no1]}）` : "跳";
-      const no2Text = no2 ? `推荐No2:${no2}号（T${no2}=${tMap[no2]}）` : "";
-
-      const extra = [
-        `A=${A} B=${B} C=${C} D=${D} E=${E}`,
-        `S=${S}`,
-        `T1=${T1} T3=${T3} T4=${T4} T5=${T5} T6=${T6}`,
-        `总阀门=通过`,
-        `命中位=[${ordered.join(",") || ""}]`,
-        `${no1Text}${no2Text ? "｜" + no2Text : ""}`,
-        (E===7 ? "注：E=7 → 5号位自动失效" : "")
-      ].filter(Boolean).join("｜");
-
-      const tags = [{t:"优质T", cls:"green"}, {t:"✅可打", cls:"green"}];
-
-      return {
-        action: "play",
-        no1, no2,
-        seatBig,
-        extra,
-        tags
-      };
+    function calcADStar(A,D){
+      const sum = A + D;
+      return (sum <= 9) ? sum : (A - D);
     }
 
-    // ====== UI 渲染 ======
+    // ====== 模型：八戒新逻辑 v0.9（No1）=====
+    // 2: B∈{6,4,2,1}
+    // 3: C∈{8,7}
+    // 4: D∈{8,5,1,0}
+    // 5: E∈{9,1,5}
+    // 6: AD*∈{6,8}
+    // 优先级：6 > 5 > 3 > 4 > 2
+    function model_bajie_v09(room5){
+      const {A,B,C,D,E} = parseABCDE(room5);
+      const ADs = calcADStar(A,D);
+
+      const hit6 = new Set([6,8]).has(ADs);
+      const hit5 = new Set([9,1,5]).has(E);
+      const hit3 = new Set([8,7]).has(C);
+      const hit4 = new Set([8,5,1,0]).has(D);
+      const hit2 = new Set([6,4,2,1]).has(B);
+
+      const hits = [];
+      if(hit6) hits.push(6);
+      if(hit5) hits.push(5);
+      if(hit3) hits.push(3);
+      if(hit4) hits.push(4);
+      if(hit2) hits.push(2);
+
+      const no1 = hits[0] ?? null;
+
+      const seatBig = no1 ? `${no1}号` : "跳";
+      const action = no1 ? "play" : "skip";
+
+      const hitDetail = [
+        `A=${A} B=${B} C=${C} D=${D} E=${E}`,
+        `AD*=${ADs}（${(A+D<=9)?`${A}+${D}`:`${A}-${D}` }）`,
+        `命中=[${hits.join(",")}]`,
+        no1 ? `推荐No1:${no1}号` : "未命中→跳"
+      ].join("｜");
+
+      const tags = [];
+      tags.push({t:`优先级 6>5>3>4>2`, cls:"amber"});
+      tags.push(no1 ? {t:"✅可打", cls:"green"} : {t:"❌跳", cls:"red"});
+
+      return {action, no1, seatBig, extra: hitDetail, tags};
+    }
+
+    // ====== UI ======
     const roomEl = document.getElementById("room");
     const goEl = document.getElementById("go");
     const copyLastEl = document.getElementById("copyLast");
@@ -378,9 +315,8 @@
     const exportCsvEl = document.getElementById("exportCsv");
     const clearAllEl = document.getElementById("clearAll");
 
-    const LS_KEY = "bajie_super_T_v2"; // ✅ 改了版本，避免旧记录兼容问题
+    const LS_KEY = "bajie_v09_history_v1";
     const MAX_KEEP = 200;
-
     let lastTextToCopy = "";
 
     function cardHTML({name, seatText, extra, tags=[]}){
@@ -404,33 +340,9 @@
         const raw = localStorage.getItem(LS_KEY);
         const arr = raw ? JSON.parse(raw) : [];
         return Array.isArray(arr) ? arr : [];
-      }catch(e){
-        return [];
-      }
+      }catch(e){ return []; }
     }
-
-    function saveHistory(arr){
-      localStorage.setItem(LS_KEY, JSON.stringify(arr));
-    }
-
-    function addHistory(item){
-      const arr = loadHistory();
-      arr.unshift(item);
-      if(arr.length > MAX_KEEP) arr.length = MAX_KEEP;
-      saveHistory(arr);
-      renderHistory();
-    }
-
-    function deleteHistory(id){
-      const arr = loadHistory().filter(x => x.id !== id);
-      saveHistory(arr);
-      renderHistory();
-    }
-
-    function clearHistory(){
-      saveHistory([]);
-      renderHistory();
-    }
+    function saveHistory(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
 
     function renderHistory(){
       const arr = loadHistory();
@@ -438,7 +350,6 @@
         histBodyEl.innerHTML = `<tr><td colspan="5" style="color:rgba(255,255,255,.55);">暂无记录</td></tr>`;
         return;
       }
-
       histBodyEl.innerHTML = arr.map(row => `
         <tr>
           <td class="mono">${escapeHtml(fmtTime(row.ts))}</td>
@@ -450,8 +361,26 @@
       `).join("");
 
       histBodyEl.querySelectorAll("[data-del]").forEach(el=>{
-        el.addEventListener("click", ()=>deleteHistory(el.getAttribute("data-del")));
+        el.addEventListener("click", ()=>{
+          const id = el.getAttribute("data-del");
+          const next = loadHistory().filter(x => x.id !== id);
+          saveHistory(next);
+          renderHistory();
+        });
       });
+    }
+
+    function addHistory(item){
+      const arr = loadHistory();
+      arr.unshift(item);
+      if(arr.length > MAX_KEEP) arr.length = MAX_KEEP;
+      saveHistory(arr);
+      renderHistory();
+    }
+
+    function clearHistory(){
+      saveHistory([]);
+      renderHistory();
     }
 
     async function copyText(text){
@@ -473,11 +402,9 @@
     function buildCopyLine(room5, out){
       const t = fmtTime(Date.now());
       if(out.action === "skip"){
-        return `${t} ${room5} ｜ 跳（总阀门未过 / 未命中黄金T）`;
+        return `${t} ${room5} ｜ 跳`;
       }
-      const no1 = out.no1;
-      const no2 = out.no2;
-      return `${t} ${room5} ｜ 优质T ✅ 推荐No1:${no1}` + (no2 ? ` 推荐No2:${no2}` : "");
+      return `${t} ${room5} ｜ 推荐No1:${out.no1}号`;
     }
 
     function exportCSV(){
@@ -497,7 +424,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "bajie_super_history.csv";
+      a.download = "bajie_v09_history.csv";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -515,12 +442,11 @@
         return;
       }
 
-      const out = model_bajie_super(s);
+      const out = model_bajie_v09(s);
 
-      // 卡片展示
       gridEl.innerHTML = [
         cardHTML({
-          name:"八戒超厉害模型（黄金T｜2号删除）",
+          name:"八戒新逻辑模型 v0.9（No1）",
           seatText: out.seatBig,
           extra: out.extra,
           tags: out.tags || []
@@ -528,13 +454,9 @@
       ].join("");
       gridEl.style.display = "grid";
 
-      // 本次复制文本
       lastTextToCopy = buildCopyLine(s, out);
 
-      // 写入历史
-      const resultText = (out.action === "play")
-        ? (out.no2 ? `推荐No1:${out.no1}｜推荐No2:${out.no2}` : `推荐No1:${out.no1}`)
-        : "跳";
+      const resultText = (out.action === "play") ? `推荐No1:${out.no1}号` : "跳";
 
       addHistory({
         id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -567,10 +489,7 @@
         setTimeout(()=>{ msgEl.textContent=""; }, 900);
         return;
       }
-      const lines = arr
-        .slice()
-        .reverse()
-        .map(r => `${fmtTime(r.ts)} ${r.room} ｜ ${r.result}`);
+      const lines = arr.slice().reverse().map(r => `${fmtTime(r.ts)} ${r.room} ｜ ${r.result}`);
       copyText(lines.join("\n"));
     });
 
