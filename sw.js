@@ -1,4 +1,5 @@
-const CACHE_NAME = "bajie-super-t-v2"; // ← 每次更新网页就改这个版本号
+// sw.js
+const CACHE_NAME = "bajie-v09-pack-v1"; // ← 每次更新网页就改这个版本号
 const ASSETS = [
   "./",
   "./index.html",
