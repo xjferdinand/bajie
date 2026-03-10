@@ -1,26 +1,20 @@
-// manifest.webmanifest
 {
-  "name": "八戒新逻辑模型 v0.9",
-  "short_name": "八戒v0.9",
-  "description": "八戒新逻辑模型 v0.9：2看B，3看C，4看D，5看E，6看AD*；No1优先级 6>5>3>4>2",
-  "start_url": "./index.html",
-  "scope": "./",
+  "name": "八戒老逻辑模型",
+  "short_name": "八戒老逻辑",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0b0b0f",
   "theme_color": "#b00000",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
