@@ -1,516 +1,320 @@
-<!-- index.html（八戒新逻辑模型 v0.9｜No1优先级：6>5>3>4>2｜只输出No1或跳） -->
 <!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#b00000" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="八戒v0.9">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="icons/icon-180.png">
-  <title>八戒新逻辑模型 v0.9</title>
+  <title>八戒老逻辑模型</title>
 
   <style>
     :root{
-      --bg:#0b0b0f; --card:#11111a; --line:rgba(255,255,255,.10);
-      --text:#f5f5f7; --muted:rgba(255,255,255,.65);
-      --red:#ff2d2d; --red2:#b00000; --green:#2dff7a; --amber:#ffcc33;
+      --bg:#0b0b0f;
+      --card:#11111a;
+      --line:rgba(255,255,255,.10);
+      --text:#f5f5f7;
+      --muted:rgba(255,255,255,.65);
+      --red:#ff2d2d;
+      --green:#2ecc71;
+      --yellow:#f1c40f;
     }
     *{box-sizing:border-box}
     body{
-      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       background:
         radial-gradient(800px 400px at 50% 20%, rgba(255,45,45,.18), transparent 60%),
         radial-gradient(900px 500px at 50% 120%, rgba(176,0,0,.22), transparent 60%),
         var(--bg);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
       color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
       padding:18px;
     }
-    .app{width:min(860px,100%);}
+    .app{width:min(680px,100%)}
     .title{
-      font-size:22px;font-weight:900;letter-spacing:.5px;margin:0 0 12px;
-      display:flex;align-items:center;gap:10px;
+      font-size:24px;
+      font-weight:900;
+      margin:0 0 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
     .title::before{
-      content:"";width:10px;height:10px;border-radius:50%;
-      background:var(--red);box-shadow:0 0 18px rgba(255,45,45,.8);
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--red);
+      box-shadow:0 0 18px rgba(255,45,45,.8);
     }
     .panel{
       background:linear-gradient(180deg, rgba(255,45,45,.08), transparent 50%), var(--card);
-      border:1px solid var(--line);border-radius:18px;padding:16px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
       box-shadow:0 18px 60px rgba(0,0,0,.55);
     }
-
     input{
-      width:100%;padding:14px 14px;font-size:20px;border-radius:14px;
-      border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--text);outline:none;
+      width:100%;
+      padding:14px 14px;
+      font-size:20px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.35);
+      color:var(--text);
+      outline:none;
     }
-    input:focus{border-color:rgba(255,45,45,.6);box-shadow:0 0 0 3px rgba(255,45,45,.15);}
-
-    .row{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;}
+    input:focus{
+      border-color:rgba(255,45,45,.6);
+      box-shadow:0 0 0 3px rgba(255,45,45,.15);
+    }
     button{
-      flex:1;
-      min-width:140px;
-      padding:12px 14px;font-size:15px;font-weight:900;
-      border-radius:14px;border:1px solid rgba(255,45,45,.55);
+      width:100%;
+      margin-top:10px;
+      padding:12px 14px;
+      font-size:16px;
+      font-weight:900;
+      border-radius:14px;
+      border:1px solid rgba(255,45,45,.55);
       background:linear-gradient(180deg, rgba(255,45,45,.95), rgba(176,0,0,.95));
-      color:#fff;cursor:pointer;
-    }
-    button:active{transform:translateY(1px);}
-    .btnGhost{
-      background:rgba(255,255,255,.06);
-      border:1px solid var(--line);
-      color:rgba(255,255,255,.9);
-    }
-    .btnDanger{
-      background:rgba(255,45,45,.10);
-      border:1px solid rgba(255,45,45,.35);
       color:#fff;
+      cursor:pointer;
     }
-    .msg{margin-top:10px;font-size:13px;color:var(--muted);min-height:18px;}
-
-    .grid{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:10px;
+    .msg{
+      margin-top:10px;
+      font-size:13px;
+      color:var(--muted);
+      min-height:18px;
     }
-    @media (max-width: 720px){ .grid{grid-template-columns:1fr;} }
-
-    .card{
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:rgba(255,255,255,.03);
-      padding:12px 12px;
-    }
-    .cardHead{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      margin-bottom:8px;
-    }
-    .name{
-      font-weight:900;letter-spacing:.3px;font-size:14px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);box-shadow:0 0 14px rgba(255,255,255,.12);}
-    .seatBig{
-      font-size:30px;font-weight:1000;color:var(--red);
-      text-shadow:0 0 18px rgba(255,45,45,.28);
-      line-height:1.05;
-      text-align:right;
-      white-space:nowrap;
-    }
-    .meta{
-      margin-top:6px;font-size:12px;color:var(--muted);
-      display:flex;flex-wrap:wrap;gap:8px;
-    }
-    .tag{
-      font-size:11px;padding:4px 8px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.25);
-      color:rgba(255,255,255,.75);
-      max-width:100%;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-    .tag.green{border-color:rgba(45,255,122,.25); color:rgba(45,255,122,.9); background:rgba(45,255,122,.06);}
-    .tag.amber{border-color:rgba(255,204,51,.25); color:rgba(255,204,51,.95); background:rgba(255,204,51,.06);}
-    .tag.red{border-color:rgba(255,45,45,.25); color:rgba(255,120,120,.95); background:rgba(255,45,45,.06);}
-
-    .history{
+    .block{
       margin-top:14px;
-      border-top:1px solid var(--line);
-      padding-top:14px;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
     }
-    .hTitle{
-      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
-      margin-bottom:10px;
+    .summary{
+      display:none;
+      margin-top:12px;
+      padding:14px;
+      border-radius:16px;
+      border:1px dashed rgba(255,45,45,.35);
+      background:rgba(255,45,45,.06);
     }
-    .hTitle h3{
-      margin:0; font-size:14px; font-weight:900; letter-spacing:.3px; color:rgba(255,255,255,.9);
-      display:flex; align-items:center; gap:8px;
+    .seat{
+      font-size:48px;
+      font-weight:1000;
+      color:var(--red);
+      text-shadow:0 0 18px rgba(255,45,45,.35);
+      text-align:center;
     }
-    .hTitle h3::before{content:""; width:8px;height:8px;border-radius:50%; background:rgba(255,255,255,.35);}
-    .hActions{display:flex; gap:10px; flex-wrap:wrap;}
-    .hActions button{min-width:auto; flex:0 0 auto; padding:10px 12px; font-size:13px; border-radius:12px;}
-
+    .sub{
+      margin-top:6px;
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+      white-space:pre-line;
+    }
     table{
       width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      overflow:hidden;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:rgba(0,0,0,.18);
+      border-collapse:collapse;
+      margin-top:8px;
     }
-    thead th{
+    th,td{
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:10px 8px;
       text-align:left;
-      font-size:12px;
-      color:rgba(255,255,255,.75);
-      padding:10px 10px;
-      border-bottom:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      position:sticky;
-      top:0;
-      z-index:1;
-    }
-    tbody td{
-      padding:10px 10px;
-      font-size:12px;
-      color:rgba(255,255,255,.86);
-      border-bottom:1px solid rgba(255,255,255,.06);
+      font-size:14px;
       vertical-align:top;
     }
-    tbody tr:last-child td{border-bottom:none;}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
-    .del{
-      cursor:pointer;
-      color:rgba(255,45,45,.95);
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.08);
-      padding:6px 10px;
-      border-radius:10px;
-      font-weight:900;
+    th{color:var(--muted)}
+    tr:last-child td{border-bottom:none}
+    .ok{color:var(--green); font-weight:800}
+    .mid{color:var(--yellow); font-weight:800}
+    .no{color:#ff8c8c; font-weight:800}
+    .tiny{
+      margin-top:12px;
       font-size:12px;
-      display:inline-block;
-      user-select:none;
+      color:rgba(255,255,255,.5);
+      line-height:1.6;
+      white-space:pre-line;
     }
-    .tiny{margin-top:12px;font-size:12px;color:rgba(255,255,255,.5)}
-    code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    code{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+    }
   </style>
 </head>
-
 <body>
   <div class="app">
-    <div class="title">八戒新逻辑模型 v0.9（No1）</div>
+    <div class="title">八戒老逻辑模型</div>
 
     <div class="panel">
-      <input id="room" inputmode="numeric" placeholder="输入5位房号（例如：51330）" maxlength="5" />
-      <div class="row">
-        <button id="go">开干</button>
-        <button class="btnGhost" id="copyLast">复制本次结果</button>
-      </div>
+      <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5" />
+      <button id="go">开干</button>
 
       <div class="msg" id="msg"></div>
 
-      <div class="grid" id="grid" style="display:none;"></div>
+      <div class="summary" id="summary">
+        <div class="seat" id="finalSeat">—</div>
+        <div class="sub" id="finalSub">—</div>
+      </div>
 
-      <div class="history">
-        <div class="hTitle">
-          <h3>战绩记录（本机保存）</h3>
-          <div class="hActions">
-            <button class="btnGhost" id="copyAll">复制全部</button>
-            <button class="btnGhost" id="exportCsv">导出CSV</button>
-            <button class="btnDanger" id="clearAll">清空</button>
-          </div>
-        </div>
-
-        <div style="max-height:320px; overflow:auto; border-radius:14px;">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:110px;">时间</th>
-                <th style="width:86px;">房号</th>
-                <th style="width:110px;">No1结果</th>
-                <th>命中明细</th>
-                <th style="width:70px;">操作</th>
-              </tr>
-            </thead>
-            <tbody id="histBody">
-              <tr><td colspan="5" style="color:rgba(255,255,255,.55);">暂无记录</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="block" id="detailBlock" style="display:none;">
+        <div style="font-weight:900;margin-bottom:8px;">逐位判断</div>
+        <table>
+          <thead>
+            <tr>
+              <th>位子</th>
+              <th>条件</th>
+              <th>结果</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
       </div>
 
       <div class="tiny">
-        规则：2看B∈{6,4,2,1}；3看C∈{8,7}；4看D∈{8,5,1,0}；5看E∈{9,1,5}；6看AD*∈{6,8}（A+D≤9用A+D，否则用A-D）。<br/>
-        No1优先级：<code>6 &gt; 5 &gt; 3 &gt; 4 &gt; 2</code>。只输出No1或跳。
+规则：
+2号：<code>B = A - 1</code> → 可观察
+3号：<code>A 与 C 不同奇偶，且 C-A ∈ {+3,+5}</code> → 可进
+4号：<code>A 与 D 不同奇偶，且 D = A - 1</code> → 强进
+5号：<code>A 与 E 同奇偶，且 E = A - 4</code> → 可进
+
+优先级：
+<code>4号 > 3号 > 5号 > 2号</code>
       </div>
     </div>
   </div>
 
   <script>
-    // ====== 基础工具 ======
-    function parseABCDE(room5){
-      const A=+room5[0], B=+room5[1], C=+room5[2], D=+room5[3], E=+room5[4];
-      return {A,B,C,D,E};
-    }
-
-    function fmtTime(ts){
-      const d = new Date(ts);
-      const pad = (x)=>String(x).padStart(2,"0");
-      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    }
-
-    function escapeHtml(s){
-      return String(s)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function calcADStar(A,D){
-      const sum = A + D;
-      return (sum <= 9) ? sum : (A - D);
-    }
-
-    // ====== 模型：八戒新逻辑 v0.9（No1）=====
-    // 2: B∈{6,4,2,1}
-    // 3: C∈{8,7}
-    // 4: D∈{8,5,1,0}
-    // 5: E∈{9,1,5}
-    // 6: AD*∈{6,8}
-    // 优先级：6 > 5 > 3 > 4 > 2
-    function model_bajie_v09(room5){
-      const {A,B,C,D,E} = parseABCDE(room5);
-      const ADs = calcADStar(A,D);
-
-      const hit6 = new Set([6,8]).has(ADs);
-      const hit5 = new Set([9,1,5]).has(E);
-      const hit3 = new Set([8,7]).has(C);
-      const hit4 = new Set([8,5,1,0]).has(D);
-      const hit2 = new Set([6,4,2,1]).has(B);
-
-      const hits = [];
-      if(hit6) hits.push(6);
-      if(hit5) hits.push(5);
-      if(hit3) hits.push(3);
-      if(hit4) hits.push(4);
-      if(hit2) hits.push(2);
-
-      const no1 = hits[0] ?? null;
-
-      const seatBig = no1 ? `${no1}号` : "跳";
-      const action = no1 ? "play" : "skip";
-
-      const hitDetail = [
-        `A=${A} B=${B} C=${C} D=${D} E=${E}`,
-        `AD*=${ADs}（${(A+D<=9)?`${A}+${D}`:`${A}-${D}` }）`,
-        `命中=[${hits.join(",")}]`,
-        no1 ? `推荐No1:${no1}号` : "未命中→跳"
-      ].join("｜");
-
-      const tags = [];
-      tags.push({t:`优先级 6>5>3>4>2`, cls:"amber"});
-      tags.push(no1 ? {t:"✅可打", cls:"green"} : {t:"❌跳", cls:"red"});
-
-      return {action, no1, seatBig, extra: hitDetail, tags};
-    }
-
-    // ====== UI ======
     const roomEl = document.getElementById("room");
     const goEl = document.getElementById("go");
-    const copyLastEl = document.getElementById("copyLast");
     const msgEl = document.getElementById("msg");
-    const gridEl = document.getElementById("grid");
-    const histBodyEl = document.getElementById("histBody");
+    const summaryEl = document.getElementById("summary");
+    const finalSeatEl = document.getElementById("finalSeat");
+    const finalSubEl = document.getElementById("finalSub");
+    const detailBlockEl = document.getElementById("detailBlock");
+    const tbodyEl = document.getElementById("tbody");
 
-    const copyAllEl = document.getElementById("copyAll");
-    const exportCsvEl = document.getElementById("exportCsv");
-    const clearAllEl = document.getElementById("clearAll");
-
-    const LS_KEY = "bajie_v09_history_v1";
-    const MAX_KEEP = 200;
-    let lastTextToCopy = "";
-
-    function cardHTML({name, seatText, extra, tags=[]}){
-      const tagHTML = tags.map(x => `<span class="tag ${x.cls||""}">${escapeHtml(x.t)}</span>`).join("");
-      return `
-        <div class="card">
-          <div class="cardHead">
-            <div class="name"><span class="dot"></span>${escapeHtml(name)}</div>
-            <div class="seatBig">${escapeHtml(seatText)}</div>
-          </div>
-          <div class="meta">
-            <span class="tag">${escapeHtml(extra)}</span>
-            ${tagHTML}
-          </div>
-        </div>
-      `;
+    function oddEvenSame(x, y){
+      return (x % 2 + 2) % 2 === (y % 2 + 2) % 2;
     }
 
-    function loadHistory(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        const arr = raw ? JSON.parse(raw) : [];
-        return Array.isArray(arr) ? arr : [];
-      }catch(e){ return []; }
+    function oddEvenDiff(x, y){
+      return !oddEvenSame(x, y);
     }
-    function saveHistory(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
 
-    function renderHistory(){
-      const arr = loadHistory();
-      if(arr.length === 0){
-        histBodyEl.innerHTML = `<tr><td colspan="5" style="color:rgba(255,255,255,.55);">暂无记录</td></tr>`;
-        return;
+    function analyze(room5){
+      const A = +room5[0];
+      const B = +room5[1];
+      const C = +room5[2];
+      const D = +room5[3];
+      const E = +room5[4];
+
+      const r2 = (B === A - 1);
+      const r3 = oddEvenDiff(A, C) && ([3,5].includes(C - A));
+      const r4 = oddEvenDiff(A, D) && (D === A - 1);
+      const r5 = oddEvenSame(A, E) && (E === A - 4);
+
+      const rows = [
+        {
+          seat: "2号",
+          hit: r2,
+          level: r2 ? "观察" : "跳",
+          cls: r2 ? "mid" : "no",
+          cond: "B = A - 1",
+          note: `A=${A}, B=${B}, B-A=${B-A}`
+        },
+        {
+          seat: "3号",
+          hit: r3,
+          level: r3 ? "可进" : "跳",
+          cls: r3 ? "ok" : "no",
+          cond: "A与C不同奇偶，且 C-A ∈ {+3,+5}",
+          note: `A=${A}, C=${C}, C-A=${C-A}, 奇偶=${oddEvenDiff(A,C) ? "不同" : "相同"}`
+        },
+        {
+          seat: "4号",
+          hit: r4,
+          level: r4 ? "强进" : "跳",
+          cls: r4 ? "ok" : "no",
+          cond: "A与D不同奇偶，且 D = A - 1",
+          note: `A=${A}, D=${D}, D-A=${D-A}, 奇偶=${oddEvenDiff(A,D) ? "不同" : "相同"}`
+        },
+        {
+          seat: "5号",
+          hit: r5,
+          level: r5 ? "可进" : "跳",
+          cls: r5 ? "ok" : "no",
+          cond: "A与E同奇偶，且 E = A - 4",
+          note: `A=${A}, E=${E}, E-A=${E-A}, 奇偶=${oddEvenSame(A,E) ? "相同" : "不同"}`
+        }
+      ];
+
+      let finalSeat = "跳";
+      let finalDesc = "当前房号不符合 2/3/4/5 的进场规则";
+
+      if (r4) {
+        finalSeat = "4号";
+        finalDesc = "命中最优规则：4号 强进";
+      } else if (r3) {
+        finalSeat = "3号";
+        finalDesc = "命中规则：3号 可进";
+      } else if (r5) {
+        finalSeat = "5号";
+        finalDesc = "命中规则：5号 可进";
+      } else if (r2) {
+        finalSeat = "2号";
+        finalDesc = "命中规则：2号 可观察";
       }
-      histBodyEl.innerHTML = arr.map(row => `
-        <tr>
-          <td class="mono">${escapeHtml(fmtTime(row.ts))}</td>
-          <td class="mono">${escapeHtml(row.room)}</td>
-          <td class="mono">${escapeHtml(row.result)}</td>
-          <td class="mono">${escapeHtml(row.detail)}</td>
-          <td><span class="del" data-del="${escapeHtml(row.id)}">删</span></td>
-        </tr>
-      `).join("");
 
-      histBodyEl.querySelectorAll("[data-del]").forEach(el=>{
-        el.addEventListener("click", ()=>{
-          const id = el.getAttribute("data-del");
-          const next = loadHistory().filter(x => x.id !== id);
-          saveHistory(next);
-          renderHistory();
-        });
+      return { A, B, C, D, E, rows, finalSeat, finalDesc };
+    }
+
+    function render(result){
+      tbodyEl.innerHTML = "";
+      result.rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.seat}</td>
+          <td><code>${r.cond}</code></td>
+          <td class="${r.cls}">${r.level}</td>
+          <td>${r.note}</td>
+        `;
+        tbodyEl.appendChild(tr);
       });
-    }
 
-    function addHistory(item){
-      const arr = loadHistory();
-      arr.unshift(item);
-      if(arr.length > MAX_KEEP) arr.length = MAX_KEEP;
-      saveHistory(arr);
-      renderHistory();
-    }
-
-    function clearHistory(){
-      saveHistory([]);
-      renderHistory();
-    }
-
-    async function copyText(text){
-      try{
-        await navigator.clipboard.writeText(text);
-        msgEl.textContent = "✅ 已复制到剪贴板";
-      }catch(e){
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        msgEl.textContent = "✅ 已复制到剪贴板";
-      }
-      setTimeout(()=>{ msgEl.textContent=""; }, 900);
-    }
-
-    function buildCopyLine(room5, out){
-      const t = fmtTime(Date.now());
-      if(out.action === "skip"){
-        return `${t} ${room5} ｜ 跳`;
-      }
-      return `${t} ${room5} ｜ 推荐No1:${out.no1}号`;
-    }
-
-    function exportCSV(){
-      const arr = loadHistory();
-      if(arr.length===0){
-        msgEl.textContent = "暂无记录可导出";
-        setTimeout(()=>{ msgEl.textContent=""; }, 900);
-        return;
-      }
-      const header = ["time","room","result","detail"];
-      const rows = arr.map(r => [new Date(r.ts).toISOString(), r.room, r.result, r.detail]);
-      const csv = [header, ...rows]
-        .map(line => line.map(x => `"${String(x).replaceAll('"','""')}"`).join(","))
-        .join("\n");
-
-      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "bajie_v09_history.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      msgEl.textContent = "✅ CSV 已导出";
-      setTimeout(()=>{ msgEl.textContent=""; }, 900);
+      summaryEl.style.display = "block";
+      detailBlockEl.style.display = "block";
+      finalSeatEl.textContent = result.finalSeat;
+      finalSubEl.textContent =
+        `A=${result.A} B=${result.B} C=${result.C} D=${result.D} E=${result.E}\n${result.finalDesc}`;
     }
 
     function run(){
-      const s = roomEl.value.trim().replace(/\s+/g,"");
+      const s = roomEl.value.trim().replace(/\s+/g, "");
       if(!/^\d{5}$/.test(s)){
-        msgEl.textContent = "请输入正确的5位数字（例如：51330）";
-        gridEl.style.display = "none";
-        gridEl.innerHTML = "";
+        msgEl.textContent = "请输入正确的5位数字（例如：74759）";
+        summaryEl.style.display = "none";
+        detailBlockEl.style.display = "none";
         return;
       }
-
-      const out = model_bajie_v09(s);
-
-      gridEl.innerHTML = [
-        cardHTML({
-          name:"八戒新逻辑模型 v0.9（No1）",
-          seatText: out.seatBig,
-          extra: out.extra,
-          tags: out.tags || []
-        })
-      ].join("");
-      gridEl.style.display = "grid";
-
-      lastTextToCopy = buildCopyLine(s, out);
-
-      const resultText = (out.action === "play") ? `推荐No1:${out.no1}号` : "跳";
-
-      addHistory({
-        id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
-        ts: Date.now(),
-        room: s,
-        result: resultText,
-        detail: out.extra
-      });
-
       msgEl.textContent = "";
-      setTimeout(()=>{ roomEl.value=""; roomEl.focus(); }, 250);
+      render(analyze(s));
+      setTimeout(() => {
+        roomEl.value = "";
+        roomEl.focus();
+      }, 250);
     }
 
     goEl.addEventListener("click", run);
-    roomEl.addEventListener("keydown", e => { if(e.key==="Enter") run(); });
-
-    copyLastEl.addEventListener("click", ()=>{
-      if(!lastTextToCopy){
-        msgEl.textContent = "还没有本次结果可复制";
-        setTimeout(()=>{ msgEl.textContent=""; }, 900);
-        return;
-      }
-      copyText(lastTextToCopy);
+    roomEl.addEventListener("keydown", e => {
+      if(e.key === "Enter") run();
     });
-
-    copyAllEl.addEventListener("click", ()=>{
-      const arr = loadHistory();
-      if(arr.length===0){
-        msgEl.textContent = "暂无记录可复制";
-        setTimeout(()=>{ msgEl.textContent=""; }, 900);
-        return;
-      }
-      const lines = arr.slice().reverse().map(r => `${fmtTime(r.ts)} ${r.room} ｜ ${r.result}`);
-      copyText(lines.join("\n"));
-    });
-
-    exportCsvEl.addEventListener("click", exportCSV);
-
-    clearAllEl.addEventListener("click", ()=>{
-      if(confirm("确认清空所有战绩记录？（本机保存会被删除）")){
-        clearHistory();
-        msgEl.textContent = "✅ 已清空";
-        setTimeout(()=>{ msgEl.textContent=""; }, 900);
-      }
-    });
-
-    // 初始化
-    renderHistory();
     roomEl.focus();
-
-    // 注册离线
-    if("serviceWorker" in navigator){
-      window.addEventListener("load", ()=>navigator.serviceWorker.register("./sw.js"));
-    }
   </script>
 </body>
 </html>
