@@ -21,6 +21,7 @@
       --red:#ff2d2d;
       --green:#2ecc71;
       --yellow:#f1c40f;
+      --blue:#4da3ff;
       --redSoft:#ff8c8c;
     }
     *{box-sizing:border-box}
@@ -38,7 +39,7 @@
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
       padding:18px;
     }
-    .app{width:min(760px,100%)}
+    .app{width:min(820px,100%)}
     .title{
       font-size:24px;
       font-weight:900;
@@ -130,7 +131,7 @@
     }
     .blockTitle{
       font-weight:900;
-      margin-bottom:8px;
+      margin-bottom:10px;
       font-size:15px;
     }
     table{
@@ -150,6 +151,61 @@
     .ok{color:var(--green); font-weight:800}
     .mid{color:var(--yellow); font-weight:800}
     .no{color:var(--redSoft); font-weight:800}
+    .bestRow{
+      background:rgba(46, 204, 113, .08);
+    }
+    .secondRow{
+      background:rgba(77, 163, 255, .08);
+    }
+    .candidateGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+    @media (max-width: 640px){
+      .candidateGrid{grid-template-columns:1fr;}
+    }
+    .candidateCard{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:12px;
+      background:rgba(0,0,0,.18);
+    }
+    .candidateCard.best{
+      border-color:rgba(46, 204, 113, .45);
+      background:rgba(46, 204, 113, .08);
+    }
+    .candidateCard.second{
+      border-color:rgba(77, 163, 255, .45);
+      background:rgba(77, 163, 255, .08);
+    }
+    .candidateTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin-bottom:6px;
+    }
+    .candidateSeat{
+      font-size:22px;
+      font-weight:900;
+    }
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+    }
+    .badge.best{background:rgba(46, 204, 113, .18); color:var(--green)}
+    .badge.second{background:rgba(77, 163, 255, .18); color:var(--blue)}
+    .badge.mid{background:rgba(241, 196, 15, .18); color:var(--yellow)}
+    .badge.no{background:rgba(255, 140, 140, .15); color:var(--redSoft)}
+    .candidateCond{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
     .tiny{
       margin-top:12px;
       font-size:12px;
@@ -236,8 +292,13 @@
         <div class="sub" id="finalSub">—</div>
       </div>
 
+      <div class="block" id="candidateBlock">
+        <div class="blockTitle">候选位总览</div>
+        <div class="candidateGrid" id="candidateGrid"></div>
+      </div>
+
       <div class="block" id="detailBlock">
-        <div class="blockTitle">逐位判断</div>
+        <div class="blockTitle">逐位详细判断</div>
         <table>
           <thead>
             <tr>
@@ -280,11 +341,13 @@
     const finalSeatEl = document.getElementById("finalSeat");
     const finalSubEl = document.getElementById("finalSub");
     const detailBlockEl = document.getElementById("detailBlock");
+    const candidateBlockEl = document.getElementById("candidateBlock");
     const tbodyEl = document.getElementById("tbody");
+    const candidateGridEl = document.getElementById("candidateGrid");
     const historyListEl = document.getElementById("historyList");
     const clearHistoryEl = document.getElementById("clearHistory");
 
-    const HISTORY_KEY = "bajie_old_logic_history_v1";
+    const HISTORY_KEY = "bajie_old_logic_history_v2";
     const HISTORY_LIMIT = 30;
 
     function oddEvenSame(x, y){
@@ -312,65 +375,109 @@
           seat: "2号",
           hit: hit2,
           level: hit2 ? "可观察" : "跳",
+          shortLevel: hit2 ? "观察" : "跳",
           cls: hit2 ? "mid" : "no",
           cond: "B = A - 1",
-          note: `A=${A}, B=${B}, B-A=${B-A}`
+          note: `A=${A}, B=${B}, B-A=${B-A}`,
+          priority: 4
         },
         {
           seat: "3号",
           hit: hit3,
           level: hit3 ? "可进" : "跳",
+          shortLevel: hit3 ? "可进" : "跳",
           cls: hit3 ? "ok" : "no",
           cond: "A与C不同奇偶，且 C-A ∈ {+3,+5}",
-          note: `A=${A}, C=${C}, C-A=${C-A}, 奇偶=${oddEvenDiff(A,C) ? "不同" : "相同"}`
+          note: `A=${A}, C=${C}, C-A=${C-A}, 奇偶=${oddEvenDiff(A,C) ? "不同" : "相同"}`,
+          priority: 2
         },
         {
           seat: "4号",
           hit: hit4,
           level: hit4 ? "强进" : "跳",
+          shortLevel: hit4 ? "强进" : "跳",
           cls: hit4 ? "ok" : "no",
           cond: "A与D不同奇偶，且 D = A - 1",
-          note: `A=${A}, D=${D}, D-A=${D-A}, 奇偶=${oddEvenDiff(A,D) ? "不同" : "相同"}`
+          note: `A=${A}, D=${D}, D-A=${D-A}, 奇偶=${oddEvenDiff(A,D) ? "不同" : "相同"}`,
+          priority: 1
         },
         {
           seat: "5号",
           hit: hit5,
           level: hit5 ? "可进" : "跳",
+          shortLevel: hit5 ? "可进" : "跳",
           cls: hit5 ? "ok" : "no",
           cond: "A与E同奇偶，且 E = A - 4",
-          note: `A=${A}, E=${E}, E-A=${E-A}, 奇偶=${oddEvenSame(A,E) ? "相同" : "不同"}`
+          note: `A=${A}, E=${E}, E-A=${E-A}, 奇偶=${oddEvenSame(A,E) ? "相同" : "不同"}`,
+          priority: 3
         }
       ];
+
+      const hits = rows.filter(r => r.hit).sort((a,b)=>a.priority-b.priority);
 
       let finalSeat = "跳";
       let finalDesc = "当前房号不符合 2/3/4/5 的进场规则";
       let finalTag = "跳";
 
-      if (hit4) {
-        finalSeat = "4号";
-        finalDesc = "命中最优规则：4号 强进";
-        finalTag = "强进";
-      } else if (hit3) {
-        finalSeat = "3号";
-        finalDesc = "命中规则：3号 可进";
-        finalTag = "可进";
-      } else if (hit5) {
-        finalSeat = "5号";
-        finalDesc = "命中规则：5号 可进";
-        finalTag = "可进";
-      } else if (hit2) {
-        finalSeat = "2号";
-        finalDesc = "命中规则：2号 可观察";
-        finalTag = "观察";
+      if (hits.length > 0) {
+        finalSeat = hits[0].seat;
+        finalTag = hits[0].shortLevel;
+        finalDesc = `最优推荐：${hits[0].seat}（${hits[0].shortLevel}）`;
+
+        if (hits.length > 1) {
+          const others = hits.slice(1).map(x => `${x.seat}（${x.shortLevel}）`).join("、");
+          finalDesc += `\n次选位：${others}`;
+        }
       }
 
-      return { A, B, C, D, E, rows, finalSeat, finalDesc, finalTag };
+      return { A, B, C, D, E, rows, hits, finalSeat, finalDesc, finalTag };
     }
 
-    function render(result){
+    function renderCandidates(result){
+      candidateGridEl.innerHTML = "";
+
+      const hitSeats = result.hits.map(x => x.seat);
+      const bestSeat = result.hits[0]?.seat || null;
+      const secondSeats = result.hits.slice(1).map(x => x.seat);
+
+      result.rows.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "candidateCard";
+
+        let badgeHtml = `<span class="badge ${r.hit ? (r.cls === "mid" ? "mid" : "best") : "no"}">${r.shortLevel}</span>`;
+
+        if (r.seat === bestSeat) {
+          card.classList.add("best");
+          badgeHtml = `<span class="badge best">最优推荐</span>`;
+        } else if (secondSeats.includes(r.seat)) {
+          card.classList.add("second");
+          badgeHtml = `<span class="badge second">次选位</span>`;
+        }
+
+        card.innerHTML = `
+          <div class="candidateTop">
+            <div class="candidateSeat">${r.seat}</div>
+            <div>${badgeHtml}</div>
+          </div>
+          <div class="candidateCond"><strong>条件：</strong><code>${r.cond}</code></div>
+          <div class="candidateCond" style="margin-top:4px;"><strong>说明：</strong>${r.note}</div>
+        `;
+        candidateGridEl.appendChild(card);
+      });
+
+      candidateBlockEl.style.display = "block";
+    }
+
+    function renderTable(result){
       tbodyEl.innerHTML = "";
+      const bestSeat = result.hits[0]?.seat || null;
+      const secondSeats = result.hits.slice(1).map(x => x.seat);
+
       result.rows.forEach(r => {
         const tr = document.createElement("tr");
+        if (r.seat === bestSeat) tr.classList.add("bestRow");
+        else if (secondSeats.includes(r.seat)) tr.classList.add("secondRow");
+
         tr.innerHTML = `
           <td>${r.seat}</td>
           <td><code>${r.cond}</code></td>
@@ -380,8 +487,11 @@
         tbodyEl.appendChild(tr);
       });
 
-      summaryEl.style.display = "block";
       detailBlockEl.style.display = "block";
+    }
+
+    function renderSummary(result){
+      summaryEl.style.display = "block";
       finalSeatEl.textContent = result.finalSeat;
       finalSubEl.textContent =
         `A=${result.A} B=${result.B} C=${result.C} D=${result.D} E=${result.E}\n${result.finalDesc}`;
@@ -432,7 +542,7 @@
           </div>
           <div class="historyMain">
             <div><strong>结果：</strong>${item.seat}（${item.tag}）</div>
-            <div style="color:rgba(255,255,255,.7)">${item.desc}</div>
+            <div style="color:rgba(255,255,255,.7); white-space:pre-line;">${item.desc}</div>
           </div>
         `;
         historyListEl.appendChild(div);
@@ -445,12 +555,15 @@
         msgEl.textContent = "请输入正确的5位数字（例如：74759）";
         summaryEl.style.display = "none";
         detailBlockEl.style.display = "none";
+        candidateBlockEl.style.display = "none";
         return;
       }
 
       msgEl.textContent = "";
       const result = analyze(s);
-      render(result);
+      renderSummary(result);
+      renderCandidates(result);
+      renderTable(result);
       pushHistory(s, result);
 
       setTimeout(() => {
