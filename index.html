@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#b00000" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="八戒老逻辑">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <title>八戒老逻辑模型</title>
 
   <style>
@@ -16,6 +21,7 @@
       --red:#ff2d2d;
       --green:#2ecc71;
       --yellow:#f1c40f;
+      --redSoft:#ff8c8c;
     }
     *{box-sizing:border-box}
     body{
@@ -32,7 +38,7 @@
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
       padding:18px;
     }
-    .app{width:min(680px,100%)}
+    .app{width:min(760px,100%)}
     .title{
       font-size:24px;
       font-weight:900;
@@ -40,6 +46,7 @@
       display:flex;
       align-items:center;
       gap:10px;
+      letter-spacing:.3px;
     }
     .title::before{
       content:"";
@@ -82,18 +89,12 @@
       color:#fff;
       cursor:pointer;
     }
+    button:active{transform:translateY(1px);}
     .msg{
       margin-top:10px;
       font-size:13px;
       color:var(--muted);
       min-height:18px;
-    }
-    .block{
-      margin-top:14px;
-      padding:14px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
     }
     .summary{
       display:none;
@@ -109,6 +110,7 @@
       color:var(--red);
       text-shadow:0 0 18px rgba(255,45,45,.35);
       text-align:center;
+      letter-spacing:.5px;
     }
     .sub{
       margin-top:6px;
@@ -116,6 +118,20 @@
       font-size:13px;
       color:var(--muted);
       white-space:pre-line;
+      line-height:1.55;
+    }
+    .block{
+      margin-top:14px;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      display:none;
+    }
+    .blockTitle{
+      font-weight:900;
+      margin-bottom:8px;
+      font-size:15px;
     }
     table{
       width:100%;
@@ -133,16 +149,75 @@
     tr:last-child td{border-bottom:none}
     .ok{color:var(--green); font-weight:800}
     .mid{color:var(--yellow); font-weight:800}
-    .no{color:#ff8c8c; font-weight:800}
+    .no{color:var(--redSoft); font-weight:800}
     .tiny{
       margin-top:12px;
       font-size:12px;
       color:rgba(255,255,255,.5);
-      line-height:1.6;
+      line-height:1.7;
       white-space:pre-line;
     }
     code{
       font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+    }
+    .history{
+      margin-top:14px;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+    .historyHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .historyTitle{
+      font-weight:900;
+      font-size:15px;
+    }
+    .smallBtn{
+      width:auto;
+      margin-top:0;
+      padding:8px 10px;
+      font-size:12px;
+      border-radius:10px;
+    }
+    .historyList{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height:260px;
+      overflow:auto;
+    }
+    .historyItem{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px;
+      background:rgba(0,0,0,.18);
+    }
+    .historyTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .historyMain{
+      font-size:14px;
+      line-height:1.6;
+    }
+    .pill{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.10);
+      font-weight:800;
+      margin-right:6px;
     }
   </style>
 </head>
@@ -151,7 +226,7 @@
     <div class="title">八戒老逻辑模型</div>
 
     <div class="panel">
-      <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5" />
+      <input id="room" inputmode="numeric" placeholder="输入5位房号（例如：74759）" maxlength="5" />
       <button id="go">开干</button>
 
       <div class="msg" id="msg"></div>
@@ -161,8 +236,8 @@
         <div class="sub" id="finalSub">—</div>
       </div>
 
-      <div class="block" id="detailBlock" style="display:none;">
-        <div style="font-weight:900;margin-bottom:8px;">逐位判断</div>
+      <div class="block" id="detailBlock">
+        <div class="blockTitle">逐位判断</div>
         <table>
           <thead>
             <tr>
@@ -176,12 +251,20 @@
         </table>
       </div>
 
+      <div class="history">
+        <div class="historyHeader">
+          <div class="historyTitle">最近判断记录</div>
+          <button class="smallBtn" id="clearHistory">清空记录</button>
+        </div>
+        <div class="historyList" id="historyList"></div>
+      </div>
+
       <div class="tiny">
 规则：
-2号：<code>B = A - 1</code> → 可观察
-3号：<code>A 与 C 不同奇偶，且 C-A ∈ {+3,+5}</code> → 可进
-4号：<code>A 与 D 不同奇偶，且 D = A - 1</code> → 强进
-5号：<code>A 与 E 同奇偶，且 E = A - 4</code> → 可进
+<code>2号：B = A - 1</code> → 可观察
+<code>3号：A 与 C 不同奇偶，且 C-A ∈ {+3,+5}</code> → 可进
+<code>4号：A 与 D 不同奇偶，且 D = A - 1</code> → 强进
+<code>5号：A 与 E 同奇偶，且 E = A - 4</code> → 可进
 
 优先级：
 <code>4号 > 3号 > 5号 > 2号</code>
@@ -198,6 +281,11 @@
     const finalSubEl = document.getElementById("finalSub");
     const detailBlockEl = document.getElementById("detailBlock");
     const tbodyEl = document.getElementById("tbody");
+    const historyListEl = document.getElementById("historyList");
+    const clearHistoryEl = document.getElementById("clearHistory");
+
+    const HISTORY_KEY = "bajie_old_logic_history_v1";
+    const HISTORY_LIMIT = 30;
 
     function oddEvenSame(x, y){
       return (x % 2 + 2) % 2 === (y % 2 + 2) % 2;
@@ -214,41 +302,41 @@
       const D = +room5[3];
       const E = +room5[4];
 
-      const r2 = (B === A - 1);
-      const r3 = oddEvenDiff(A, C) && ([3,5].includes(C - A));
-      const r4 = oddEvenDiff(A, D) && (D === A - 1);
-      const r5 = oddEvenSame(A, E) && (E === A - 4);
+      const hit2 = (B === A - 1);
+      const hit3 = oddEvenDiff(A, C) && ([3,5].includes(C - A));
+      const hit4 = oddEvenDiff(A, D) && (D === A - 1);
+      const hit5 = oddEvenSame(A, E) && (E === A - 4);
 
       const rows = [
         {
           seat: "2号",
-          hit: r2,
-          level: r2 ? "观察" : "跳",
-          cls: r2 ? "mid" : "no",
+          hit: hit2,
+          level: hit2 ? "可观察" : "跳",
+          cls: hit2 ? "mid" : "no",
           cond: "B = A - 1",
           note: `A=${A}, B=${B}, B-A=${B-A}`
         },
         {
           seat: "3号",
-          hit: r3,
-          level: r3 ? "可进" : "跳",
-          cls: r3 ? "ok" : "no",
+          hit: hit3,
+          level: hit3 ? "可进" : "跳",
+          cls: hit3 ? "ok" : "no",
           cond: "A与C不同奇偶，且 C-A ∈ {+3,+5}",
           note: `A=${A}, C=${C}, C-A=${C-A}, 奇偶=${oddEvenDiff(A,C) ? "不同" : "相同"}`
         },
         {
           seat: "4号",
-          hit: r4,
-          level: r4 ? "强进" : "跳",
-          cls: r4 ? "ok" : "no",
+          hit: hit4,
+          level: hit4 ? "强进" : "跳",
+          cls: hit4 ? "ok" : "no",
           cond: "A与D不同奇偶，且 D = A - 1",
           note: `A=${A}, D=${D}, D-A=${D-A}, 奇偶=${oddEvenDiff(A,D) ? "不同" : "相同"}`
         },
         {
           seat: "5号",
-          hit: r5,
-          level: r5 ? "可进" : "跳",
-          cls: r5 ? "ok" : "no",
+          hit: hit5,
+          level: hit5 ? "可进" : "跳",
+          cls: hit5 ? "ok" : "no",
           cond: "A与E同奇偶，且 E = A - 4",
           note: `A=${A}, E=${E}, E-A=${E-A}, 奇偶=${oddEvenSame(A,E) ? "相同" : "不同"}`
         }
@@ -256,22 +344,27 @@
 
       let finalSeat = "跳";
       let finalDesc = "当前房号不符合 2/3/4/5 的进场规则";
+      let finalTag = "跳";
 
-      if (r4) {
+      if (hit4) {
         finalSeat = "4号";
         finalDesc = "命中最优规则：4号 强进";
-      } else if (r3) {
+        finalTag = "强进";
+      } else if (hit3) {
         finalSeat = "3号";
         finalDesc = "命中规则：3号 可进";
-      } else if (r5) {
+        finalTag = "可进";
+      } else if (hit5) {
         finalSeat = "5号";
         finalDesc = "命中规则：5号 可进";
-      } else if (r2) {
+        finalTag = "可进";
+      } else if (hit2) {
         finalSeat = "2号";
         finalDesc = "命中规则：2号 可观察";
+        finalTag = "观察";
       }
 
-      return { A, B, C, D, E, rows, finalSeat, finalDesc };
+      return { A, B, C, D, E, rows, finalSeat, finalDesc, finalTag };
     }
 
     function render(result){
@@ -294,6 +387,58 @@
         `A=${result.A} B=${result.B} C=${result.C} D=${result.D} E=${result.E}\n${result.finalDesc}`;
     }
 
+    function loadHistory(){
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHistory(items){
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+    }
+
+    function pushHistory(room, result){
+      const items = loadHistory();
+      items.unshift({
+        room,
+        seat: result.finalSeat,
+        tag: result.finalTag,
+        desc: result.finalDesc,
+        time: new Date().toLocaleString("zh-CN", { hour12:false })
+      });
+      saveHistory(items);
+      renderHistory();
+    }
+
+    function renderHistory(){
+      const items = loadHistory();
+      historyListEl.innerHTML = "";
+
+      if(items.length === 0){
+        historyListEl.innerHTML = `<div class="historyItem"><div class="historyMain" style="color:rgba(255,255,255,.55)">暂无记录</div></div>`;
+        return;
+      }
+
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "historyItem";
+        div.innerHTML = `
+          <div class="historyTop">
+            <div>房号：<span class="pill">${item.room}</span></div>
+            <div>${item.time}</div>
+          </div>
+          <div class="historyMain">
+            <div><strong>结果：</strong>${item.seat}（${item.tag}）</div>
+            <div style="color:rgba(255,255,255,.7)">${item.desc}</div>
+          </div>
+        `;
+        historyListEl.appendChild(div);
+      });
+    }
+
     function run(){
       const s = roomEl.value.trim().replace(/\s+/g, "");
       if(!/^\d{5}$/.test(s)){
@@ -302,8 +447,12 @@
         detailBlockEl.style.display = "none";
         return;
       }
+
       msgEl.textContent = "";
-      render(analyze(s));
+      const result = analyze(s);
+      render(result);
+      pushHistory(s, result);
+
       setTimeout(() => {
         roomEl.value = "";
         roomEl.focus();
@@ -314,6 +463,19 @@
     roomEl.addEventListener("keydown", e => {
       if(e.key === "Enter") run();
     });
+
+    clearHistoryEl.addEventListener("click", () => {
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js");
+      });
+    }
+
+    renderHistory();
     roomEl.focus();
   </script>
 </body>
