@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#b00000" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="八戒老逻辑">
+  <meta name="apple-mobile-web-app-title" content="八戒X值匹配">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <title>八戒老逻辑模型</title>
+  <title>八戒X值智能匹配</title>
 
   <style>
     :root{
@@ -279,7 +279,7 @@
 </head>
 <body>
   <div class="app">
-    <div class="title">八戒老逻辑模型</div>
+    <div class="title">八戒X值智能匹配</div>
 
     <div class="panel">
       <input id="room" inputmode="numeric" placeholder="输入5位房号（例如：74759）" maxlength="5" />
@@ -303,9 +303,9 @@
           <thead>
             <tr>
               <th>位子</th>
-              <th>条件</th>
-              <th>结果</th>
-              <th>说明</th>
+              <th>X值需求</th>
+              <th>当前X值</th>
+              <th>是否匹配</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -321,14 +321,17 @@
       </div>
 
       <div class="tiny">
-规则：
-<code>2号：B = A - 1</code> → 可观察
-<code>3号：A 与 C 不同奇偶，且 C-A ∈ {+3,+5}</code> → 可进
-<code>4号：A 与 D 不同奇偶，且 D = A - 1</code> → 强进
-<code>5号：A 与 E 同奇偶，且 E = A - 4</code> → 可进
+位子优先级：
+<code>6号 > 5号 > 3号 > 4号 > 2号</code>
 
-优先级：
-<code>4号 > 3号 > 5号 > 2号</code>
+X值配置：
+<code>2号：2, 4</code>
+<code>3号：8, 7</code>
+<code>4号：4, 5, 8</code>
+<code>5号：3, 9</code>
+<code>6号：9, 6, 1</code>
+
+说明：按照房号5位拆分（ABCDE），检查对应位的数字是否在X值列表中。最多输出3个位子。
       </div>
     </div>
   </div>
@@ -347,96 +350,95 @@
     const historyListEl = document.getElementById("historyList");
     const clearHistoryEl = document.getElementById("clearHistory");
 
-    const HISTORY_KEY = "bajie_old_logic_history_v2";
+    const HISTORY_KEY = "bajie_x_match_history_v1";
     const HISTORY_LIMIT = 30;
 
-    function oddEvenSame(x, y){
-      return (x % 2 + 2) % 2 === (y % 2 + 2) % 2;
-    }
+    // X值配置
+    const X_VALUES = {
+      2: [2, 4],
+      3: [8, 7],
+      4: [4, 5, 8],
+      5: [3, 9],
+      6: [9, 6, 1]
+    };
 
-    function oddEvenDiff(x, y){
-      return !oddEvenSame(x, y);
-    }
+    // 位子优先级（1=最高）
+    const SEAT_PRIORITY = {
+      6: 1,
+      5: 2,
+      3: 3,
+      4: 4,
+      2: 5
+    };
+
+    // 座位号到房号位置的映射
+    const SEAT_TO_POS = {
+      2: 1,  // B
+      3: 2,  // C
+      4: 3,  // D
+      5: 4,  // E
+      6: 4   // E (6号和5号都对应E)
+    };
 
     function analyze(room5){
-      const A = +room5[0];
-      const B = +room5[1];
-      const C = +room5[2];
-      const D = +room5[3];
-      const E = +room5[4];
+      const digits = room5.split('').map(Number);
+      const [A, B, C, D, E] = digits;
 
-      const hit2 = (B === A - 1);
-      const hit3 = oddEvenDiff(A, C) && ([3,5].includes(C - A));
-      const hit4 = oddEvenDiff(A, D) && (D === A - 1);
-      const hit5 = oddEvenSame(A, E) && (E === A - 4);
+      const rows = [];
 
-      const rows = [
-        {
-          seat: "2号",
-          hit: hit2,
-          level: hit2 ? "可观察" : "跳",
-          shortLevel: hit2 ? "观察" : "跳",
-          cls: hit2 ? "mid" : "no",
-          cond: "B = A - 1",
-          note: `A=${A}, B=${B}, B-A=${B-A}`,
-          priority: 4
-        },
-        {
-          seat: "3号",
-          hit: hit3,
-          level: hit3 ? "可进" : "跳",
-          shortLevel: hit3 ? "可进" : "跳",
-          cls: hit3 ? "ok" : "no",
-          cond: "A与C不同奇偶，且 C-A ∈ {+3,+5}",
-          note: `A=${A}, C=${C}, C-A=${C-A}, 奇偶=${oddEvenDiff(A,C) ? "不同" : "相同"}`,
-          priority: 2
-        },
-        {
-          seat: "4号",
-          hit: hit4,
-          level: hit4 ? "强进" : "跳",
-          shortLevel: hit4 ? "强进" : "跳",
-          cls: hit4 ? "ok" : "no",
-          cond: "A与D不同奇偶，且 D = A - 1",
-          note: `A=${A}, D=${D}, D-A=${D-A}, 奇偶=${oddEvenDiff(A,D) ? "不同" : "相同"}`,
-          priority: 1
-        },
-        {
-          seat: "5号",
-          hit: hit5,
-          level: hit5 ? "可进" : "跳",
-          shortLevel: hit5 ? "可进" : "跳",
-          cls: hit5 ? "ok" : "no",
-          cond: "A与E同奇偶，且 E = A - 4",
-          note: `A=${A}, E=${E}, E-A=${E-A}, 奇偶=${oddEvenSame(A,E) ? "相同" : "不同"}`,
-          priority: 3
+      // 逐个检查每个位子
+      for(let seat = 2; seat <= 6; seat++){
+        let xValue;
+        if(seat === 6){
+          xValue = E; // 6号对应E（第5位）
+        } else if(seat === 5){
+          xValue = E; // 5号对应E（第5位）
+        } else if(seat === 4){
+          xValue = D; // 4号对应D（第4位）
+        } else if(seat === 3){
+          xValue = C; // 3号对应C（第3位）
+        } else if(seat === 2){
+          xValue = B; // 2号对应B（第2位）
         }
-      ];
 
-      const hits = rows.filter(r => r.hit).sort((a,b)=>a.priority-b.priority);
+        const requiredXValues = X_VALUES[seat];
+        const isHit = requiredXValues.includes(xValue);
+
+        rows.push({
+          seat,
+          xValue,
+          requiredXValues: requiredXValues.join(", "),
+          isHit,
+          cls: isHit ? "ok" : "no",
+          priority: SEAT_PRIORITY[seat]
+        });
+      }
+
+      // 过滤匹配的位子，按优先级排序
+      const hits = rows
+        .filter(r => r.isHit)
+        .sort((a, b) => a.priority - b.priority)
+        .slice(0, 3); // 最多3个
 
       let finalSeat = "跳";
-      let finalDesc = "当前房号不符合 2/3/4/5 的进场规则";
-      let finalTag = "跳";
+      let finalDesc = "当前房号不符合任何位子的X值需求";
 
       if (hits.length > 0) {
-        finalSeat = hits[0].seat;
-        finalTag = hits[0].shortLevel;
-        finalDesc = `最优推荐：${hits[0].seat}（${hits[0].shortLevel}）`;
+        finalSeat = `${hits[0].seat}号`;
+        finalDesc = `最优推荐：${finalSeat}（X=${hits[0].xValue}）`;
 
         if (hits.length > 1) {
-          const others = hits.slice(1).map(x => `${x.seat}（${x.shortLevel}）`).join("、");
+          const others = hits.slice(1).map(x => `${x.seat}号（X=${x.xValue}）`).join("、");
           finalDesc += `\n次选位：${others}`;
         }
       }
 
-      return { A, B, C, D, E, rows, hits, finalSeat, finalDesc, finalTag };
+      return { A, B, C, D, E, rows, hits, finalSeat, finalDesc };
     }
 
     function renderCandidates(result){
       candidateGridEl.innerHTML = "";
 
-      const hitSeats = result.hits.map(x => x.seat);
       const bestSeat = result.hits[0]?.seat || null;
       const secondSeats = result.hits.slice(1).map(x => x.seat);
 
@@ -444,7 +446,7 @@
         const card = document.createElement("div");
         card.className = "candidateCard";
 
-        let badgeHtml = `<span class="badge ${r.hit ? (r.cls === "mid" ? "mid" : "best") : "no"}">${r.shortLevel}</span>`;
+        let badgeHtml = `<span class="badge ${r.isHit ? "best" : "no"}">${r.isHit ? "匹配" : "不匹配"}</span>`;
 
         if (r.seat === bestSeat) {
           card.classList.add("best");
@@ -456,11 +458,11 @@
 
         card.innerHTML = `
           <div class="candidateTop">
-            <div class="candidateSeat">${r.seat}</div>
+            <div class="candidateSeat">${r.seat}号</div>
             <div>${badgeHtml}</div>
           </div>
-          <div class="candidateCond"><strong>条件：</strong><code>${r.cond}</code></div>
-          <div class="candidateCond" style="margin-top:4px;"><strong>说明：</strong>${r.note}</div>
+          <div class="candidateCond"><strong>需要X值：</strong><code>${r.requiredXValues}</code></div>
+          <div class="candidateCond" style="margin-top:4px;"><strong>当前X值：</strong><code>${r.xValue}</code></div>
         `;
         candidateGridEl.appendChild(card);
       });
@@ -479,10 +481,10 @@
         else if (secondSeats.includes(r.seat)) tr.classList.add("secondRow");
 
         tr.innerHTML = `
-          <td>${r.seat}</td>
-          <td><code>${r.cond}</code></td>
-          <td class="${r.cls}">${r.level}</td>
-          <td>${r.note}</td>
+          <td>${r.seat}号</td>
+          <td><code>${r.requiredXValues}</code></td>
+          <td><code>${r.xValue}</code></td>
+          <td class="${r.cls}">${r.isHit ? "✓ 匹配" : "✗ 不匹配"}</td>
         `;
         tbodyEl.appendChild(tr);
       });
@@ -512,10 +514,13 @@
 
     function pushHistory(room, result){
       const items = loadHistory();
+      const hitSeats = result.hits.length > 0 
+        ? result.hits.map(h => `${h.seat}号`).join(", ")
+        : "跳";
+      
       items.unshift({
         room,
-        seat: result.finalSeat,
-        tag: result.finalTag,
+        seats: hitSeats,
         desc: result.finalDesc,
         time: new Date().toLocaleString("zh-CN", { hour12:false })
       });
@@ -541,7 +546,7 @@
             <div>${item.time}</div>
           </div>
           <div class="historyMain">
-            <div><strong>结果：</strong>${item.seat}（${item.tag}）</div>
+            <div><strong>结果：</strong>${item.seats}</div>
             <div style="color:rgba(255,255,255,.7); white-space:pre-line;">${item.desc}</div>
           </div>
         `;
