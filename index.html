@@ -287,17 +287,26 @@
 
       <div class="msg" id="msg"></div>
 
-      <div class="summary" id="summary">
-        <div class="seat" id="finalSeat">—</div>
-        <div class="sub" id="finalSub">—</div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 14px;">
+        <div class="summary" id="summary-bajie" style="display:none;">
+          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">八戒别跑</div>
+          <div class="seat" id="finalSeat-bajie">—</div>
+          <div class="sub" id="finalSub-bajie">—</div>
+        </div>
+
+        <div class="summary" id="summary-liulang" style="display:none;">
+          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">流浪小男孩</div>
+          <div class="seat" id="finalSeat-liulang">—</div>
+          <div class="sub" id="finalSub-liulang">—</div>
+        </div>
       </div>
 
-      <div class="block" id="candidateBlock">
+      <div class="block" id="candidateBlock" style="display:none;">
         <div class="blockTitle">候选位总览</div>
         <div class="candidateGrid" id="candidateGrid"></div>
       </div>
 
-      <div class="block" id="detailBlock">
+      <div class="block" id="detailBlock" style="display:none;">
         <div class="blockTitle">逐位详细判断</div>
         <table>
           <thead>
@@ -312,26 +321,16 @@
         </table>
       </div>
 
-      <div class="history">
-        <div class="historyHeader">
-          <div class="historyTitle">最近判断记录</div>
-          <button class="smallBtn" id="clearHistory">清空记录</button>
-        </div>
-        <div class="historyList" id="historyList"></div>
-      </div>
-
       <div class="tiny">
-位子优先级：
-<code>6号 > 5号 > 3号 > 4号 > 2号</code>
+【八戒别跑】
+X值配置：2号[2,4] | 3号[8,7] | 4号[4,5,8] | 5号[3,9] | 6号[9,6,1]
+综合评分：6号 > 5号 > 3号 > 4号 > 2号
 
-X值配置：
-<code>2号：2, 4</code>
-<code>3号：8, 7</code>
-<code>4号：4, 5, 8</code>
-<code>5号：3, 9</code>
-<code>6号：9, 6, 1</code>
+【流浪小男孩】
+X值配置：2号[4] | 3号[2] | 4号[0,5] | 5号[4,5,6] | 6号[5,2]
+综合评分：6号 > 2号 > 5号 > 4号 > 3号
 
-说明：按照房号5位拆分（ABCDE），检查对应位的数字是否在X值列表中。最多输出3个位子。
+说明：输入房号，两个账号同时输出各自的推荐位子。
       </div>
     </div>
   </div>
@@ -340,65 +339,65 @@ X值配置：
     const roomEl = document.getElementById("room");
     const goEl = document.getElementById("go");
     const msgEl = document.getElementById("msg");
-    const summaryEl = document.getElementById("summary");
-    const finalSeatEl = document.getElementById("finalSeat");
-    const finalSubEl = document.getElementById("finalSub");
-    const detailBlockEl = document.getElementById("detailBlock");
-    const candidateBlockEl = document.getElementById("candidateBlock");
-    const tbodyEl = document.getElementById("tbody");
-    const candidateGridEl = document.getElementById("candidateGrid");
-    const historyListEl = document.getElementById("historyList");
-    const clearHistoryEl = document.getElementById("clearHistory");
-
-    const HISTORY_KEY = "bajie_x_match_history_v1";
-    const HISTORY_LIMIT = 30;
-
-    // X值配置
-    const X_VALUES = {
-      2: [2, 4],
-      3: [8, 7],
-      4: [4, 5, 8],
-      5: [3, 9],
-      6: [9, 6, 1]
+    
+    // 两个账号的规则配置
+    const ACCOUNTS = {
+      bajie: {
+        name: "八戒别跑",
+        xValues: {
+          2: [2, 4],
+          3: [8, 7],
+          4: [4, 5, 8],
+          5: [3, 9],
+          6: [9, 6, 1]
+        },
+        seatPriority: {
+          6: 1,
+          5: 2,
+          3: 3,
+          4: 4,
+          2: 5
+        }
+      },
+      liulang: {
+        name: "流浪小男孩",
+        xValues: {
+          2: [4],
+          3: [2],
+          4: [0, 5],
+          5: [4, 5, 6],
+          6: [5, 2]
+        },
+        seatPriority: {
+          6: 1,
+          2: 2,
+          5: 3,
+          4: 4,
+          3: 5
+        }
+      }
     };
 
-    // 位子优先级（1=最高）
-    const SEAT_PRIORITY = {
-      6: 1,
-      5: 2,
-      3: 3,
-      4: 4,
-      2: 5
-    };
+    function analyze(room5, accountKey) {
+      const config = ACCOUNTS[accountKey];
+      const X_VALUES = config.xValues;
+      const SEAT_PRIORITY = config.seatPriority;
 
-    // 座位号到房号位置的映射
-    const SEAT_TO_POS = {
-      2: 1,  // B
-      3: 2,  // C
-      4: 3,  // D
-      5: 4,  // E
-      6: 4   // E (6号和5号都对应E)
-    };
-
-    function analyze(room5){
       const digits = room5.split('').map(Number);
       const [A, B, C, D, E] = digits;
 
       const rows = [];
 
-      // 逐个检查每个位子
       for(let seat = 2; seat <= 6; seat++){
         let xValue;
-        if(seat === 6){
-          xValue = E; // 6号对应E（第5位）
-        } else if(seat === 5){
-          xValue = E; // 5号对应E（第5位）
+        if(seat === 6 || seat === 5){
+          xValue = E;
         } else if(seat === 4){
-          xValue = D; // 4号对应D（第4位）
+          xValue = D;
         } else if(seat === 3){
-          xValue = C; // 3号对应C（第3位）
+          xValue = C;
         } else if(seat === 2){
-          xValue = B; // 2号对应B（第2位）
+          xValue = B;
         }
 
         const requiredXValues = X_VALUES[seat];
@@ -414,162 +413,51 @@ X值配置：
         });
       }
 
-      // 过滤匹配的位子，按优先级排序
       const hits = rows
         .filter(r => r.isHit)
         .sort((a, b) => a.priority - b.priority)
-        .slice(0, 3); // 最多3个
+        .slice(0, 3);
 
       let finalSeat = "跳";
-      let finalDesc = "当前房号不符合任何位子的X值需求";
+      let finalDesc = "无";
 
       if (hits.length > 0) {
         finalSeat = `${hits[0].seat}号`;
-        finalDesc = `最优推荐：${finalSeat}（X=${hits[0].xValue}）`;
+        finalDesc = `X=${hits[0].xValue}`;
 
         if (hits.length > 1) {
-          const others = hits.slice(1).map(x => `${x.seat}号（X=${x.xValue}）`).join("、");
-          finalDesc += `\n次选位：${others}`;
+          const others = hits.slice(1).map(x => `${x.seat}号`).join("、");
+          finalDesc += `\n次选：${others}`;
         }
       }
 
-      return { A, B, C, D, E, rows, hits, finalSeat, finalDesc };
-    }
-
-    function renderCandidates(result){
-      candidateGridEl.innerHTML = "";
-
-      const bestSeat = result.hits[0]?.seat || null;
-      const secondSeats = result.hits.slice(1).map(x => x.seat);
-
-      result.rows.forEach(r => {
-        const card = document.createElement("div");
-        card.className = "candidateCard";
-
-        let badgeHtml = `<span class="badge ${r.isHit ? "best" : "no"}">${r.isHit ? "匹配" : "不匹配"}</span>`;
-
-        if (r.seat === bestSeat) {
-          card.classList.add("best");
-          badgeHtml = `<span class="badge best">最优推荐</span>`;
-        } else if (secondSeats.includes(r.seat)) {
-          card.classList.add("second");
-          badgeHtml = `<span class="badge second">次选位</span>`;
-        }
-
-        card.innerHTML = `
-          <div class="candidateTop">
-            <div class="candidateSeat">${r.seat}号</div>
-            <div>${badgeHtml}</div>
-          </div>
-          <div class="candidateCond"><strong>需要X值：</strong><code>${r.requiredXValues}</code></div>
-          <div class="candidateCond" style="margin-top:4px;"><strong>当前X值：</strong><code>${r.xValue}</code></div>
-        `;
-        candidateGridEl.appendChild(card);
-      });
-
-      candidateBlockEl.style.display = "block";
-    }
-
-    function renderTable(result){
-      tbodyEl.innerHTML = "";
-      const bestSeat = result.hits[0]?.seat || null;
-      const secondSeats = result.hits.slice(1).map(x => x.seat);
-
-      result.rows.forEach(r => {
-        const tr = document.createElement("tr");
-        if (r.seat === bestSeat) tr.classList.add("bestRow");
-        else if (secondSeats.includes(r.seat)) tr.classList.add("secondRow");
-
-        tr.innerHTML = `
-          <td>${r.seat}号</td>
-          <td><code>${r.requiredXValues}</code></td>
-          <td><code>${r.xValue}</code></td>
-          <td class="${r.cls}">${r.isHit ? "✓ 匹配" : "✗ 不匹配"}</td>
-        `;
-        tbodyEl.appendChild(tr);
-      });
-
-      detailBlockEl.style.display = "block";
-    }
-
-    function renderSummary(result){
-      summaryEl.style.display = "block";
-      finalSeatEl.textContent = result.finalSeat;
-      finalSubEl.textContent =
-        `A=${result.A} B=${result.B} C=${result.C} D=${result.D} E=${result.E}\n${result.finalDesc}`;
-    }
-
-    function loadHistory(){
-      try {
-        const raw = localStorage.getItem(HISTORY_KEY);
-        return raw ? JSON.parse(raw) : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveHistory(items){
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
-    }
-
-    function pushHistory(room, result){
-      const items = loadHistory();
-      const hitSeats = result.hits.length > 0 
-        ? result.hits.map(h => `${h.seat}号`).join(", ")
-        : "跳";
-      
-      items.unshift({
-        room,
-        seats: hitSeats,
-        desc: result.finalDesc,
-        time: new Date().toLocaleString("zh-CN", { hour12:false })
-      });
-      saveHistory(items);
-      renderHistory();
-    }
-
-    function renderHistory(){
-      const items = loadHistory();
-      historyListEl.innerHTML = "";
-
-      if(items.length === 0){
-        historyListEl.innerHTML = `<div class="historyItem"><div class="historyMain" style="color:rgba(255,255,255,.55)">暂无记录</div></div>`;
-        return;
-      }
-
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "historyItem";
-        div.innerHTML = `
-          <div class="historyTop">
-            <div>房号：<span class="pill">${item.room}</span></div>
-            <div>${item.time}</div>
-          </div>
-          <div class="historyMain">
-            <div><strong>结果：</strong>${item.seats}</div>
-            <div style="color:rgba(255,255,255,.7); white-space:pre-line;">${item.desc}</div>
-          </div>
-        `;
-        historyListEl.appendChild(div);
-      });
+      return { finalSeat, finalDesc };
     }
 
     function run(){
       const s = roomEl.value.trim().replace(/\s+/g, "");
       if(!/^\d{5}$/.test(s)){
-        msgEl.textContent = "请输入正确的5位数字（例如：74759）";
-        summaryEl.style.display = "none";
-        detailBlockEl.style.display = "none";
-        candidateBlockEl.style.display = "none";
+        msgEl.textContent = "请输入正确的5位数字";
+        document.getElementById("summary-bajie").style.display = "none";
+        document.getElementById("summary-liulang").style.display = "none";
         return;
       }
 
       msgEl.textContent = "";
-      const result = analyze(s);
-      renderSummary(result);
-      renderCandidates(result);
-      renderTable(result);
-      pushHistory(s, result);
+
+      // 八戒别跑的结果
+      const bajiResult = analyze(s, "bajie");
+      const summaryBajie = document.getElementById("summary-bajie");
+      document.getElementById("finalSeat-bajie").textContent = bajiResult.finalSeat;
+      document.getElementById("finalSub-bajie").textContent = bajiResult.finalDesc;
+      summaryBajie.style.display = "block";
+
+      // 流浪小男孩的结果
+      const liulangResult = analyze(s, "liulang");
+      const summaryLiulang = document.getElementById("summary-liulang");
+      document.getElementById("finalSeat-liulang").textContent = liulangResult.finalSeat;
+      document.getElementById("finalSub-liulang").textContent = liulangResult.finalDesc;
+      summaryLiulang.style.display = "block";
 
       setTimeout(() => {
         roomEl.value = "";
@@ -582,18 +470,12 @@ X值配置：
       if(e.key === "Enter") run();
     });
 
-    clearHistoryEl.addEventListener("click", () => {
-      localStorage.removeItem(HISTORY_KEY);
-      renderHistory();
-    });
-
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js");
       });
     }
 
-    renderHistory();
     roomEl.focus();
   </script>
 </body>
