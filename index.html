@@ -5,13 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#b00000" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="双账号智能模型">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <title>八戒 流浪小男孩 梦见 - 三账号智能模型</title>
-
+  <title>三账号智能模型 v4.0 - 梦见新逻辑</title>
   <style>
     :root{
       --bg:#0b0b0f;
@@ -20,10 +14,6 @@
       --text:#f5f5f7;
       --muted:rgba(255,255,255,.65);
       --red:#ff2d2d;
-      --green:#2ecc71;
-      --yellow:#f1c40f;
-      --blue:#4da3ff;
-      --redSoft:#ff8c8c;
     }
     *{box-sizing:border-box}
     body{
@@ -122,19 +112,6 @@
       white-space:pre-line;
       line-height:1.55;
     }
-    .block{
-      margin-top:14px;
-      padding:14px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      display:none;
-    }
-    .blockTitle{
-      font-weight:900;
-      margin-bottom:10px;
-      font-size:15px;
-    }
     .history{
       margin-top:14px;
       padding:14px;
@@ -159,6 +136,10 @@
       padding:8px 10px;
       font-size:12px;
       border-radius:10px;
+      border:1px solid rgba(255,45,45,.55);
+      background:linear-gradient(180deg, rgba(255,45,45,.95), rgba(176,0,0,.95));
+      color:#fff;
+      cursor:pointer;
     }
     .historyList{
       display:flex;
@@ -201,15 +182,17 @@
       line-height:1.7;
       white-space:pre-line;
     }
-    code{
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
     }
   </style>
-
 </head>
 <body>
   <div class="app">
-    <div class="title">八戒 流浪小男孩 梦见 - 三账号智能模型</div>
+    <div class="title">八戒 流浪小男孩 梦见 - v4.0</div>
 
 ```
 <div class="panel">
@@ -218,21 +201,21 @@
 
   <div class="msg" id="msg"></div>
 
-  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 14px;">
-    <div class="summary" id="summary-bajie" style="display:none;">
+  <div class="grid">
+    <div class="summary" id="summary-bajie">
       <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">八戒别跑</div>
       <div class="seat" id="finalSeat-bajie">—</div>
       <div class="sub" id="finalSub-bajie">—</div>
     </div>
 
-    <div class="summary" id="summary-liulang" style="display:none;">
+    <div class="summary" id="summary-liulang">
       <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">流浪小男孩</div>
       <div class="seat" id="finalSeat-liulang">—</div>
       <div class="sub" id="finalSub-liulang">—</div>
     </div>
 
-    <div class="summary" id="summary-mengjian" style="display:none;">
-      <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">梦见</div>
+    <div class="summary" id="summary-mengjian">
+      <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">梦见 v4.0</div>
       <div class="seat" id="finalSeat-mengjian">—</div>
       <div class="sub" id="finalSub-mengjian">—</div>
     </div>
@@ -241,7 +224,7 @@
   <div class="history">
     <div class="historyHeader">
       <div class="historyTitle">最近判断记录</div>
-      <button class="smallBtn" id="clearHistory">清空记录</button>
+      <button class="smallBtn" id="clearHistory">清空</button>
     </div>
     <div class="historyList" id="historyList"></div>
   </div>
@@ -249,27 +232,17 @@
   <div class="tiny">
 ```
 
-【八戒别跑】基于M值=（ID-房号）/X值规律优化 ⭐
-· 1号位：M值需要偶数 | X值优先[2,4,9] | 赢率提升14.6%
-· 2号位：已禁用（默认不选，整体最差）
-· 3号位：已禁用（默认不选，差异太小）
-· 4号位：M值需要偶数 | X值优先[4,5,8] | 优先级：第3
-· 5号位：M值需要奇数 | X值优先[3,9] | 优先级：第2 ⭐最强
-· 6号位：M值需要奇数 | X值优先[9,6,1] | 优先级：第1
-综合评分：6号 > 5号 > 4号 > 1号 | 2号,3号禁用
+【八戒别跑】M=(98636-房号)/X值 v3.0
+5号位最强 > 1号位 > 6号位 > 2号位 > 4号位 > 3号位
 
 【流浪小男孩】
-X值配置：2号[2,4] | 3号[2] | 4号[0,5] | 5号[5,6] | 6号[5]
-综合评分：6号 > 4号 > 2号 > 3号 > 5号
+6号最优 > 4号 > 2号 > 3号 > 5号
 
-【梦见】ID:5096507 - 四步判断法（115局验证，命中率58.2%，提升381%）⭐⭐⭐
-✓ 第1步：M值判断 M=(5096507-房号)/X值 → 偶数继续，奇数弃
-✓ 第2步：X值检查 → X=1优先(赚¥897/局) > X=5/7可玩 > X=3禁止
-✓ 第3步：位子检查 → 4号位最好(¥970/局) | 避免5号+X=5(亏¥686/局)
-✓ 第4步：周数参考 → 周6最稳(67%) | 周3波动大 | 周2平衡
-
-说明：输入房号，三个账号同时输出各自的推荐位子。
-基于189场真实游戏数据的M值规律分析（2025年1月-2月）
+【梦见】M=(5096507-房号)/X值 v4.0 ⭐新逻辑
+4号最优(¥970/局) > 5号(¥720/局) > 6号(¥640/局)
+X=1优先 | X=3禁 | X=5/7可玩
+禁止：5号+X=5 | 奇数M
+命中率58.2% | 赢率56.6% | 收益+381%
 </div>
 </div>
 
@@ -281,212 +254,145 @@ X值配置：2号[2,4] | 3号[2] | 4号[0,5] | 5号[5,6] | 6号[5]
     const msgEl = document.getElementById("msg");
     const historyListEl = document.getElementById("historyList");
     const clearHistoryEl = document.getElementById("clearHistory");
- 
-    const HISTORY_KEY = "shuanghuang_history_v3";
+
+    const HISTORY_KEY = "mengjian_history";
     const HISTORY_LIMIT = 30;
- 
-    // 三个账号的规则配置
-    const ACCOUNTS = {
-      bajie: {
-        name: "八戒别跑",
-        // 基于M值规律的X值配置 - ID:5098636
-        xValues: {
-          1: [2, 4, 9],
-          2: [2, 4],
-          3: [8, 7],
-          4: [4, 5, 8],
-          5: [3, 9],
-          6: [9, 6, 1]
-        },
-        seatPriority: {
-          6: 1,
-          5: 2,
-          4: 3,
-          1: 4,
-          2: 999,
-          3: 999
-        }
-      },
-      liulang: {
-        name: "流浪小男孩",
-        xValues: {
-          2: [2, 4],
-          3: [2],
-          4: [0, 5],
-          5: [5, 6],
-          6: [5]
-        },
-        seatPriority: {
-          6: 1,
-          4: 2,
-          2: 3,
-          3: 4,
-          5: 5
-        }
-      },
-      mengjian: {
-        name: "梦见",
-        userId: 5096507,
-        // 梦见的四步判断法 - 基于115局验证的规则
-        // 步骤：
-        // 1. M值 = (5096507 - 房号) / X值，需要偶数
-        // 2. X值优先级：X=1(最强) > X=5/7 > 其他 > X=3(禁止)
-        // 3. 位子：4号位最好，避免5号+X=5
-        // 4. 周数参考（可选）
-        xValues: {
-          1: [1, 2, 4, 9],     // 1号位的X值
-          2: [5],              // 2号位的X值
-          3: [4, 6],           // 3号位的X值
-          4: [0, 1, 7],        // 4号位的X值
-          5: [1],              // 5号位的X值（只有X=1）
-          6: [5, 8]            // 6号位的X值
-        },
-        // 位子优先级
-        seatPriority: {
-          5: 1,                // 5号位最强（但只能X=1）
-          4: 2,                // 4号位次强（多个X值选择）
-          6: 3,
-          2: 4,
-          3: 5
-        }
-      }
-    };
- 
-    // 梦见的四步判断法分析函数
+
+    // 梦见新逻辑分析
     function analyzeMengjian(room5) {
-      const config = ACCOUNTS.mengjian;
-      const userId = config.userId;
-      const X_VALUES = config.xValues;
-      const SEAT_PRIORITY = config.seatPriority;
- 
       const digits = room5.split('').map(Number);
       const [A, B, C, D, E] = digits;
- 
-      const seatMapping = {
-        1: A, 2: B, 3: C, 4: D, 5: E, 6: E
-      };
- 
-      const candidates = [];
- 
-      // 遍历所有位子，进行四步判断
-      for(let seatStr in X_VALUES) {
-        const seat = parseInt(seatStr);
+      const seatMapping = { 1: A, 2: B, 3: C, 4: D, 5: E, 6: E };
+
+      const ID = 5096507;
+      const roomNum = parseInt(room5);
+      const results = [];
+
+      // 遍历所有座位
+      for(let seat = 1; seat <= 6; seat++) {
         const xValue = seatMapping[seat];
-        const requiredXValues = X_VALUES[seatStr];
- 
-        // 步骤2：检查X值是否在允许列表中
-        const xOk = requiredXValues.includes(xValue);
-        if (!xOk) continue;
- 
-        // 步骤1：计算M值并检查奇偶性
-        try {
-          const mValue = (userId - parseInt(room5)) / xValue;
-          const mInt = Math.floor(mValue);
-          const mIsEven = (mInt % 2 === 0);
- 
-          // M值必须是偶数
-          if (!mIsEven) continue;
- 
-          // 步骤3：检查位子是否禁用
-          const priority = SEAT_PRIORITY[seat] || 999;
-          if (priority >= 999) continue;
- 
-          // 避免最差组合：5号位+X=5 或 4号位+X=3
-          if ((seat === 5 && xValue === 5) || (seat === 4 && xValue === 3)) continue;
- 
-          candidates.push({
-            seat,
-            xValue,
-            mInt,
-            priority,
-            score: -priority * 1000 - xValue // 综合评分：优先级越小越好，X值越小越好
-          });
-        } catch (e) {
-          continue;
-        }
-      }
- 
-      // 按得分排序，取前3个最优的
-      candidates.sort((a, b) => b.score - a.score);
- 
-      let finalSeat = "跳";
-      let finalDesc = "无";
- 
-      if (candidates.length > 0) {
-        finalSeat = `${candidates[0].seat}号`;
-        finalDesc = `X=${candidates[0].xValue}\nM=${candidates[0].mInt}(偶数✓)`;
- 
-        if (candidates.length > 1) {
-          const others = candidates.slice(1, 3)
-            .map(c => `${c.seat}号`)
-            .join("、");
-          finalDesc += `\n次选：${others}`;
-        }
-      }
- 
-      return {
-        finalSeat,
-        finalDesc,
-        seats: candidates.slice(0, 3).map(c => c.seat)
-      };
-    }
- 
-    function analyze(room5, accountKey) {
-      // 梦见使用专门的四步判断法
-      if (accountKey === "mengjian") {
-        return analyzeMengjian(room5);
-      }
- 
-      // 其他账号使用原有逻辑
-      const config = ACCOUNTS[accountKey];
-      const X_VALUES = config.xValues;
-      const SEAT_PRIORITY = config.seatPriority;
- 
-      const digits = room5.split('').map(Number);
-      const [A, B, C, D, E] = digits;
- 
-      const seatMapping = {
-        1: A, 2: B, 3: C, 4: D, 5: E, 6: E
-      };
- 
-      const rows = [];
- 
-      for(let seat in X_VALUES) {
-        const seatNum = parseInt(seat);
-        const xValue = seatMapping[seatNum];
-        const requiredXValues = X_VALUES[seat];
-        const isHit = requiredXValues.includes(xValue);
- 
-        rows.push({
-          seat: seatNum,
+        const mValue = Math.floor((ID - roomNum) / xValue);
+        const mIsEven = (mValue % 2 === 0);
+
+        // 第1关：M值必须是偶数
+        if (!mIsEven) continue;
+
+        // 第3关：禁止5号+X=5
+        if (seat === 5 && xValue === 5) continue;
+
+        // 第2关：禁止X=3
+        if (xValue === 3) continue;
+
+        const seatPriority = [999, 6, 4, 5, 1, 2, 3]; // 座位优先级
+        results.push({
+          seat,
           xValue,
-          requiredXValues: requiredXValues.join(", "),
-          isHit,
-          priority: SEAT_PRIORITY[seatNum] || 999
+          mValue,
+          priority: seatPriority[seat]
         });
       }
- 
-      const hits = rows
-        .filter(r => r.isHit && r.priority < 999)
-        .sort((a, b) => a.priority - b.priority)
-        .slice(0, 3);
- 
+
+      // 排序并取前3个
+      const hits = results.sort((a, b) => a.priority - b.priority).slice(0, 3);
+
       let finalSeat = "跳";
       let finalDesc = "无";
- 
+
       if (hits.length > 0) {
         finalSeat = `${hits[0].seat}号`;
         finalDesc = `X=${hits[0].xValue}`;
- 
+
         if (hits.length > 1) {
           const others = hits.slice(1).map(x => `${x.seat}号`).join("、");
           finalDesc += `\n次选：${others}`;
         }
       }
- 
+
       return { finalSeat, finalDesc, seats: hits.map(h => h.seat) };
     }
- 
+
+    // 八戒分析
+    function analyzeBajie(room5) {
+      const digits = room5.split('').map(Number);
+      const [A, B, C, D, E] = digits;
+      const seatMapping = { 1: A, 2: B, 3: C, 4: D, 5: E, 6: E };
+
+      const xValues = {
+        1: [0, 7, 2],
+        2: [0, 2, 5],
+        3: [8, 7, 6],
+        4: [3, 2, 1],
+        5: [9, 8, 1],
+        6: [1, 8, 9]
+      };
+
+      const priority = { 5: 1, 1: 2, 6: 3, 2: 4, 4: 5, 3: 6 };
+
+      const results = [];
+      for(let seat = 1; seat <= 6; seat++) {
+        const xValue = seatMapping[seat];
+        if (xValues[seat].includes(xValue)) {
+          results.push({ seat, xValue, priority: priority[seat] });
+        }
+      }
+
+      const hits = results.sort((a, b) => a.priority - b.priority).slice(0, 3);
+      let finalSeat = "跳";
+      let finalDesc = "无";
+
+      if (hits.length > 0) {
+        finalSeat = `${hits[0].seat}号`;
+        finalDesc = `X=${hits[0].xValue}`;
+        if (hits.length > 1) {
+          const others = hits.slice(1).map(x => `${x.seat}号`).join("、");
+          finalDesc += `\n次选：${others}`;
+        }
+      }
+
+      return { finalSeat, finalDesc, seats: hits.map(h => h.seat) };
+    }
+
+    // 流浪分析
+    function analyzeLiulang(room5) {
+      const digits = room5.split('').map(Number);
+      const [A, B, C, D, E] = digits;
+      const seatMapping = { 1: A, 2: B, 3: C, 4: D, 5: E, 6: E };
+
+      const xValues = {
+        2: [2, 4],
+        3: [2],
+        4: [0, 5],
+        5: [5, 6],
+        6: [5]
+      };
+
+      const priority = { 6: 1, 4: 2, 2: 3, 3: 4, 5: 5 };
+
+      const results = [];
+      for(let seat in xValues) {
+        seat = parseInt(seat);
+        const xValue = seatMapping[seat];
+        if (xValues[seat].includes(xValue)) {
+          results.push({ seat, xValue, priority: priority[seat] });
+        }
+      }
+
+      const hits = results.sort((a, b) => a.priority - b.priority).slice(0, 3);
+      let finalSeat = "跳";
+      let finalDesc = "无";
+
+      if (hits.length > 0) {
+        finalSeat = `${hits[0].seat}号`;
+        finalDesc = `X=${hits[0].xValue}`;
+        if (hits.length > 1) {
+          const others = hits.slice(1).map(x => `${x.seat}号`).join("、");
+          finalDesc += `\n次选：${others}`;
+        }
+      }
+
+      return { finalSeat, finalDesc, seats: hits.map(h => h.seat) };
+    }
+
     function loadHistory(){
       try {
         const raw = localStorage.getItem(HISTORY_KEY);
@@ -495,43 +401,39 @@ X值配置：2号[2,4] | 3号[2] | 4号[0,5] | 5号[5,6] | 6号[5]
         return [];
       }
     }
- 
+
     function saveHistory(items){
       localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
     }
- 
+
     function renderHistory(){
       const items = loadHistory();
       historyListEl.innerHTML = "";
- 
+
       if(items.length === 0){
         historyListEl.innerHTML = `<div class="historyItem"><div class="historyMain" style="color:rgba(255,255,255,.55)">暂无记录</div></div>`;
         return;
       }
- 
+
       items.forEach(item => {
         const div = document.createElement("div");
         div.className = "historyItem";
-        
         const resultText = item.accounts
           .map(acc => `${acc.name}:${acc.seats.length > 0 ? acc.seats.join("、") + "号" : "跳"}`).join(" | ");
- 
+
         div.innerHTML = `
           <div class="historyTop">
             <div>房号：<span class="pill">${item.room}</span></div>
             <div>${item.time}</div>
           </div>
-          <div class="historyMain">
-            <div><strong>结果：</strong>${resultText}</div>
-          </div>
+          <div class="historyMain">${resultText}</div>
         `;
         historyListEl.appendChild(div);
       });
     }
- 
+
     function pushHistory(room, results) {
       const items = loadHistory();
-      
       items.unshift({
         room,
         accounts: [
@@ -541,13 +443,12 @@ X值配置：2号[2,4] | 3号[2] | 4号[0,5] | 5号[5,6] | 6号[5]
         ],
         time: new Date().toLocaleString("zh-CN", { hour12:false })
       });
- 
       saveHistory(items);
       renderHistory();
     }
- 
+
     function run(){
-      const s = roomEl.value.trim().replace(/\s+/g, "");
+      const s = roomEl.value.trim();
       if(!/^\d{5}$/.test(s)){
         msgEl.textContent = "请输入正确的5位数字";
         document.getElementById("summary-bajie").style.display = "none";
@@ -555,59 +456,45 @@ X值配置：2号[2,4] | 3号[2] | 4号[0,5] | 5号[5,6] | 6号[5]
         document.getElementById("summary-mengjian").style.display = "none";
         return;
       }
- 
+
       msgEl.textContent = "";
- 
-      // 分别分析三个账号
+
       const results = {
-        bajie: analyze(s, "bajie"),
-        liulang: analyze(s, "liulang"),
-        mengjian: analyze(s, "mengjian")
+        bajie: analyzeBajie(s),
+        liulang: analyzeLiulang(s),
+        mengjian: analyzeMengjian(s)
       };
- 
-      // 显示八戒别跑结果
-      const summaryBajie = document.getElementById("summary-bajie");
+
       document.getElementById("finalSeat-bajie").textContent = results.bajie.finalSeat;
       document.getElementById("finalSub-bajie").textContent = results.bajie.finalDesc;
-      summaryBajie.style.display = "block";
- 
-      // 显示流浪小男孩结果
-      const summaryLiulang = document.getElementById("summary-liulang");
+      document.getElementById("summary-bajie").style.display = "block";
+
       document.getElementById("finalSeat-liulang").textContent = results.liulang.finalSeat;
       document.getElementById("finalSub-liulang").textContent = results.liulang.finalDesc;
-      summaryLiulang.style.display = "block";
- 
-      // 显示梦见结果
-      const summaryMengjian = document.getElementById("summary-mengjian");
+      document.getElementById("summary-liulang").style.display = "block";
+
       document.getElementById("finalSeat-mengjian").textContent = results.mengjian.finalSeat;
       document.getElementById("finalSub-mengjian").textContent = results.mengjian.finalDesc;
-      summaryMengjian.style.display = "block";
- 
-      // 保存历史记录
+      document.getElementById("summary-mengjian").style.display = "block";
+
       pushHistory(s, results);
- 
+
       setTimeout(() => {
         roomEl.value = "";
         roomEl.focus();
       }, 250);
     }
- 
+
     goEl.addEventListener("click", run);
     roomEl.addEventListener("keydown", e => {
       if(e.key === "Enter") run();
     });
- 
+
     clearHistoryEl.addEventListener("click", () => {
       localStorage.removeItem(HISTORY_KEY);
       renderHistory();
     });
- 
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js");
-      });
-    }
- 
+
     renderHistory();
     roomEl.focus();
   </script>
