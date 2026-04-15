@@ -201,7 +201,7 @@
 
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 14px;">
         <div class="summary" id="summary-bajie" style="display:none;">
-          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">八戒别跑 (NEW)</div>
+          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">八戒别跑 (72050折中版)</div>
           <div class="seat" id="finalSeat-bajie">—</div>
           <div class="sub" id="finalSub-bajie">—</div>
         </div>
@@ -228,25 +228,27 @@
       </div>
 
       <div class="tiny">
-【八戒别跑 v4.0 - 三层规律逻辑】⭐⭐⭐
+【八戒别跑 v72050 折中版】⭐⭐⭐
 ═══════════════════════════════════════════════════
-规律1：后三和规则 (C+D+E)%10 - 精准规律 72%赢率
-· 后三和=4 → 选4号位（100%赢率！）
-· 后三和=5 → 选6号位（100%赢率！）
-· 后三和=8 → 选3号位（或用M值确认）
+先算：
+Q = floor((5098636 - 72050 - 房号) / 98636)
+R = (5098636 - 72050 - 房号) mod 98636
+尾数 = R 的最后一位
 
-规律2：M值奇偶 M=(5098636-房号)/X值 - 覆盖规律 72%赢率
-· 1号位(X=8)：M需偶数 ✓
-· 2号位(X=8)：M需奇数 ✗ 避免！
-· 3号位(X=8)：M需奇数 ✓
-· 4号位(X=4)：M需偶数 ✓
-· 5号位(X=1)：M需奇数 ✓ 最强！(赢率58.7%)
-· 6号位(X=5)：M需奇数 ✓
+只在 Q=50 前提下看尾数：
+· 1号：尾 1 / 4 / 5
+· 2号：尾 9
+· 3号：尾 9 / 4 / 2
+· 4号：尾 7 / 3
+· 5号：尾 3
+· 6号：跳
 
-规律3：座位优先级 - 兜底方案 (无规律时)
-优先级：5>1>6>3>4>2
+最终推荐优先级：
+1 > 4 > 5 > 3 > 2
 
-综合性能：进房率100% | 平均赢率70% | 总利润+32400
+回测（72050）：
+· 全量：14中12，胜率 85.7%，总分 +12560
+· 大波动(|分数|>500)：10中10，胜率 100%，总分 +12480
 ═══════════════════════════════════════════════════
 
 【流浪小男孩】
@@ -258,7 +260,7 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
 综合评分：5号 > 4号 > 6号 > 2号 > 3号
 
 说明：输入房号，三个账号同时输出推荐位子。
-新版本采用三层规律逻辑，最大化进房率和赢率！
+当前八戒只使用 72050 比赛场折中版规则。
       </div>
     </div>
   </div>
@@ -270,36 +272,12 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
     const historyListEl = document.getElementById("historyList");
     const clearHistoryEl = document.getElementById("clearHistory");
 
-    const HISTORY_KEY = "shuanghuang_history_v4";
+    const HISTORY_KEY = "shuanghuang_history_v6_72050_mid";
     const HISTORY_LIMIT = 30;
 
     const ACCOUNTS = {
       bajie: {
-        name: "八戒别跑",
-        // 三层规律逻辑：后三和 + M值奇偶 + 座位优先级
-        // 第1层：后三和规则 (C+D+E) % 10
-        lastThreeRules: {
-          4: 4,  // 后三和=4 → 4号位（100%赢率）
-          5: 6   // 后三和=5 → 6号位（100%赢率）
-        },
-        // 第2层：M值奇偶规律 M=(5098636-房号)/X值
-        mValueRules: {
-          1: { xVal: 8, needOdd: false },  // 1号：M需偶数
-          2: { xVal: 8, needOdd: true },   // 2号：M需奇数（避免）
-          3: { xVal: 8, needOdd: true },   // 3号：M需奇数
-          4: { xVal: 4, needOdd: false },  // 4号：M需偶数
-          5: { xVal: 1, needOdd: true },   // 5号：M需奇数（最强！）
-          6: { xVal: 5, needOdd: true }    // 6号：M需奇数
-        },
-        // 第3层：座位优先级（兜底）
-        seatPriority: {
-          5: 1,  // 优先级1：座位5号（最强，赢率58.7%）
-          1: 2,  // 优先级2：座位1号（赢率44.4%）
-          6: 3,  // 优先级3：座位6号（赢率50.0%）
-          3: 4,  // 优先级4：座位3号（赢率57.6%）
-          4: 5,  // 优先级5：座位4号（赢率56.8%）
-          2: 6   // 优先级6：座位2号（避免！赢率44.8%）
-        }
+        name: "八戒别跑"
       },
       liulang: {
         name: "流浪小男孩",
@@ -338,66 +316,44 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
       }
     };
 
+    function mod(n, m) {
+      return ((n % m) + m) % m;
+    }
+
+    function calcBajie72050(room5) {
+      const roomNum = parseInt(room5, 10);
+      const raw = 5098636 - 72050 - roomNum;
+      const q = Math.floor(raw / 98636);
+      const r = mod(raw, 98636);
+      const tail = r % 10;
+      return { roomNum, raw, q, r, tail };
+    }
+
     function analyze(room5, accountKey) {
       const config = ACCOUNTS[accountKey];
 
       if (accountKey === "bajie") {
-        // 八戒别跑：三层规律逻辑
-        const digits = room5.split('').map(Number);
-        const [A, B, C, D, E] = digits;
+        const { q, r, tail } = calcBajie72050(room5);
 
-        // 第1层：后三和规则 (C+D+E) % 10
-        const lastThree = (C + D + E) % 10;
-        if (config.lastThreeRules[lastThree]) {
-          const recommendSeat = config.lastThreeRules[lastThree];
-          return {
-            finalSeat: `${recommendSeat}号`,
-            finalDesc: `后三和=${lastThree}\n✓ 规律1：直接选${recommendSeat}号`,
-            seats: [recommendSeat]
-          };
+        let hits = [];
+
+        if (q === 50) {
+          if (tail === 1 || tail === 4 || tail === 5) hits.push(1);
+          if (tail === 7 || tail === 3) hits.push(4);
+          if (tail === 3) hits.push(5);
+          if (tail === 9 || tail === 4 || tail === 2) hits.push(3);
+          if (tail === 9) hits.push(2);
         }
 
-        // 第2层：M值奇偶规律
-        let mMatches = [];
-        for (let seat = 1; seat <= 6; seat++) {
-          const rule = config.mValueRules[seat];
-          const mValue = Math.floor((5098636 - parseInt(room5)) / rule.xVal);
-          const isOdd = mValue % 2 === 1;
-          
-          if ((rule.needOdd && isOdd) || (!rule.needOdd && !isOdd)) {
-            mMatches.push({
-              seat,
-              mValue,
-              priority: config.seatPriority[seat]
-            });
-          }
+        let finalSeat = "跳";
+        let finalDesc = `Q=${q}｜R=${r}｜尾=${tail}\n未命中 → 跳`;
+
+        if (hits.length > 0) {
+          finalSeat = `${hits[0]}号`;
+          finalDesc = `Q=${q}｜R=${r}｜尾=${tail}\n命中位：${hits.join("、")}号`;
         }
 
-        if (mMatches.length > 0) {
-          mMatches.sort((a, b) => a.priority - b.priority);
-          const topMatch = mMatches[0];
-          let desc = `M值规律\n✓ 规律2：选${topMatch.seat}号`;
-          if (mMatches.length > 1) {
-            const others = mMatches.slice(1, 3).map(m => `${m.seat}号`).join("、");
-            desc += `\n次选：${others}`;
-          }
-          return {
-            finalSeat: `${topMatch.seat}号`,
-            finalDesc: desc,
-            seats: mMatches.slice(0, 3).map(m => m.seat)
-          };
-        }
-
-        // 第3层：座位优先级（兜底）
-        const seatByPriority = Object.entries(config.seatPriority)
-          .sort((a, b) => a[1] - b[1])
-          .map(e => parseInt(e[0]));
-        
-        return {
-          finalSeat: `${seatByPriority[0]}号`,
-          finalDesc: `优先级\n✓ 规律3：兜底选${seatByPriority[0]}号`,
-          seats: [seatByPriority[0]]
-        };
+        return { finalSeat, finalDesc, seats: hits };
       }
 
       // 其他账号：保持原有逻辑
@@ -418,8 +374,8 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
 
       const rows = [];
 
-      for(let seat in X_VALUES){
-        const seatNum = parseInt(seat);
+      for (let seat in X_VALUES) {
+        const seatNum = parseInt(seat, 10);
         const xValue = seatMapping[seatNum];
         const requiredXValues = X_VALUES[seat];
         const isHit = requiredXValues.includes(xValue);
@@ -454,7 +410,7 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
       return { finalSeat, finalDesc, seats: hits.map(h => h.seat) };
     }
 
-    function loadHistory(){
+    function loadHistory() {
       try {
         const raw = localStorage.getItem(HISTORY_KEY);
         return raw ? JSON.parse(raw) : [];
@@ -463,15 +419,15 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
       }
     }
 
-    function saveHistory(items){
+    function saveHistory(items) {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
     }
 
-    function renderHistory(){
+    function renderHistory() {
       const items = loadHistory();
       historyListEl.innerHTML = "";
 
-      if(items.length === 0){
+      if (items.length === 0) {
         historyListEl.innerHTML = `<div class="historyItem"><div class="historyMain" style="color:rgba(255,255,255,.55)">暂无记录</div></div>`;
         return;
       }
@@ -479,9 +435,10 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
       items.forEach(item => {
         const div = document.createElement("div");
         div.className = "historyItem";
-        
+
         const resultText = item.accounts
-          .map(acc => `${acc.name}:${acc.seats.length > 0 ? acc.seats.join("、") + "号" : "跳"}`).join(" | ");
+          .map(acc => `${acc.name}:${acc.seats.length > 0 ? acc.seats.join("、") + "号" : "跳"}`)
+          .join(" | ");
 
         div.innerHTML = `
           <div class="historyTop">
@@ -498,7 +455,7 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
 
     function pushHistory(room, results) {
       const items = loadHistory();
-      
+
       items.unshift({
         room,
         accounts: [
@@ -506,16 +463,16 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
           { name: "流浪小男孩", seats: results.liulang.seats },
           { name: "梦见", seats: results.mengjian.seats }
         ],
-        time: new Date().toLocaleString("zh-CN", { hour12:false })
+        time: new Date().toLocaleString("zh-CN", { hour12: false })
       });
 
       saveHistory(items);
       renderHistory();
     }
 
-    function run(){
+    function run() {
       const s = roomEl.value.trim().replace(/\s+/g, "");
-      if(!/^\d{5}$/.test(s)){
+      if (!/^\d{5}$/.test(s)) {
         msgEl.textContent = "请输入正确的5位数字";
         document.getElementById("summary-bajie").style.display = "none";
         document.getElementById("summary-liulang").style.display = "none";
@@ -556,7 +513,7 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
 
     goEl.addEventListener("click", run);
     roomEl.addEventListener("keydown", e => {
-      if(e.key === "Enter") run();
+      if (e.key === "Enter") run();
     });
 
     clearHistoryEl.addEventListener("click", () => {
