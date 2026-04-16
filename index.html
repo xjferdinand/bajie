@@ -201,7 +201,7 @@
 
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 14px;">
         <div class="summary" id="summary-bajie" style="display:none;">
-          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">八戒别跑 (72050折中版)</div>
+          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">八戒别跑 (P值终版)</div>
           <div class="seat" id="finalSeat-bajie">—</div>
           <div class="sub" id="finalSub-bajie">—</div>
         </div>
@@ -228,39 +228,45 @@
       </div>
 
       <div class="tiny">
-【八戒别跑 v72050 折中版】⭐⭐⭐
+【八戒别跑 vP值终版】⭐⭐⭐
 ═══════════════════════════════════════════════════
-先算：
-Q = floor((5098636 - 72050 - 房号) / 98636)
-R = (5098636 - 72050 - 房号) mod 98636
-尾数 = R 的最后一位
+P值定义（圆环）：
+· 1号：P = E + B - A
+· 2号：P = A + C - B
+· 3号：P = B + D - C
+· 4号：P = C + E - D
+· 5号：P = D + A - E
+· 6号：P = D + A - E
 
-只在 Q=50 前提下看尾数：
-· 1号：尾 1 / 4 / 5
-· 2号：尾 9
-· 3号：尾 9 / 4 / 2
-· 4号：尾 7 / 3
-· 5号：尾 3
-· 6号：跳
+规则：
+· 1号：P=-4/1/5 可打；P=-3/0 跳
+· 2号：P=7 最优，P=2/3 可打；P=5/-1/-4 跳
+· 3号：P=2 最优，P=5/0/-1 可打；P=3/6/1 跳
+· 4号：P=8 最优，P=6 可打；P=-3/-1/5 跳
+· 5号：P=4 最优，P=8/5 可打；P=-1/2/6 跳
+· 6号：P=11 最优，P=-2/-3 可打；P=9/-1/2/6 跳
 
-最终推荐优先级：
-1 > 4 > 5 > 3 > 2
-
-回测（72050）：
-· 全量：14中12，胜率 85.7%，总分 +12560
-· 大波动(|分数|>500)：10中10，胜率 100%，总分 +12480
+输出规则：
+· 最多同时推荐3个位子
+· 主力位优先级固定：5 > 2 > 4 > 3 > 6 > 1
 ═══════════════════════════════════════════════════
 
 【流浪小男孩】
 X值配置：2号[2,4] | 3号[2] | 4号[0,5] | 5号[5,6] | 6号[5]
 综合评分：6号 > 4号 > 2号 > 3号 > 5号
 
-【梦见】ID:5096507
-X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,8]
-综合评分：5号 > 4号 > 6号 > 2号 > 3号
+【梦见】ID:5096507｜比赛场：13704｜K=96507（纯版A）
+V = 5096507 - 13704 - 房号 = 5082803 - 房号
+Q = floor(V / 96507)
+R = V mod 96507
+尾数 = R 的最后一位
 
-说明：输入房号，三个账号同时输出推荐位子。
-当前八戒只使用 72050 比赛场折中版规则。
+只留 Q=52：
+· 4号：尾 2 / 5 / 9
+· 6号：尾 4
+· 3号：尾 1 / 6
+优先级：4 > 6 > 3
+其他情况：跳
       </div>
     </div>
   </div>
@@ -272,7 +278,7 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
     const historyListEl = document.getElementById("historyList");
     const clearHistoryEl = document.getElementById("clearHistory");
 
-    const HISTORY_KEY = "shuanghuang_history_v6_72050_mid";
+    const HISTORY_KEY = "shuanghuang_history_v7_pvalue_bajie";
     const HISTORY_LIMIT = 30;
 
     const ACCOUNTS = {
@@ -297,22 +303,7 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
         }
       },
       mengjian: {
-        name: "梦见",
-        xValues: {
-          1: [2, 4, 9],
-          2: [5],
-          3: [4, 6],
-          4: [1, 0, 7],
-          5: [1],
-          6: [5, 8]
-        },
-        seatPriority: {
-          5: 1,
-          4: 2,
-          6: 3,
-          2: 4,
-          3: 5
-        }
+        name: "梦见"
       }
     };
 
@@ -320,43 +311,113 @@ X值配置：1号[2,4,9] | 2号[5] | 3号[4,6] | 4号[1,0,7] | 5号[1] | 6号[5,
       return ((n % m) + m) % m;
     }
 
-    function calcBajie72050(room5) {
+    function calcMengjian13704(room5) {
       const roomNum = parseInt(room5, 10);
-      const raw = 5098636 - 72050 - roomNum;
-      const q = Math.floor(raw / 98636);
-      const r = mod(raw, 98636);
+      const V = 5082803 - roomNum;
+      const K = 96507;
+      const q = Math.floor(V / K);
+      const r = mod(V, K);
       const tail = r % 10;
-      return { roomNum, raw, q, r, tail };
+      return { roomNum, V, q, r, tail, K };
+    }
+
+    function calcBajiePValues(room5) {
+      const digits = room5.split('').map(Number);
+      const [A, B, C, D, E] = digits;
+
+      return {
+        1: E + B - A,
+        2: A + C - B,
+        3: B + D - C,
+        4: C + E - D,
+        5: D + A - E,
+        6: D + A - E
+      };
     }
 
     function analyze(room5, accountKey) {
       const config = ACCOUNTS[accountKey];
 
       if (accountKey === "bajie") {
-        const { q, r, tail } = calcBajie72050(room5);
+        const p = calcBajiePValues(room5);
 
-        let hits = [];
+        const seatRules = {
+          1: { best: new Set(), good: new Set([-4, 1, 5]), bad: new Set([-3, 0]) },
+          2: { best: new Set([7]), good: new Set([2, 3]), bad: new Set([5, -1, -4]) },
+          3: { best: new Set([2]), good: new Set([5, 0, -1]), bad: new Set([3, 6, 1]) },
+          4: { best: new Set([8]), good: new Set([6]), bad: new Set([-3, -1, 5]) },
+          5: { best: new Set([4]), good: new Set([8, 5]), bad: new Set([-1, 2, 6]) },
+          6: { best: new Set([11]), good: new Set([-2, -3]), bad: new Set([9, -1, 2, 6]) }
+        };
 
-        if (q === 50) {
-          if (tail === 1 || tail === 4 || tail === 5) hits.push(1);
-          if (tail === 7 || tail === 3) hits.push(4);
-          if (tail === 3) hits.push(5);
-          if (tail === 9 || tail === 4 || tail === 2) hits.push(3);
-          if (tail === 9) hits.push(2);
+        const seatPriority = {
+          5: 1,
+          2: 2,
+          4: 3,
+          3: 4,
+          6: 5,
+          1: 6
+        };
+
+        const candidates = [];
+
+        for (let seat = 1; seat <= 6; seat++) {
+          const val = p[seat];
+          const rule = seatRules[seat];
+
+          if (rule.bad.has(val)) continue;
+
+          if (rule.best.has(val)) {
+            candidates.push({ seat, p: val, level: 1, priority: seatPriority[seat] });
+          } else if (rule.good.has(val)) {
+            candidates.push({ seat, p: val, level: 2, priority: seatPriority[seat] });
+          }
         }
 
+        candidates.sort((a, b) => {
+          if (a.priority !== b.priority) return a.priority - b.priority;
+          return a.level - b.level;
+        });
+
+        const top3 = candidates.slice(0, 3).map(x => x.seat);
+
+        let finalSeat = "跳";
+        let finalDesc =
+          `P1=${p[1]} P2=${p[2]} P3=${p[3]} P4=${p[4]} P5=${p[5]} P6=${p[6]}\n无可打位 → 跳`;
+
+        if (top3.length > 0) {
+          finalSeat = `${top3.join("/") }号`;
+          const detail = top3.map(seat => `${seat}号(P=${p[seat]})`).join("、");
+          finalDesc =
+            `P1=${p[1]} P2=${p[2]} P3=${p[3]} P4=${p[4]} P5=${p[5]} P6=${p[6]}\n推荐：${detail}`;
+        }
+
+        return { finalSeat, finalDesc, seats: top3 };
+      }
+
+      if (accountKey === "mengjian") {
+        const { q, r, tail } = calcMengjian13704(room5);
+
+        let hits = [];
         let finalSeat = "跳";
         let finalDesc = `Q=${q}｜R=${r}｜尾=${tail}\n未命中 → 跳`;
+
+        if (q === 52) {
+          if (tail === 2 || tail === 5 || tail === 9) hits.push(4);
+          else if (tail === 4) hits.push(6);
+          else if (tail === 1 || tail === 6) hits.push(3);
+        }
 
         if (hits.length > 0) {
           finalSeat = `${hits[0]}号`;
           finalDesc = `Q=${q}｜R=${r}｜尾=${tail}\n命中位：${hits.join("、")}号`;
+        } else {
+          if (q !== 52) finalDesc = `Q=${q}｜R=${r}｜尾=${tail}\nQ≠52 → 跳`;
         }
 
         return { finalSeat, finalDesc, seats: hits };
       }
 
-      // 其他账号：保持原有逻辑
       const X_VALUES = config.xValues;
       const SEAT_PRIORITY = config.seatPriority;
 
