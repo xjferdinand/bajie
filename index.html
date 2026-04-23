@@ -1,3 +1,22 @@
+可以，下面这版我已经按你的要求改好了：
+
+现在网页里有 3 个独立模型
+	1.	72050结构模型
+	2.	72050结构 + 强X模型
+	3.	72050 M值模型
+
+关键点
+	•	M模型是独立输出
+	•	不会和结构 / 强X 叠加
+	•	每个模型都输出自己的结果
+	•	最多同时显示 3 个结果块
+	•	如果 M 命中黑M，会单独显示 M模型 → 跳
+	•	结构模型和 M 模型互不影响
+
+我是在你当前这版 72050专属结构模型网页 基础上改的。 ￼
+
+直接复制下面完整 HTML 替换即可：
+
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -6,8 +25,8 @@
   <meta name="theme-color" content="#b00000"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="72050专属结构模型">
-  <title>72050专属结构模型</title>
+  <meta name="apple-mobile-web-app-title" content="72050专属三模型">
+  <title>72050专属三模型</title>
   <style>
     :root{
       --bg:#0b0b0f;--card:#11111a;--line:rgba(255,255,255,.10);
@@ -143,7 +162,7 @@
 </head>
 <body>
 <div class="app">
-  <div class="title">72050专属<span class="version">结构 / 强X双模型</span></div>
+  <div class="title">72050专属<span class="version">结构 / 强X / M三模型</span></div>
   <div class="panel">
 
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
@@ -155,7 +174,7 @@
     <div class="msg" id="msg"></div>
 
     <div class="result" id="result">
-      <div class="result-hdr" id="resultHdr">— 72050双模型结果 —</div>
+      <div class="result-hdr" id="resultHdr">— 72050三模型结果 —</div>
       <div class="hit-list" id="hitList"></div>
     </div>
     <div class="skip" id="skip">跳</div>
@@ -169,12 +188,11 @@
     </div>
 
     <div class="tiny">
-【72050专属结构模型】
+【72050专属三模型】
 
-当前模型：
-- 13种结构
-- 15条位子规则
-- 叠加72050专属强X
+模型1：72050结构模型（13结构 / 15规则）
+模型2：72050结构 + 强X模型
+模型3：72050 M值模型
 
 72050专属强X：
 2号：4、8
@@ -183,9 +201,22 @@
 5号：0、1、3、7、9
 6号：1、2
 
+72050 M模型：
+- 2号强M：3
+- 3号强M：2
+- 4号强M：9、-4、8
+- 5号强M：2、3、7
+- 6号观察M：11、7、8
+
+- 2号黑M：4、16、-2
+- 3号黑M：13、9、0、1
+- 4号黑M：4
+- 5号黑M：-1、5、9、4、12
+- 6号黑M：9、1、4、6
+
 说明：
-- 先看72050结构模型
-- 再看72050专属强X
+- 三个模型独立输出
+- 不做模型交集
 - 每个模型最多给 2 个位子
     </div>
 
@@ -252,7 +283,38 @@ const STRONG_X_72050 = {
   6: new Set([1, 2]),
 };
 
-const HISTORY_KEY   = 'model_72050_struct_x_v1';
+// 72050专属 M 模型
+const M_STRONG = {
+  2: new Set([3]),
+  3: new Set([2]),
+  4: new Set([9, -4, 8]),
+  5: new Set([2, 3, 7]),
+  6: new Set([11, 7, 8]), // 观察强M，先并入可出结果
+};
+
+const M_BLACK = {
+  2: new Set([4, 16, -2]),
+  3: new Set([13, 9, 0, 1]),
+  4: new Set([4]),
+  5: new Set([-1, 5, 9, 4, 12]),
+  6: new Set([9, 1, 4, 6]),
+};
+
+const M_META = {
+  '2_3':   { tag:'强M',      n:'2局', net:'+710',  wr:'100%', avg:'+355'  },
+  '3_2':   { tag:'小输大赢M', n:'5局', net:'+1770', wr:'60%',  avg:'+354'  },
+  '4_9':   { tag:'强M',      n:'2局', net:'+1160', wr:'100%', avg:'+580'  },
+  '4_-4':  { tag:'强M',      n:'2局', net:'+1090', wr:'100%', avg:'+545'  },
+  '4_8':   { tag:'小输大赢M', n:'6局', net:'+2600', wr:'66.7%', avg:'+433' },
+  '5_2':   { tag:'强M',      n:'4局', net:'+2600', wr:'75%',  avg:'+650'  },
+  '5_3':   { tag:'强M',      n:'4局', net:'+1750', wr:'75%',  avg:'+437.5'},
+  '5_7':   { tag:'小输大赢M', n:'3局', net:'+2790', wr:'66.7%', avg:'+930' },
+  '6_11':  { tag:'观察M',     n:'1局', net:'+1350', wr:'100%', avg:'+1350' },
+  '6_7':   { tag:'观察M',     n:'1局', net:'+970',  wr:'100%', avg:'+970'  },
+  '6_8':   { tag:'观察M',     n:'1局', net:'+520',  wr:'100%', avg:'+520'  },
+};
+
+const HISTORY_KEY   = 'model_72050_struct_x_m_v1';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -277,6 +339,20 @@ function getSeatX(room, seat){
   return seat >= 5 ? digits[4] : digits[seat - 1];
 }
 
+function getDigits(room){
+  return room.split('').map(Number);
+}
+
+// M值计算
+function getSeatM(room, seat){
+  const [A,B,C,D,E] = getDigits(room);
+  if(seat === 2) return A + C - B;
+  if(seat === 3) return B + D - C;
+  if(seat === 4) return C + E - D;
+  if(seat === 5 || seat === 6) return D + A - E;
+  return null;
+}
+
 // 处理奇偶偶奇奇的2号补充结构
 function getRulesForPattern(pattern){
   const rules = STRUCT_RULES_72050[pattern] || [];
@@ -289,7 +365,7 @@ function getRulesForPattern(pattern){
   return rules;
 }
 
-// 72050结构模型
+// 模型1：72050结构模型
 function getStructureModel(room5){
   const pattern = getParityPattern(room5);
   const rules = getRulesForPattern(pattern);
@@ -311,7 +387,7 @@ function getStructureModel(room5){
   return { ok: true, pattern, hits };
 }
 
-// 72050结构 + 强X
+// 模型2：72050结构 + 强X
 function getStructureStrongXModel(room5){
   const base = getStructureModel(room5);
 
@@ -337,17 +413,60 @@ function getStructureStrongXModel(room5){
   };
 }
 
+// 模型3：72050 M模型（独立）
+function getMModel(room5){
+  const pattern = getParityPattern(room5);
+  const hits = [];
+
+  for(let seat = 2; seat <= 6; seat++){
+    const M = getSeatM(room5, seat);
+
+    if(M_BLACK[seat] && M_BLACK[seat].has(M)){
+      continue;
+    }
+    if(M_STRONG[seat] && M_STRONG[seat].has(M)){
+      const meta = M_META[`${seat}_${M}`] || { tag:'M模型', n:'—', net:'—', wr:'—', avg:'—' };
+      hits.push({
+        seat,
+        M,
+        tag: meta.tag,
+        n: meta.n,
+        net: meta.net,
+        wr: meta.wr,
+        avg: meta.avg,
+      });
+    }
+  }
+
+  if(!hits.length){
+    return { ok: false, pattern, reason: 'M模型未命中' };
+  }
+
+  // 最多取两个，优先4号/5号，再2/3/6
+  const priority = {4:1, 5:2, 2:3, 3:4, 6:5};
+  hits.sort((a,b)=>(priority[a.seat]||9)-(priority[b.seat]||9));
+
+  return {
+    ok: true,
+    pattern,
+    hits: hits.slice(0, 2)
+  };
+}
+
 function formatSeats(hits){
   return hits.map(h => `${h.seat}`).join(' / ');
 }
 function formatXs(hits){
   return hits.map(h => `${h.X}`).join(' / ');
 }
+function formatMs(hits){
+  return hits.map(h => `${h.M}`).join(' / ');
+}
 function formatTags(hits){
   return hits.map(h => h.tag).join('；');
 }
 function formatStats(hits){
-  return hits.map(h => `${h.seat}号(${h.n}局 ${h.net >= 0 ? '+' + h.net : h.net})`).join('；');
+  return hits.map(h => `${h.seat}号(${h.n} ${h.net})`).join('；');
 }
 function formatWrAvg(hits){
   if (!hits.length) return { wr: '—', avg: '—' };
@@ -355,7 +474,7 @@ function formatWrAvg(hits){
   return { wr: `${hits[0].wr} / ${hits[1].wr}`, avg: `${hits[0].avg} / ${hits[1].avg}` };
 }
 
-function buildModelCard({label, seatsText, pattern, xText, note, wr, avg}, rank=1){
+function buildModelCard({label, seatsText, pattern, row2Text, note, wr, avg}, rank=1){
   const cls = rank <= 3 ? `r${rank}` : '';
   const div = document.createElement('div');
   div.className = `hit ${cls}`;
@@ -364,7 +483,7 @@ function buildModelCard({label, seatsText, pattern, xText, note, wr, avg}, rank=
     <div class="hit-seat">${seatsText}</div>
     <div class="hit-body">
       <div class="row1">结构=${pattern}</div>
-      <div class="row2">位子=${seatsText}　X=${xText}</div>
+      <div class="row2">${row2Text}</div>
       <div class="row3">${note}</div>
     </div>
     <div class="hit-right">
@@ -398,33 +517,47 @@ function buildSkipCard({label, pattern, note}, rank=2){
 function render(room5){
   const structRes = getStructureModel(room5);
   const strongRes = getStructureStrongXModel(room5);
+  const mRes = getMModel(room5);
 
   resultEl.style.display = 'none';
   skipEl.style.display   = 'none';
   hitListEl.innerHTML    = '';
 
-  if(!structRes.ok){
-    resultHdr.textContent = `${structRes.pattern}　无72050结构命中`;
+  const anyHit = structRes.ok || strongRes.ok || mRes.ok;
+  if(!anyHit){
+    resultHdr.textContent = `${getParityPattern(room5)}　三模型均未命中`;
     skipEl.style.display = 'block';
     return [];
   }
 
   resultEl.style.display = 'block';
-  resultHdr.textContent = `${structRes.pattern}　72050双模型结果`;
+  resultHdr.textContent = `${getParityPattern(room5)}　72050三模型结果`;
 
-  const structStat = formatWrAvg(structRes.hits);
-  hitListEl.appendChild(
-    buildModelCard({
-      label: '72050结构模型',
-      seatsText: formatSeats(structRes.hits),
-      pattern: structRes.pattern,
-      xText: formatXs(structRes.hits),
-      note: `备注：13结构 / 15规则；类型=${formatTags(structRes.hits)}；${formatStats(structRes.hits)}`,
-      wr: structStat.wr,
-      avg: structStat.avg
-    }, 1)
-  );
+  // 模型1
+  if(structRes.ok){
+    const structStat = formatWrAvg(structRes.hits);
+    hitListEl.appendChild(
+      buildModelCard({
+        label: '72050结构模型',
+        seatsText: formatSeats(structRes.hits),
+        pattern: structRes.pattern,
+        row2Text: `位子=${formatSeats(structRes.hits)}　X=${formatXs(structRes.hits)}`,
+        note: `备注：13结构 / 15规则；类型=${formatTags(structRes.hits)}；${formatStats(structRes.hits)}`,
+        wr: structStat.wr,
+        avg: structStat.avg
+      }, 1)
+    );
+  } else {
+    hitListEl.appendChild(
+      buildSkipCard({
+        label: '72050结构模型',
+        pattern: structRes.pattern,
+        note: '备注：当前房号未命中72050结构规则'
+      }, 1)
+    );
+  }
 
+  // 模型2
   if(strongRes.ok){
     const strongStat = formatWrAvg(strongRes.hits);
     hitListEl.appendChild(
@@ -432,7 +565,7 @@ function render(room5){
         label: '72050结构+强X',
         seatsText: formatSeats(strongRes.hits),
         pattern: strongRes.pattern,
-        xText: formatXs(strongRes.hits),
+        row2Text: `位子=${formatSeats(strongRes.hits)}　X=${formatXs(strongRes.hits)}`,
         note: `备注：在72050结构命中的基础上，再命中72050专属强X；${formatStats(strongRes.hits)}`,
         wr: strongStat.wr,
         avg: strongStat.avg
@@ -442,13 +575,42 @@ function render(room5){
     hitListEl.appendChild(
       buildSkipCard({
         label: '72050结构+强X',
-        pattern: structRes.pattern,
-        note: '备注：72050结构已命中，但当前X未命中72050专属强X'
+        pattern: strongRes.pattern || getParityPattern(room5),
+        note: structRes.ok ? '备注：72050结构已命中，但当前X未命中72050专属强X' : '备注：结构未命中，强X模型也无法成立'
       }, 2)
     );
   }
 
-  return strongRes.ok ? strongRes.hits.map(h => h.seat) : structRes.hits.map(h => h.seat);
+  // 模型3：M模型独立输出
+  if(mRes.ok){
+    const mStat = formatWrAvg(mRes.hits);
+    hitListEl.appendChild(
+      buildModelCard({
+        label: '72050 M模型',
+        seatsText: formatSeats(mRes.hits),
+        pattern: mRes.pattern,
+        row2Text: `位子=${formatSeats(mRes.hits)}　M=${formatMs(mRes.hits)}`,
+        note: `备注：独立M模型，不与结构/强X叠加；类型=${formatTags(mRes.hits)}；${formatStats(mRes.hits)}`,
+        wr: mStat.wr,
+        avg: mStat.avg
+      }, 3)
+    );
+  } else {
+    hitListEl.appendChild(
+      buildSkipCard({
+        label: '72050 M模型',
+        pattern: mRes.pattern || getParityPattern(room5),
+        note: '备注：当前房号未命中可用强M，或命中黑M'
+      }, 3)
+    );
+  }
+
+  const seats = [];
+  if(strongRes.ok) seats.push(...strongRes.hits.map(h => h.seat));
+  else if(structRes.ok) seats.push(...structRes.hits.map(h => h.seat));
+  if(mRes.ok) seats.push(...mRes.hits.map(h => h.seat));
+
+  return [...new Set(seats)].slice(0, 4);
 }
 
 function run(){
