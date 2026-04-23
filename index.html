@@ -1,658 +1,522 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#b00000" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#b00000"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="双账号智能模型">
-  <title>八戒 流浪小男孩 梦见 - 三账号智能模型 v3.1</title>
-
+  <meta name="apple-mobile-web-app-title" content="72050专属结构模型">
+  <title>72050专属结构模型</title>
   <style>
     :root{
-      --bg:#0b0b0f;
-      --card:#11111a;
-      --line:rgba(255,255,255,.10);
-      --text:#f5f5f7;
-      --muted:rgba(255,255,255,.65);
-      --red:#ff2d2d;
-      --green:#2ecc71;
-      --yellow:#f1c40f;
-      --blue:#4da3ff;
-      --redSoft:#ff8c8c;
+      --bg:#0b0b0f;--card:#11111a;--line:rgba(255,255,255,.10);
+      --text:#f5f5f7;--muted:rgba(255,255,255,.50);--red:#ff2d2d;
     }
-    *{box-sizing:border-box}
+    *{box-sizing:border-box;margin:0;padding:0;}
     body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
       background:
-        radial-gradient(800px 400px at 50% 20%, rgba(255,45,45,.18), transparent 60%),
-        radial-gradient(900px 500px at 50% 120%, rgba(176,0,0,.22), transparent 60%),
+        radial-gradient(800px 400px at 50% 15%,rgba(255,45,45,.20),transparent 60%),
+        radial-gradient(900px 500px at 50% 110%,rgba(176,0,0,.25),transparent 60%),
         var(--bg);
       color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
       padding:18px;
     }
-    .app{width:min(820px,100%)}
+    .app{width:min(500px,100%);}
+
     .title{
-      font-size:24px;
-      font-weight:900;
-      margin:0 0 12px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      letter-spacing:.3px;
+      font-size:18px;font-weight:900;margin:0 0 14px;
+      display:flex;align-items:center;gap:9px;
     }
     .title::before{
-      content:"";
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:var(--red);
-      box-shadow:0 0 18px rgba(255,45,45,.8);
+      content:"";flex-shrink:0;width:9px;height:9px;border-radius:50%;
+      background:var(--red);box-shadow:0 0 14px rgba(255,45,45,.9);
     }
+    .version{font-size:11px;color:rgba(255,45,45,.6);margin-left:4px;font-weight:400;}
+
     .panel{
-      background:linear-gradient(180deg, rgba(255,45,45,.08), transparent 50%), var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 18px 60px rgba(0,0,0,.55);
+      background:linear-gradient(160deg,rgba(255,45,45,.07),transparent 55%),var(--card);
+      border:1px solid var(--line);border-radius:20px;padding:18px;
+      box-shadow:0 20px 70px rgba(0,0,0,.60);
     }
+
     input{
-      width:100%;
-      padding:14px 14px;
-      font-size:20px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.35);
-      color:var(--text);
-      outline:none;
+      width:100%;padding:14px 16px;font-size:26px;letter-spacing:6px;
+      border-radius:14px;border:1px solid var(--line);
+      background:rgba(0,0,0,.40);color:var(--text);outline:none;
+      text-align:center;font-weight:700;
     }
-    input:focus{
-      border-color:rgba(255,45,45,.6);
-      box-shadow:0 0 0 3px rgba(255,45,45,.15);
+    input:focus{border-color:rgba(255,45,45,.65);box-shadow:0 0 0 3px rgba(255,45,45,.12);}
+    input::placeholder{font-size:15px;letter-spacing:1px;font-weight:400;}
+
+    .btn-wrap{display:flex;justify-content:center;margin:16px 0 8px;}
+    .btn-circle{
+      width:76px;height:76px;border-radius:50%;
+      border:2px solid rgba(255,45,45,.55);
+      background:radial-gradient(circle at 38% 32%,rgba(255,90,90,.95),rgba(155,0,0,.95));
+      color:#fff;font-size:17px;font-weight:900;letter-spacing:1px;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 22px rgba(255,45,45,.40),inset 0 1px 0 rgba(255,255,255,.18);
+      transition:transform .1s,box-shadow .1s;
     }
-    button{
-      width:100%;
-      margin-top:10px;
-      padding:12px 14px;
-      font-size:16px;
-      font-weight:900;
-      border-radius:14px;
-      border:1px solid rgba(255,45,45,.55);
-      background:linear-gradient(180deg, rgba(255,45,45,.95), rgba(176,0,0,.95));
-      color:#fff;
-      cursor:pointer;
+    .btn-circle:active{transform:scale(.92);}
+
+    .msg{text-align:center;font-size:12px;color:var(--muted);min-height:14px;margin-bottom:8px;}
+
+    .result{display:none;margin-top:4px;}
+    .result-hdr{
+      text-align:center;font-size:11px;color:var(--muted);
+      margin-bottom:10px;letter-spacing:.5px;
     }
-    button:active{transform:translateY(1px);}
-    .msg{
-      margin-top:10px;
-      font-size:13px;
-      color:var(--muted);
-      min-height:18px;
+    .hit-list{display:flex;flex-direction:column;gap:7px;}
+
+    .hit{
+      display:grid;grid-template-columns:auto 78px 1fr auto;
+      align-items:center;gap:10px;
+      padding:10px 13px;border-radius:13px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(0,0,0,.22);
     }
-    .summary{
-      display:none;
-      margin-top:12px;
-      padding:14px;
-      border-radius:16px;
-      border:1px dashed rgba(255,45,45,.35);
-      background:rgba(255,45,45,.06);
+    .hit.r1{border-color:rgba(255,45,45,.50);background:rgba(255,45,45,.10);}
+    .hit.r2{border-color:rgba(255,140,0,.28);}
+    .hit.r3{border-color:rgba(255,255,255,.10);}
+
+    .hit-lbl{
+      font-size:10px;font-weight:900;padding:3px 7px;border-radius:999px;
+      background:rgba(255,45,45,.20);color:#ff8080;
+      white-space:nowrap;letter-spacing:.3px;
     }
-    .seat{
-      font-size:48px;
-      font-weight:1000;
-      color:var(--red);
-      text-shadow:0 0 18px rgba(255,45,45,.35);
-      text-align:center;
-      letter-spacing:.5px;
+    .hit.r1 .hit-lbl{background:rgba(255,45,45,.38);color:#ff9090;}
+
+    .hit-seat{
+      font-size:28px;font-weight:1000;color:var(--red);
+      text-shadow:0 0 16px rgba(255,45,45,.45);
+      line-height:1.1;text-align:center;
+      white-space:nowrap;
     }
-    .sub{
-      margin-top:6px;
-      text-align:center;
-      font-size:13px;
-      color:var(--muted);
-      white-space:pre-line;
-      line-height:1.55;
+    .hit-body{line-height:1.7;}
+    .hit-body .row1{font-size:12px;color:var(--text);}
+    .hit-body .row2{font-size:11px;color:var(--muted);}
+    .hit-body .row3{font-size:10px;color:rgba(255,255,255,.30);margin-top:1px;}
+
+    .hit-right{text-align:right;}
+    .hit-wr{font-size:13px;font-weight:900;color:rgba(80,255,140,.85);}
+    .hit-avg{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+
+    .skip{
+      display:none;text-align:center;padding:22px;
+      font-size:38px;font-weight:1000;color:rgba(255,255,255,.18);
+      letter-spacing:4px;
     }
+
     .history{
-      margin-top:14px;
-      padding:14px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
+      margin-top:13px;padding:11px 13px;border-radius:13px;
+      border:1px solid var(--line);background:rgba(255,255,255,.02);
     }
-    .historyHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
+    .histHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+    .histTitle{font-size:12px;font-weight:800;color:var(--muted);}
+    .clearBtn{
+      font-size:11px;padding:4px 9px;border-radius:7px;cursor:pointer;
+      border:1px solid rgba(255,45,45,.35);background:rgba(255,45,45,.10);
+      color:rgba(255,100,100,.85);
     }
-    .historyTitle{
-      font-weight:900;
-      font-size:15px;
+    .histList{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow:auto;}
+    .histItem{
+      border:1px solid rgba(255,255,255,.05);border-radius:9px;
+      padding:7px 10px;background:rgba(0,0,0,.14);
     }
-    .smallBtn{
-      width:auto;
-      margin-top:0;
-      padding:8px 10px;
-      font-size:12px;
-      border-radius:10px;
-    }
-    .historyList{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      max-height:260px;
-      overflow:auto;
-    }
-    .historyItem{
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:12px;
-      padding:10px;
-      background:rgba(0,0,0,.18);
-    }
-    .historyTop{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:6px;
-    }
-    .historyMain{
-      font-size:14px;
-      line-height:1.6;
-    }
+    .histTop{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:2px;}
+    .histMain{font-size:12px;color:rgba(255,255,255,.60);}
     .pill{
-      display:inline-block;
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.10);
-      font-weight:800;
-      margin-right:6px;
+      display:inline-block;padding:1px 6px;border-radius:999px;
+      border:1px solid rgba(255,45,45,.35);background:rgba(255,45,45,.10);
+      font-weight:800;color:var(--red);margin-right:3px;
     }
+
     .tiny{
-      margin-top:12px;
-      font-size:12px;
-      color:rgba(255,255,255,.5);
-      line-height:1.7;
-      white-space:pre-line;
+      margin-top:13px;padding-top:11px;border-top:1px solid var(--line);
+      font-size:11px;color:rgba(255,255,255,.28);line-height:1.8;white-space:pre-line;
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="title">八戒 流浪小男孩 梦见 - 三账号智能模型 v3.1</div>
+<div class="app">
+  <div class="title">72050专属<span class="version">结构 / 强X双模型</span></div>
+  <div class="panel">
 
-    <div class="panel">
-      <input id="room" inputmode="numeric" placeholder="输入5位房号（例如：74759）" maxlength="5" />
-      <button id="go">开干</button>
+    <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
 
-      <div class="msg" id="msg"></div>
+    <div class="btn-wrap">
+      <button class="btn-circle" id="go">开干</button>
+    </div>
 
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 14px;">
-        <div class="summary" id="summary-bajie" style="display:none;">
-          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">八戒别跑 (当前主模型)</div>
-          <div class="seat" id="finalSeat-bajie">—</div>
-          <div class="sub" id="finalSub-bajie">—</div>
-        </div>
+    <div class="msg" id="msg"></div>
 
-        <div class="summary" id="summary-liulang" style="display:none;">
-          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">流浪小男孩</div>
-          <div class="seat" id="finalSeat-liulang">—</div>
-          <div class="sub" id="finalSub-liulang">—</div>
-        </div>
+    <div class="result" id="result">
+      <div class="result-hdr" id="resultHdr">— 72050双模型结果 —</div>
+      <div class="hit-list" id="hitList"></div>
+    </div>
+    <div class="skip" id="skip">跳</div>
 
-        <div class="summary" id="summary-mengjian" style="display:none;">
-          <div style="font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:800;">梦见 (新规则✨)</div>
-          <div class="seat" id="finalSeat-mengjian">—</div>
-          <div class="sub" id="finalSub-mengjian">—</div>
-        </div>
+    <div class="history">
+      <div class="histHead">
+        <span class="histTitle">最近记录</span>
+        <button class="clearBtn" id="clearBtn">清空</button>
       </div>
+      <div class="histList" id="histList"></div>
+    </div>
 
-      <div class="history">
-        <div class="historyHeader">
-          <div class="historyTitle">最近判断记录</div>
-          <button class="smallBtn" id="clearHistory">清空记录</button>
-        </div>
-        <div class="historyList" id="historyList"></div>
-      </div>
+    <div class="tiny">
+【72050专属结构模型】
 
-      <div class="tiny">
-【八戒当前主模型（26号位）】
+当前模型：
+- 13种结构
+- 15条位子规则
+- 叠加72050专属强X
 
-一、位子与房号对应关系
-2号 = B
-3号 = C
-4号 = D
-5号 = E
-6号 = E
+72050专属强X：
+2号：4、8
+3号：2、6、7、8
+4号：0、2、4、5、6、7
+5号：0、1、3、7、9
+6号：1、2
 
 说明：
-1号位目前不纳入这套主模型统计。
-所以这套模型只管 26 号位。
-
-二、第一层：奇偶方向
-3号、5号：优先奇数X
-2号、4号、6号：优先偶数X
-
-也就是：
-2号优先偶数B
-3号优先奇数C
-4号优先偶数D
-5号优先奇数E
-6号优先偶数E
-
-三、第二层：过滤后的最终可用X值
-2号：只用 2 / 4 / 8
-3号：只用 1 / 7
-4号：只用 0 / 2 / 4
-5号：只用 1 / 3 / 5 / 9
-6号：只用 0 / 6 / 8
-
-四、各位子避坑值
-2号：避 0 / 6
-3号：避 9 / 3 / 5
-4号：避 8 / 6
-5号：避 7
-6号：避 2 / 4
-
-五、和值过滤
-S = A + B + C + D + E
-
-如果 S = 16 / 18 / 21
-则直接跳，不打。
-
-六、最终执行表
-2号：B 只用 2 / 4 / 8
-3号：C 只用 1 / 7
-4号：D 只用 0 / 2 / 4
-5号：E 只用 1 / 3 / 5 / 9
-6号：E 只用 0 / 6 / 8
-
-若 S = 16 / 18 / 21
-直接跳
-
-七、位子权重排序
-5号 > 2号 > 3号 > 4号 > 6号
-
-八、最简口令版
-2=B 只用248
-3=C 只用17
-4=D 只用024
-5=E 只用1359
-6=E 只用068
-S=16/18/21 跳
-位子排序：5>2>3>4>6
-
-【流浪小男孩】
-X值配置：2号[2,4] | 3号[2] | 4号[0,5] | 5号[5,6] | 6号[5]
-综合评分：6号 > 4号 > 2号 > 3号 > 5号
-
-【梦见 - 黄金X值+S值规则(v3.1)✨新规则】
-黄金X值定义（必须满足）：
-· 2号: X=5
-· 3号: X=9或4
-· 4号: X=0/7/8/1/4
-· 5号: X=1
-· 6号: X=5/7/3/6/8
-
-S值质量（S=各位数字之和）：
-· 好S值(赢率≥75%): 10,11,12,14,15,19,21,22,26,27,29,31,34,35 ✅
-· 中S值(50-75%): 16,17,23,24,28 ⚠️
-· 垃圾S值(<50%): 18,25,30 ❌ 直接跳
-
-位子优先级：5号>2号>3号>4号>6号
-
-进房规则：
-✅ 有黄金X值 + (好S值 OR 中S值)
-❌ 垃圾S值无论如何都跳
-❌ 无黄金X值直接跳
-      </div>
+- 先看72050结构模型
+- 再看72050专属强X
+- 每个模型最多给 2 个位子
     </div>
+
   </div>
+</div>
 
-  <script>
-    const roomEl = document.getElementById("room");
-    const goEl = document.getElementById("go");
-    const msgEl = document.getElementById("msg");
-    const historyListEl = document.getElementById("historyList");
-    const clearHistoryEl = document.getElementById("clearHistory");
+<script>
+// ══════════════════════════════════════════════════════
+// 72050专属：13结构 / 15规则
+// 每个结构最多给2个位子
+// ══════════════════════════════════════════════════════
+const STRUCT_RULES_72050 = {
+  '奇偶奇偶奇': [
+    { seat: 5, tag: '强结构', n: 2, net: 2680, wr: '100%', avg: '+1340' }
+  ],
+  '偶偶奇偶奇': [
+    { seat: 5, tag: '强结构', n: 2, net: 2230, wr: '100%', avg: '+1115' }
+  ],
+  '偶奇奇偶奇': [
+    { seat: 4, tag: '强结构', n: 2, net: 1400, wr: '100%', avg: '+700' }
+  ],
+  '偶奇偶奇偶': [
+    { seat: 6, tag: '强结构', n: 2, net: 160, wr: '100%', avg: '+80' }
+  ],
+  '奇偶偶偶奇': [
+    { seat: 5, tag: '扩容结构', n: 3, net: 1700, wr: '100%', avg: '+566' }
+  ],
+  '奇偶奇奇偶': [
+    { seat: 6, tag: '扩容结构', n: 2, net: 1050, wr: '100%', avg: '+525' }
+  ],
+  '奇偶奇偶偶': [
+    { seat: 5, tag: '扩容结构', n: 2, net: 670, wr: '50%', avg: '+335' }
+  ],
+  '奇偶偶奇奇': [
+    { seat: 6, tag: '扩容结构', n: 1, net: 1350, wr: '100%', avg: '+1350' },
+    { seat: 4, tag: '扩容结构', n: 2, net: 630, wr: '100%', avg: '+315' }
+  ],
+  '奇奇奇奇奇': [
+    { seat: 5, tag: '扩容结构', n: 2, net: 1380, wr: '100%', avg: '+690' }
+  ],
+  '奇奇偶奇奇': [
+    { seat: 3, tag: '扩容结构', n: 2, net: 720, wr: '50%', avg: '+360' }
+  ],
+  '奇偶偶奇偶': [
+    { seat: 5, tag: '后补扩容', n: 1, net: 1060, wr: '100%', avg: '+1060' }
+  ],
+  '偶偶奇偶偶': [
+    { seat: 5, tag: '后补扩容', n: 1, net: 990, wr: '100%', avg: '+990' }
+  ],
+  '偶奇奇偶偶': [
+    { seat: 6, tag: '后补扩容', n: 1, net: 990, wr: '100%', avg: '+990' }
+  ],
+  '奇偶偶奇奇_2号补充': [
+    { seat: 2, tag: '后补扩容', n: 1, net: 2310, wr: '100%', avg: '+2310' }
+  ]
+};
 
-    const HISTORY_KEY = "shuanghuang_history_v10_bajie_main_model";
-    const HISTORY_LIMIT = 30;
+// 72050专属强X
+const STRONG_X_72050 = {
+  2: new Set([4, 8]),
+  3: new Set([2, 6, 7, 8]),
+  4: new Set([0, 2, 4, 5, 6, 7]),
+  5: new Set([0, 1, 3, 7, 9]),
+  6: new Set([1, 2]),
+};
 
-    const ACCOUNTS = {
-      bajie: {
-        name: "八戒别跑"
-      },
-      liulang: {
-        name: "流浪小男孩",
-        xValues: {
-          2: [2, 4],
-          3: [2],
-          4: [0, 5],
-          5: [5, 6],
-          6: [5]
-        },
-        seatPriority: {
-          6: 1,
-          4: 2,
-          2: 3,
-          3: 4,
-          5: 5
-        }
-      },
-      mengjian: {
-        name: "梦见"
-      }
+const HISTORY_KEY   = 'model_72050_struct_x_v1';
+const HISTORY_LIMIT = 30;
+
+const roomEl     = document.getElementById('room');
+const goEl       = document.getElementById('go');
+const msgEl      = document.getElementById('msg');
+const resultEl   = document.getElementById('result');
+const resultHdr  = document.getElementById('resultHdr');
+const hitListEl  = document.getElementById('hitList');
+const skipEl     = document.getElementById('skip');
+const histListEl = document.getElementById('histList');
+const clearBtnEl = document.getElementById('clearBtn');
+
+function getParityPattern(room){
+  return room
+    .split('')
+    .map(n => (parseInt(n, 10) % 2 === 0 ? '偶' : '奇'))
+    .join('');
+}
+
+function getSeatX(room, seat){
+  const digits = room.split('').map(Number);
+  return seat >= 5 ? digits[4] : digits[seat - 1];
+}
+
+// 处理奇偶偶奇奇的2号补充结构
+function getRulesForPattern(pattern){
+  const rules = STRUCT_RULES_72050[pattern] || [];
+  if(pattern === '奇偶偶奇奇'){
+    return [
+      ...rules,
+      ...(STRUCT_RULES_72050['奇偶偶奇奇_2号补充'] || [])
+    ];
+  }
+  return rules;
+}
+
+// 72050结构模型
+function getStructureModel(room5){
+  const pattern = getParityPattern(room5);
+  const rules = getRulesForPattern(pattern);
+
+  if(!rules || !rules.length){
+    return { ok: false, pattern, reason: '无72050结构命中' };
+  }
+
+  const hits = rules.slice(0, 2).map(rule => ({
+    seat: rule.seat,
+    X: getSeatX(room5, rule.seat),
+    tag: rule.tag,
+    n: rule.n,
+    net: rule.net,
+    wr: rule.wr,
+    avg: rule.avg,
+  }));
+
+  return { ok: true, pattern, hits };
+}
+
+// 72050结构 + 强X
+function getStructureStrongXModel(room5){
+  const base = getStructureModel(room5);
+
+  if(!base.ok){
+    return { ok: false, pattern: base.pattern, reason: base.reason };
+  }
+
+  const passed = base.hits.filter(hit => STRONG_X_72050[hit.seat] && STRONG_X_72050[hit.seat].has(hit.X));
+
+  if(!passed.length){
+    return {
+      ok: false,
+      pattern: base.pattern,
+      reason: '结构命中，但72050强X未命中',
+      original: base
     };
+  }
 
-    function analyze(room5, accountKey) {
-      const config = ACCOUNTS[accountKey];
+  return {
+    ok: true,
+    pattern: base.pattern,
+    hits: passed.slice(0, 2)
+  };
+}
 
-      if (accountKey === "bajie") {
-        const digits = room5.split("").map(Number);
-        const [A, B, C, D, E] = digits;
-        const S = A + B + C + D + E;
+function formatSeats(hits){
+  return hits.map(h => `${h.seat}`).join(' / ');
+}
+function formatXs(hits){
+  return hits.map(h => `${h.X}`).join(' / ');
+}
+function formatTags(hits){
+  return hits.map(h => h.tag).join('；');
+}
+function formatStats(hits){
+  return hits.map(h => `${h.seat}号(${h.n}局 ${h.net >= 0 ? '+' + h.net : h.net})`).join('；');
+}
+function formatWrAvg(hits){
+  if (!hits.length) return { wr: '—', avg: '—' };
+  if (hits.length === 1) return { wr: hits[0].wr, avg: hits[0].avg };
+  return { wr: `${hits[0].wr} / ${hits[1].wr}`, avg: `${hits[0].avg} / ${hits[1].avg}` };
+}
 
-        if ([16, 18, 21].includes(S)) {
-          return {
-            finalSeat: "跳",
-            finalDesc: `B=${B} C=${C} D=${D} E=${E}｜S=${S}\n命中弱区 S=${S} → 直接跳`,
-            seats: []
-          };
-        }
+function buildModelCard({label, seatsText, pattern, xText, note, wr, avg}, rank=1){
+  const cls = rank <= 3 ? `r${rank}` : '';
+  const div = document.createElement('div');
+  div.className = `hit ${cls}`;
+  div.innerHTML = `
+    <div class="hit-lbl">${label}</div>
+    <div class="hit-seat">${seatsText}</div>
+    <div class="hit-body">
+      <div class="row1">结构=${pattern}</div>
+      <div class="row2">位子=${seatsText}　X=${xText}</div>
+      <div class="row3">${note}</div>
+    </div>
+    <div class="hit-right">
+      <div class="hit-wr">${wr}</div>
+      <div class="hit-avg">${avg}</div>
+    </div>
+  `;
+  return div;
+}
 
-        const candidates = [];
+function buildSkipCard({label, pattern, note}, rank=2){
+  const cls = rank <= 3 ? `r${rank}` : '';
+  const div = document.createElement('div');
+  div.className = `hit ${cls}`;
+  div.innerHTML = `
+    <div class="hit-lbl">${label}</div>
+    <div class="hit-seat" style="color:rgba(255,255,255,.25);text-shadow:none;">跳</div>
+    <div class="hit-body">
+      <div class="row1">结构=${pattern}</div>
+      <div class="row2">${note}</div>
+      <div class="row3">该模型当前无可用位子</div>
+    </div>
+    <div class="hit-right">
+      <div class="hit-wr">—</div>
+      <div class="hit-avg">—</div>
+    </div>
+  `;
+  return div;
+}
 
-        if ([2, 4, 8].includes(B)) {
-          candidates.push({ seat: 2, x: B, priority: 2 });
-        }
-        if ([1, 7].includes(C)) {
-          candidates.push({ seat: 3, x: C, priority: 3 });
-        }
-        if ([0, 2, 4].includes(D)) {
-          candidates.push({ seat: 4, x: D, priority: 4 });
-        }
-        if ([1, 3, 5, 9].includes(E)) {
-          candidates.push({ seat: 5, x: E, priority: 1 });
-        }
-        if ([0, 6, 8].includes(E)) {
-          candidates.push({ seat: 6, x: E, priority: 5 });
-        }
+function render(room5){
+  const structRes = getStructureModel(room5);
+  const strongRes = getStructureStrongXModel(room5);
 
-        candidates.sort((a, b) => a.priority - b.priority);
+  resultEl.style.display = 'none';
+  skipEl.style.display   = 'none';
+  hitListEl.innerHTML    = '';
 
-        const top3 = candidates.slice(0, 3);
+  if(!structRes.ok){
+    resultHdr.textContent = `${structRes.pattern}　无72050结构命中`;
+    skipEl.style.display = 'block';
+    return [];
+  }
 
-        if (top3.length === 0) {
-          return {
-            finalSeat: "跳",
-            finalDesc: `B=${B} C=${C} D=${D} E=${E}｜S=${S}\n无命中 → 跳`,
-            seats: []
-          };
-        }
+  resultEl.style.display = 'block';
+  resultHdr.textContent = `${structRes.pattern}　72050双模型结果`;
 
-        const seatText = top3.map(x => x.seat).join("/");
-        const detail = top3.map(item => `${item.seat}号(X=${item.x})`).join("、");
+  const structStat = formatWrAvg(structRes.hits);
+  hitListEl.appendChild(
+    buildModelCard({
+      label: '72050结构模型',
+      seatsText: formatSeats(structRes.hits),
+      pattern: structRes.pattern,
+      xText: formatXs(structRes.hits),
+      note: `备注：13结构 / 15规则；类型=${formatTags(structRes.hits)}；${formatStats(structRes.hits)}`,
+      wr: structStat.wr,
+      avg: structStat.avg
+    }, 1)
+  );
 
-        return {
-          finalSeat: `${seatText}号`,
-          finalDesc: `B=${B} C=${C} D=${D} E=${E}｜S=${S}\n推荐：${detail}`,
-          seats: top3.map(x => x.seat)
-        };
-      }
+  if(strongRes.ok){
+    const strongStat = formatWrAvg(strongRes.hits);
+    hitListEl.appendChild(
+      buildModelCard({
+        label: '72050结构+强X',
+        seatsText: formatSeats(strongRes.hits),
+        pattern: strongRes.pattern,
+        xText: formatXs(strongRes.hits),
+        note: `备注：在72050结构命中的基础上，再命中72050专属强X；${formatStats(strongRes.hits)}`,
+        wr: strongStat.wr,
+        avg: strongStat.avg
+      }, 2)
+    );
+  } else {
+    hitListEl.appendChild(
+      buildSkipCard({
+        label: '72050结构+强X',
+        pattern: structRes.pattern,
+        note: '备注：72050结构已命中，但当前X未命中72050专属强X'
+      }, 2)
+    );
+  }
 
-      if (accountKey === "mengjian") {
-        const digits = room5.split("").map(Number);
-        const [A, B, C, D, E] = digits;
-        const S = A + B + C + D + E;
+  return strongRes.ok ? strongRes.hits.map(h => h.seat) : structRes.hits.map(h => h.seat);
+}
 
-        // 垃圾S值直接跳
-        if ([18, 25, 30].includes(S)) {
-          return {
-            finalSeat: "跳",
-            finalDesc: `黄金X+S值规则\nS=${S} 垃圾区 → 直接跳`,
-            seats: []
-          };
-        }
+function run(){
+  const raw = roomEl.value.trim().replace(/\s+/g, '');
+  if(!/^\d{5}$/.test(raw)){
+    msgEl.textContent = '请输入正确的5位数字';
+    return;
+  }
+  msgEl.textContent = '';
+  const seats = render(raw);
+  pushHistory(raw, seats);
+  setTimeout(() => { roomEl.value = ''; roomEl.focus(); }, 180);
+}
 
-        // 黄金X值定义
-        const goldenXValues = {
-          2: [5],
-          3: [9, 4],
-          4: [0, 7, 8, 1, 4],
-          5: [1],
-          6: [5, 7, 3, 6, 8]
-        };
+function loadHist(){
+  try{
+    return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+  }catch{
+    return [];
+  }
+}
+function saveHist(items){
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+}
 
-        const seatMapping = { 2: B, 3: C, 4: D, 5: E, 6: E };
-        const seatPriority = { 5: 1, 2: 2, 3: 3, 4: 4, 6: 5 };
+function renderHist(){
+  const items = loadHist();
+  histListEl.innerHTML = '';
+  if(!items.length){
+    histListEl.innerHTML = `<div class="histItem"><div class="histMain" style="color:rgba(255,255,255,.2)">暂无记录</div></div>`;
+    return;
+  }
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'histItem';
+    const res = item.seats.length ? item.seats.map(s=>`${s}号`).join(' / ') : '跳';
+    div.innerHTML = `
+      <div class="histTop"><span>房号 <span class="pill">${item.room}</span></span><span>${item.time}</span></div>
+      <div class="histMain">${item.pattern}　→　${res}</div>`;
+    histListEl.appendChild(div);
+  });
+}
 
-        // 检查黄金X值
-        const candidates = [];
-        for (let seat = 2; seat <= 6; seat++) {
-          const xVal = seatMapping[seat];
-          if (goldenXValues[seat].includes(xVal)) {
-            candidates.push({
-              seat,
-              x: xVal,
-              priority: seatPriority[seat]
-            });
-          }
-        }
+function pushHistory(room, seats){
+  const items = loadHist();
+  items.unshift({
+    room,
+    seats,
+    pattern: getParityPattern(room),
+    time: new Date().toLocaleString('zh-CN', {hour12:false})
+  });
+  saveHist(items);
+  renderHist();
+}
 
-        if (candidates.length === 0) {
-          return {
-            finalSeat: "跳",
-            finalDesc: `黄金X+S值规则\nS=${S}\n无黄金X值 → 跳`,
-            seats: []
-          };
-        }
+goEl.addEventListener('click', run);
+roomEl.addEventListener('keydown', e => { if(e.key === 'Enter') run(); });
+clearBtnEl.addEventListener('click', () => {
+  localStorage.removeItem(HISTORY_KEY);
+  renderHist();
+});
 
-        // 检查S值质量
-        let sQuality = "unknown";
-        if ([10, 11, 12, 14, 15, 19, 21, 22, 26, 27, 29, 31, 34, 35].includes(S)) {
-          sQuality = "good";
-        } else if ([16, 17, 23, 24, 28].includes(S)) {
-          sQuality = "medium";
-        }
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+}
 
-        // 排序并取前3个
-        candidates.sort((a, b) => a.priority - b.priority);
-        const top3 = candidates.slice(0, 3);
-
-        const seatText = top3.map(x => x.seat).join("/");
-        const seatDetail = top3.map(x => `${x.seat}号(X=${x.x})`).join("、");
-        const sQualityText = sQuality === "good" ? "好S值✅" : (sQuality === "medium" ? "中S值⚠️" : "弱S值");
-
-        return {
-          finalSeat: `${seatText}号`,
-          finalDesc: `黄金X+S值规则\nS=${S}(${sQualityText})\n推荐：${seatDetail}`,
-          seats: top3.map(x => x.seat)
-        };
-      }
-
-      const X_VALUES = config.xValues;
-      const SEAT_PRIORITY = config.seatPriority;
-
-      const digits = room5.split("").map(Number);
-      const [A, B, C, D, E] = digits;
-
-      const seatMapping = {
-        1: A,
-        2: B,
-        3: C,
-        4: D,
-        5: E,
-        6: E
-      };
-
-      const rows = [];
-
-      for (let seat in X_VALUES) {
-        const seatNum = parseInt(seat, 10);
-        const xValue = seatMapping[seatNum];
-        const requiredXValues = X_VALUES[seat];
-        const isHit = requiredXValues.includes(xValue);
-
-        rows.push({
-          seat: seatNum,
-          xValue,
-          requiredXValues: requiredXValues.join(", "),
-          isHit,
-          priority: SEAT_PRIORITY[seatNum] || 999
-        });
-      }
-
-      const hits = rows
-        .filter(r => r.isHit)
-        .sort((a, b) => a.priority - b.priority)
-        .slice(0, 3);
-
-      let finalSeat = "跳";
-      let finalDesc = "无";
-
-      if (hits.length > 0) {
-        finalSeat = `${hits[0].seat}号`;
-        finalDesc = `X=${hits[0].xValue}`;
-
-        if (hits.length > 1) {
-          const others = hits.slice(1).map(x => `${x.seat}号`).join("、");
-          finalDesc += `\n次选：${others}`;
-        }
-      }
-
-      return { finalSeat, finalDesc, seats: hits.map(h => h.seat) };
-    }
-
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(HISTORY_KEY);
-        return raw ? JSON.parse(raw) : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveHistory(items) {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
-    }
-
-    function renderHistory() {
-      const items = loadHistory();
-      historyListEl.innerHTML = "";
-
-      if (items.length === 0) {
-        historyListEl.innerHTML = `<div class="historyItem"><div class="historyMain" style="color:rgba(255,255,255,.55)">暂无记录</div></div>`;
-        return;
-      }
-
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "historyItem";
-
-        const resultText = item.accounts
-          .map(acc => `${acc.name}:${acc.seats.length > 0 ? acc.seats.join("、") + "号" : "跳"}`)
-          .join(" | ");
-
-        div.innerHTML = `
-          <div class="historyTop">
-            <div>房号：<span class="pill">${item.room}</span></div>
-            <div>${item.time}</div>
-          </div>
-          <div class="historyMain">
-            <div><strong>结果：</strong>${resultText}</div>
-          </div>
-        `;
-        historyListEl.appendChild(div);
-      });
-    }
-
-    function pushHistory(room, results) {
-      const items = loadHistory();
-
-      items.unshift({
-        room,
-        accounts: [
-          { name: "八戒别跑", seats: results.bajie.seats },
-          { name: "流浪小男孩", seats: results.liulang.seats },
-          { name: "梦见", seats: results.mengjian.seats }
-        ],
-        time: new Date().toLocaleString("zh-CN", { hour12: false })
-      });
-
-      saveHistory(items);
-      renderHistory();
-    }
-
-    function run() {
-      const s = roomEl.value.trim().replace(/\s+/g, "");
-      if (!/^\d{5}$/.test(s)) {
-        msgEl.textContent = "请输入正确的5位数字";
-        document.getElementById("summary-bajie").style.display = "none";
-        document.getElementById("summary-liulang").style.display = "none";
-        document.getElementById("summary-mengjian").style.display = "none";
-        return;
-      }
-
-      msgEl.textContent = "";
-
-      const results = {
-        bajie: analyze(s, "bajie"),
-        liulang: analyze(s, "liulang"),
-        mengjian: analyze(s, "mengjian")
-      };
-
-      const summaryBajie = document.getElementById("summary-bajie");
-      document.getElementById("finalSeat-bajie").textContent = results.bajie.finalSeat;
-      document.getElementById("finalSub-bajie").textContent = results.bajie.finalDesc;
-      summaryBajie.style.display = "block";
-
-      const summaryLiulang = document.getElementById("summary-liulang");
-      document.getElementById("finalSeat-liulang").textContent = results.liulang.finalSeat;
-      document.getElementById("finalSub-liulang").textContent = results.liulang.finalDesc;
-      summaryLiulang.style.display = "block";
-
-      const summaryMengjian = document.getElementById("summary-mengjian");
-      document.getElementById("finalSeat-mengjian").textContent = results.mengjian.finalSeat;
-      document.getElementById("finalSub-mengjian").textContent = results.mengjian.finalDesc;
-      summaryMengjian.style.display = "block";
-
-      pushHistory(s, results);
-
-      setTimeout(() => {
-        roomEl.value = "";
-        roomEl.focus();
-      }, 250);
-    }
-
-    goEl.addEventListener("click", run);
-    roomEl.addEventListener("keydown", e => {
-      if (e.key === "Enter") run();
-    });
-
-    clearHistoryEl.addEventListener("click", () => {
-      localStorage.removeItem(HISTORY_KEY);
-      renderHistory();
-    });
-
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js");
-      });
-    }
-
-    renderHistory();
-    roomEl.focus();
-  </script>
+renderHist();
+roomEl.focus();
+</script>
 </body>
 </html>
