@@ -10,72 +10,144 @@
   <title>72050专属三模型</title>
   <style>
     :root{
-      --bg:#0b0b0f;--card:#11111a;--line:rgba(255,255,255,.10);
-      --text:#f5f5f7;--muted:rgba(255,255,255,.50);--red:#ff2d2d;
+      --bg:#0b0b0f;
+      --card:#11111a;
+      --line:rgba(255,255,255,.10);
+      --text:#f5f5f7;
+      --muted:rgba(255,255,255,.50);
+      --red:#ff2d2d;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
+
     body{
-      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       background:
         radial-gradient(800px 400px at 50% 15%,rgba(255,45,45,.20),transparent 60%),
         radial-gradient(900px 500px at 50% 110%,rgba(176,0,0,.25),transparent 60%),
         var(--bg);
       color:var(--text);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-      padding:18px;
+      padding:12px;
     }
-    .app{width:min(500px,100%);}
+
+    .app{
+      width:min(430px,100%);
+    }
 
     .title{
-      font-size:18px;font-weight:900;margin:0 0 14px;
-      display:flex;align-items:center;gap:9px;
+      font-size:16px;
+      font-weight:900;
+      margin:0 0 12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     .title::before{
-      content:"";flex-shrink:0;width:9px;height:9px;border-radius:50%;
-      background:var(--red);box-shadow:0 0 14px rgba(255,45,45,.9);
+      content:"";
+      flex-shrink:0;
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--red);
+      box-shadow:0 0 12px rgba(255,45,45,.9);
     }
-    .version{font-size:11px;color:rgba(255,45,45,.6);margin-left:4px;font-weight:400;}
+    .version{
+      font-size:10px;
+      color:rgba(255,45,45,.6);
+      margin-left:4px;
+      font-weight:400;
+    }
 
     .panel{
       background:linear-gradient(160deg,rgba(255,45,45,.07),transparent 55%),var(--card);
-      border:1px solid var(--line);border-radius:20px;padding:18px;
-      box-shadow:0 20px 70px rgba(0,0,0,.60);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 20px 60px rgba(0,0,0,.55);
     }
 
     input{
-      width:100%;padding:14px 16px;font-size:26px;letter-spacing:6px;
-      border-radius:14px;border:1px solid var(--line);
-      background:rgba(0,0,0,.40);color:var(--text);outline:none;
-      text-align:center;font-weight:700;
+      width:100%;
+      padding:12px 14px;
+      font-size:22px;
+      letter-spacing:5px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.40);
+      color:var(--text);
+      outline:none;
+      text-align:center;
+      font-weight:700;
     }
-    input:focus{border-color:rgba(255,45,45,.65);box-shadow:0 0 0 3px rgba(255,45,45,.12);}
-    input::placeholder{font-size:15px;letter-spacing:1px;font-weight:400;}
+    input:focus{
+      border-color:rgba(255,45,45,.65);
+      box-shadow:0 0 0 3px rgba(255,45,45,.12);
+    }
+    input::placeholder{
+      font-size:13px;
+      letter-spacing:1px;
+      font-weight:400;
+    }
 
-    .btn-wrap{display:flex;justify-content:center;margin:16px 0 8px;}
+    .btn-wrap{
+      display:flex;
+      justify-content:center;
+      margin:14px 0 8px;
+    }
     .btn-circle{
-      width:76px;height:76px;border-radius:50%;
+      width:66px;
+      height:66px;
+      border-radius:50%;
       border:2px solid rgba(255,45,45,.55);
       background:radial-gradient(circle at 38% 32%,rgba(255,90,90,.95),rgba(155,0,0,.95));
-      color:#fff;font-size:17px;font-weight:900;letter-spacing:1px;
-      cursor:pointer;display:flex;align-items:center;justify-content:center;
-      box-shadow:0 0 22px rgba(255,45,45,.40),inset 0 1px 0 rgba(255,255,255,.18);
+      color:#fff;
+      font-size:15px;
+      font-weight:900;
+      letter-spacing:1px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 0 18px rgba(255,45,45,.40),inset 0 1px 0 rgba(255,255,255,.18);
       transition:transform .1s,box-shadow .1s;
     }
     .btn-circle:active{transform:scale(.92);}
 
-    .msg{text-align:center;font-size:12px;color:var(--muted);min-height:14px;margin-bottom:8px;}
-
-    .result{display:none;margin-top:4px;}
-    .result-hdr{
-      text-align:center;font-size:11px;color:var(--muted);
-      margin-bottom:10px;letter-spacing:.5px;
+    .msg{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      min-height:14px;
+      margin-bottom:8px;
     }
-    .hit-list{display:flex;flex-direction:column;gap:7px;}
+
+    .result{
+      display:none;
+      margin-top:4px;
+    }
+    .result-hdr{
+      text-align:center;
+      font-size:10px;
+      color:var(--muted);
+      margin-bottom:8px;
+      letter-spacing:.3px;
+    }
+    .hit-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
 
     .hit{
-      display:grid;grid-template-columns:auto 78px 1fr auto;
-      align-items:center;gap:10px;
-      padding:10px 13px;border-radius:13px;
+      display:grid;
+      grid-template-columns:auto 52px 1fr auto;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:12px;
       border:1px solid rgba(255,255,255,.07);
       background:rgba(0,0,0,.22);
     }
@@ -84,60 +156,166 @@
     .hit.r3{border-color:rgba(255,255,255,.10);}
 
     .hit-lbl{
-      font-size:10px;font-weight:900;padding:3px 7px;border-radius:999px;
-      background:rgba(255,45,45,.20);color:#ff8080;
-      white-space:nowrap;letter-spacing:.3px;
+      font-size:9px;
+      font-weight:900;
+      padding:2px 6px;
+      border-radius:999px;
+      background:rgba(255,45,45,.20);
+      color:#ff8080;
+      white-space:nowrap;
+      letter-spacing:.2px;
     }
-    .hit.r1 .hit-lbl{background:rgba(255,45,45,.38);color:#ff9090;}
+    .hit.r1 .hit-lbl{
+      background:rgba(255,45,45,.38);
+      color:#ff9090;
+    }
 
     .hit-seat{
-      font-size:28px;font-weight:1000;color:var(--red);
-      text-shadow:0 0 16px rgba(255,45,45,.45);
-      line-height:1.1;text-align:center;
+      font-size:21px;
+      font-weight:1000;
+      color:var(--red);
+      text-shadow:0 0 12px rgba(255,45,45,.35);
+      line-height:1.05;
+      text-align:center;
       white-space:nowrap;
     }
-    .hit-body{line-height:1.7;}
-    .hit-body .row1{font-size:12px;color:var(--text);}
-    .hit-body .row2{font-size:11px;color:var(--muted);}
-    .hit-body .row3{font-size:10px;color:rgba(255,255,255,.30);margin-top:1px;}
 
-    .hit-right{text-align:right;}
-    .hit-wr{font-size:13px;font-weight:900;color:rgba(80,255,140,.85);}
-    .hit-avg{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+    .hit-body{
+      line-height:1.4;
+      min-width:0;
+    }
+    .hit-body .row1{
+      font-size:11px;
+      color:var(--text);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hit-body .row2{
+      font-size:10px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hit-body .row3{
+      font-size:9px;
+      color:rgba(255,255,255,.30);
+      margin-top:1px;
+      line-height:1.25;
+    }
+
+    .hit-right{
+      text-align:right;
+      min-width:42px;
+    }
+    .hit-wr{
+      font-size:11px;
+      font-weight:900;
+      color:rgba(80,255,140,.85);
+    }
+    .hit-avg{
+      font-size:9px;
+      color:rgba(255,255,255,.35);
+      margin-top:1px;
+    }
 
     .skip{
-      display:none;text-align:center;padding:22px;
-      font-size:38px;font-weight:1000;color:rgba(255,255,255,.18);
+      display:none;
+      text-align:center;
+      padding:18px;
+      font-size:30px;
+      font-weight:1000;
+      color:rgba(255,255,255,.18);
       letter-spacing:4px;
     }
 
     .history{
-      margin-top:13px;padding:11px 13px;border-radius:13px;
-      border:1px solid var(--line);background:rgba(255,255,255,.02);
+      margin-top:12px;
+      padding:10px 11px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
     }
-    .histHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
-    .histTitle{font-size:12px;font-weight:800;color:var(--muted);}
+    .histHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:7px;
+    }
+    .histTitle{
+      font-size:11px;
+      font-weight:800;
+      color:var(--muted);
+    }
     .clearBtn{
-      font-size:11px;padding:4px 9px;border-radius:7px;cursor:pointer;
-      border:1px solid rgba(255,45,45,.35);background:rgba(255,45,45,.10);
+      font-size:10px;
+      padding:4px 8px;
+      border-radius:7px;
+      cursor:pointer;
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.10);
       color:rgba(255,100,100,.85);
     }
-    .histList{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow:auto;}
-    .histItem{
-      border:1px solid rgba(255,255,255,.05);border-radius:9px;
-      padding:7px 10px;background:rgba(0,0,0,.14);
+    .histList{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      max-height:180px;
+      overflow:auto;
     }
-    .histTop{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:2px;}
-    .histMain{font-size:12px;color:rgba(255,255,255,.60);}
+    .histItem{
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:9px;
+      padding:7px 9px;
+      background:rgba(0,0,0,.14);
+    }
+    .histTop{
+      display:flex;
+      justify-content:space-between;
+      font-size:10px;
+      color:rgba(255,255,255,.35);
+      margin-bottom:2px;
+    }
+    .histMain{
+      font-size:11px;
+      color:rgba(255,255,255,.60);
+      line-height:1.35;
+    }
     .pill{
-      display:inline-block;padding:1px 6px;border-radius:999px;
-      border:1px solid rgba(255,45,45,.35);background:rgba(255,45,45,.10);
-      font-weight:800;color:var(--red);margin-right:3px;
+      display:inline-block;
+      padding:1px 6px;
+      border-radius:999px;
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.10);
+      font-weight:800;
+      color:var(--red);
+      margin-right:3px;
     }
 
     .tiny{
-      margin-top:13px;padding-top:11px;border-top:1px solid var(--line);
-      font-size:11px;color:rgba(255,255,255,.28);line-height:1.8;white-space:pre-line;
+      margin-top:12px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      font-size:10px;
+      color:rgba(255,255,255,.28);
+      line-height:1.6;
+      white-space:pre-line;
+    }
+
+    @media (max-width: 430px){
+      body{padding:10px;}
+      .app{width:100%;}
+      .panel{padding:10px;border-radius:15px;}
+      .hit{
+        grid-template-columns:auto 46px 1fr auto;
+        gap:6px;
+        padding:7px 8px;
+      }
+      .hit-seat{font-size:19px;}
+      .result-hdr{font-size:10px;}
+      .histMain{font-size:10px;}
+      .tiny{font-size:9px;}
     }
   </style>
 </head>
@@ -170,45 +348,18 @@
 
     <div class="tiny">
 【72050专属三模型】
+1）结构模型
+2）结构+强X
+3）M模型
 
-模型1：72050结构模型（13结构 / 15规则）
-模型2：72050结构 + 强X模型
-模型3：72050 M值模型
-
-72050专属强X：
-2号：4、8
-3号：2、6、7、8
-4号：0、2、4、5、6、7
-5号：0、1、3、7、9
-6号：1、2
-
-72050 M模型：
-- 2号强M：3
-- 3号强M：2
-- 4号强M：9、-4、8
-- 5号强M：2、3、7
-- 6号观察M：11、7、8
-
-- 2号黑M：4、16、-2
-- 3号黑M：13、9、0、1
-- 4号黑M：4
-- 5号黑M：-1、5、9、4、12
-- 6号黑M：9、1、4、6
-
-说明：
-- 三个模型独立输出
-- 不做模型交集
-- 每个模型最多给 2 个位子
+只显示命中的模型，手机更紧凑。
+M模型独立输出，不和结构/强X叠加。
     </div>
 
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════
-// 72050专属：13结构 / 15规则
-// 每个结构最多给2个位子
-// ══════════════════════════════════════════════════════
 const STRUCT_RULES_72050 = {
   '奇偶奇偶奇': [
     { seat: 5, tag: '强结构', n: 2, net: 2680, wr: '100%', avg: '+1340' }
@@ -223,39 +374,38 @@ const STRUCT_RULES_72050 = {
     { seat: 6, tag: '强结构', n: 2, net: 160, wr: '100%', avg: '+80' }
   ],
   '奇偶偶偶奇': [
-    { seat: 5, tag: '扩容结构', n: 3, net: 1700, wr: '100%', avg: '+566' }
+    { seat: 5, tag: '扩容', n: 3, net: 1700, wr: '100%', avg: '+566' }
   ],
   '奇偶奇奇偶': [
-    { seat: 6, tag: '扩容结构', n: 2, net: 1050, wr: '100%', avg: '+525' }
+    { seat: 6, tag: '扩容', n: 2, net: 1050, wr: '100%', avg: '+525' }
   ],
   '奇偶奇偶偶': [
-    { seat: 5, tag: '扩容结构', n: 2, net: 670, wr: '50%', avg: '+335' }
+    { seat: 5, tag: '扩容', n: 2, net: 670, wr: '50%', avg: '+335' }
   ],
   '奇偶偶奇奇': [
-    { seat: 6, tag: '扩容结构', n: 1, net: 1350, wr: '100%', avg: '+1350' },
-    { seat: 4, tag: '扩容结构', n: 2, net: 630, wr: '100%', avg: '+315' }
+    { seat: 6, tag: '扩容', n: 1, net: 1350, wr: '100%', avg: '+1350' },
+    { seat: 4, tag: '扩容', n: 2, net: 630, wr: '100%', avg: '+315' }
   ],
   '奇奇奇奇奇': [
-    { seat: 5, tag: '扩容结构', n: 2, net: 1380, wr: '100%', avg: '+690' }
+    { seat: 5, tag: '扩容', n: 2, net: 1380, wr: '100%', avg: '+690' }
   ],
   '奇奇偶奇奇': [
-    { seat: 3, tag: '扩容结构', n: 2, net: 720, wr: '50%', avg: '+360' }
+    { seat: 3, tag: '扩容', n: 2, net: 720, wr: '50%', avg: '+360' }
   ],
   '奇偶偶奇偶': [
-    { seat: 5, tag: '后补扩容', n: 1, net: 1060, wr: '100%', avg: '+1060' }
+    { seat: 5, tag: '后补', n: 1, net: 1060, wr: '100%', avg: '+1060' }
   ],
   '偶偶奇偶偶': [
-    { seat: 5, tag: '后补扩容', n: 1, net: 990, wr: '100%', avg: '+990' }
+    { seat: 5, tag: '后补', n: 1, net: 990, wr: '100%', avg: '+990' }
   ],
   '偶奇奇偶偶': [
-    { seat: 6, tag: '后补扩容', n: 1, net: 990, wr: '100%', avg: '+990' }
+    { seat: 6, tag: '后补', n: 1, net: 990, wr: '100%', avg: '+990' }
   ],
   '奇偶偶奇奇_2号补充': [
-    { seat: 2, tag: '后补扩容', n: 1, net: 2310, wr: '100%', avg: '+2310' }
+    { seat: 2, tag: '后补', n: 1, net: 2310, wr: '100%', avg: '+2310' }
   ]
 };
 
-// 72050专属强X
 const STRONG_X_72050 = {
   2: new Set([4, 8]),
   3: new Set([2, 6, 7, 8]),
@@ -264,13 +414,12 @@ const STRONG_X_72050 = {
   6: new Set([1, 2]),
 };
 
-// 72050专属 M 模型
 const M_STRONG = {
   2: new Set([3]),
   3: new Set([2]),
   4: new Set([9, -4, 8]),
   5: new Set([2, 3, 7]),
-  6: new Set([11, 7, 8]), // 观察强M，先并入可出结果
+  6: new Set([11, 7, 8]),
 };
 
 const M_BLACK = {
@@ -282,20 +431,20 @@ const M_BLACK = {
 };
 
 const M_META = {
-  '2_3':   { tag:'强M',      n:'2局', net:'+710',  wr:'100%', avg:'+355'  },
-  '3_2':   { tag:'小输大赢M', n:'5局', net:'+1770', wr:'60%',  avg:'+354'  },
-  '4_9':   { tag:'强M',      n:'2局', net:'+1160', wr:'100%', avg:'+580'  },
-  '4_-4':  { tag:'强M',      n:'2局', net:'+1090', wr:'100%', avg:'+545'  },
-  '4_8':   { tag:'小输大赢M', n:'6局', net:'+2600', wr:'66.7%', avg:'+433' },
-  '5_2':   { tag:'强M',      n:'4局', net:'+2600', wr:'75%',  avg:'+650'  },
-  '5_3':   { tag:'强M',      n:'4局', net:'+1750', wr:'75%',  avg:'+437.5'},
-  '5_7':   { tag:'小输大赢M', n:'3局', net:'+2790', wr:'66.7%', avg:'+930' },
-  '6_11':  { tag:'观察M',     n:'1局', net:'+1350', wr:'100%', avg:'+1350' },
-  '6_7':   { tag:'观察M',     n:'1局', net:'+970',  wr:'100%', avg:'+970'  },
-  '6_8':   { tag:'观察M',     n:'1局', net:'+520',  wr:'100%', avg:'+520'  },
+  '2_3':   { tag:'强M',   n:'2局', net:'+710',  wr:'100%', avg:'+355'  },
+  '3_2':   { tag:'M值',   n:'5局', net:'+1770', wr:'60%',  avg:'+354'  },
+  '4_9':   { tag:'强M',   n:'2局', net:'+1160', wr:'100%', avg:'+580'  },
+  '4_-4':  { tag:'强M',   n:'2局', net:'+1090', wr:'100%', avg:'+545'  },
+  '4_8':   { tag:'M值',   n:'6局', net:'+2600', wr:'66.7%', avg:'+433' },
+  '5_2':   { tag:'强M',   n:'4局', net:'+2600', wr:'75%',  avg:'+650'  },
+  '5_3':   { tag:'强M',   n:'4局', net:'+1750', wr:'75%',  avg:'+437.5'},
+  '5_7':   { tag:'M值',   n:'3局', net:'+2790', wr:'66.7%', avg:'+930' },
+  '6_11':  { tag:'观察M', n:'1局', net:'+1350', wr:'100%', avg:'+1350' },
+  '6_7':   { tag:'观察M', n:'1局', net:'+970',  wr:'100%', avg:'+970'  },
+  '6_8':   { tag:'观察M', n:'1局', net:'+520',  wr:'100%', avg:'+520'  },
 };
 
-const HISTORY_KEY   = 'model_72050_struct_x_m_v1';
+const HISTORY_KEY   = 'model_72050_compact_v1';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -324,7 +473,6 @@ function getDigits(room){
   return room.split('').map(Number);
 }
 
-// M值计算
 function getSeatM(room, seat){
   const [A,B,C,D,E] = getDigits(room);
   if(seat === 2) return A + C - B;
@@ -334,25 +482,20 @@ function getSeatM(room, seat){
   return null;
 }
 
-// 处理奇偶偶奇奇的2号补充结构
 function getRulesForPattern(pattern){
   const rules = STRUCT_RULES_72050[pattern] || [];
   if(pattern === '奇偶偶奇奇'){
-    return [
-      ...rules,
-      ...(STRUCT_RULES_72050['奇偶偶奇奇_2号补充'] || [])
-    ];
+    return [...rules, ...(STRUCT_RULES_72050['奇偶偶奇奇_2号补充'] || [])];
   }
   return rules;
 }
 
-// 模型1：72050结构模型
 function getStructureModel(room5){
   const pattern = getParityPattern(room5);
   const rules = getRulesForPattern(pattern);
 
   if(!rules || !rules.length){
-    return { ok: false, pattern, reason: '无72050结构命中' };
+    return { ok: false, pattern, reason: '无结构命中' };
   }
 
   const hits = rules.slice(0, 2).map(rule => ({
@@ -368,43 +511,26 @@ function getStructureModel(room5){
   return { ok: true, pattern, hits };
 }
 
-// 模型2：72050结构 + 强X
 function getStructureStrongXModel(room5){
   const base = getStructureModel(room5);
-
   if(!base.ok){
     return { ok: false, pattern: base.pattern, reason: base.reason };
   }
 
   const passed = base.hits.filter(hit => STRONG_X_72050[hit.seat] && STRONG_X_72050[hit.seat].has(hit.X));
-
   if(!passed.length){
-    return {
-      ok: false,
-      pattern: base.pattern,
-      reason: '结构命中，但72050强X未命中',
-      original: base
-    };
+    return { ok:false, pattern: base.pattern, reason:'强X未命中' };
   }
-
-  return {
-    ok: true,
-    pattern: base.pattern,
-    hits: passed.slice(0, 2)
-  };
+  return { ok:true, pattern: base.pattern, hits: passed.slice(0,2) };
 }
 
-// 模型3：72050 M模型（独立）
 function getMModel(room5){
   const pattern = getParityPattern(room5);
   const hits = [];
 
   for(let seat = 2; seat <= 6; seat++){
     const M = getSeatM(room5, seat);
-
-    if(M_BLACK[seat] && M_BLACK[seat].has(M)){
-      continue;
-    }
+    if(M_BLACK[seat] && M_BLACK[seat].has(M)) continue;
     if(M_STRONG[seat] && M_STRONG[seat].has(M)){
       const meta = M_META[`${seat}_${M}`] || { tag:'M模型', n:'—', net:'—', wr:'—', avg:'—' };
       hits.push({
@@ -420,39 +546,21 @@ function getMModel(room5){
   }
 
   if(!hits.length){
-    return { ok: false, pattern, reason: 'M模型未命中' };
+    return { ok:false, pattern, reason:'M未命中' };
   }
 
-  // 最多取两个，优先4号/5号，再2/3/6
   const priority = {4:1, 5:2, 2:3, 3:4, 6:5};
   hits.sort((a,b)=>(priority[a.seat]||9)-(priority[b.seat]||9));
-
-  return {
-    ok: true,
-    pattern,
-    hits: hits.slice(0, 2)
-  };
+  return { ok:true, pattern, hits: hits.slice(0,2) };
 }
 
-function formatSeats(hits){
-  return hits.map(h => `${h.seat}`).join(' / ');
-}
-function formatXs(hits){
-  return hits.map(h => `${h.X}`).join(' / ');
-}
-function formatMs(hits){
-  return hits.map(h => `${h.M}`).join(' / ');
-}
-function formatTags(hits){
-  return hits.map(h => h.tag).join('；');
-}
-function formatStats(hits){
-  return hits.map(h => `${h.seat}号(${h.n} ${h.net})`).join('；');
-}
+function formatSeats(hits){ return hits.map(h => `${h.seat}`).join('/'); }
+function formatXs(hits){ return hits.map(h => `${h.X}`).join('/'); }
+function formatMs(hits){ return hits.map(h => `${h.M}`).join('/'); }
 function formatWrAvg(hits){
   if (!hits.length) return { wr: '—', avg: '—' };
   if (hits.length === 1) return { wr: hits[0].wr, avg: hits[0].avg };
-  return { wr: `${hits[0].wr} / ${hits[1].wr}`, avg: `${hits[0].avg} / ${hits[1].avg}` };
+  return { wr: `${hits[0].wr}/${hits[1].wr}`, avg: `${hits[0].avg}/${hits[1].avg}` };
 }
 
 function buildModelCard({label, seatsText, pattern, row2Text, note, wr, avg}, rank=1){
@@ -475,26 +583,6 @@ function buildModelCard({label, seatsText, pattern, row2Text, note, wr, avg}, ra
   return div;
 }
 
-function buildSkipCard({label, pattern, note}, rank=2){
-  const cls = rank <= 3 ? `r${rank}` : '';
-  const div = document.createElement('div');
-  div.className = `hit ${cls}`;
-  div.innerHTML = `
-    <div class="hit-lbl">${label}</div>
-    <div class="hit-seat" style="color:rgba(255,255,255,.25);text-shadow:none;">跳</div>
-    <div class="hit-body">
-      <div class="row1">结构=${pattern}</div>
-      <div class="row2">${note}</div>
-      <div class="row3">该模型当前无可用位子</div>
-    </div>
-    <div class="hit-right">
-      <div class="hit-wr">—</div>
-      <div class="hit-avg">—</div>
-    </div>
-  `;
-  return div;
-}
-
 function render(room5){
   const structRes = getStructureModel(room5);
   const strongRes = getStructureStrongXModel(room5);
@@ -504,94 +592,64 @@ function render(room5){
   skipEl.style.display   = 'none';
   hitListEl.innerHTML    = '';
 
-  const anyHit = structRes.ok || strongRes.ok || mRes.ok;
-  if(!anyHit){
+  let shown = 0;
+
+  if(structRes.ok){
+    const stat = formatWrAvg(structRes.hits);
+    hitListEl.appendChild(buildModelCard({
+      label:'结构',
+      seatsText: formatSeats(structRes.hits),
+      pattern: structRes.pattern,
+      row2Text: `位=${formatSeats(structRes.hits)}  X=${formatXs(structRes.hits)}`,
+      note: '72050结构命中',
+      wr: stat.wr,
+      avg: stat.avg
+    }, 1));
+    shown++;
+  }
+
+  if(strongRes.ok){
+    const stat = formatWrAvg(strongRes.hits);
+    hitListEl.appendChild(buildModelCard({
+      label:'结构+X',
+      seatsText: formatSeats(strongRes.hits),
+      pattern: strongRes.pattern,
+      row2Text: `位=${formatSeats(strongRes.hits)}  X=${formatXs(strongRes.hits)}`,
+      note: '结构后再命中强X',
+      wr: stat.wr,
+      avg: stat.avg
+    }, 2));
+    shown++;
+  }
+
+  if(mRes.ok){
+    const stat = formatWrAvg(mRes.hits);
+    hitListEl.appendChild(buildModelCard({
+      label:'M模型',
+      seatsText: formatSeats(mRes.hits),
+      pattern: mRes.pattern,
+      row2Text: `位=${formatSeats(mRes.hits)}  M=${formatMs(mRes.hits)}`,
+      note: '独立M结果',
+      wr: stat.wr,
+      avg: stat.avg
+    }, 3));
+    shown++;
+  }
+
+  if(shown === 0){
     resultHdr.textContent = `${getParityPattern(room5)}　三模型均未命中`;
     skipEl.style.display = 'block';
     return [];
   }
 
+  resultHdr.textContent = `${getParityPattern(room5)}　命中 ${shown} 个模型`;
   resultEl.style.display = 'block';
-  resultHdr.textContent = `${getParityPattern(room5)}　72050三模型结果`;
-
-  // 模型1
-  if(structRes.ok){
-    const structStat = formatWrAvg(structRes.hits);
-    hitListEl.appendChild(
-      buildModelCard({
-        label: '72050结构模型',
-        seatsText: formatSeats(structRes.hits),
-        pattern: structRes.pattern,
-        row2Text: `位子=${formatSeats(structRes.hits)}　X=${formatXs(structRes.hits)}`,
-        note: `备注：13结构 / 15规则；类型=${formatTags(structRes.hits)}；${formatStats(structRes.hits)}`,
-        wr: structStat.wr,
-        avg: structStat.avg
-      }, 1)
-    );
-  } else {
-    hitListEl.appendChild(
-      buildSkipCard({
-        label: '72050结构模型',
-        pattern: structRes.pattern,
-        note: '备注：当前房号未命中72050结构规则'
-      }, 1)
-    );
-  }
-
-  // 模型2
-  if(strongRes.ok){
-    const strongStat = formatWrAvg(strongRes.hits);
-    hitListEl.appendChild(
-      buildModelCard({
-        label: '72050结构+强X',
-        seatsText: formatSeats(strongRes.hits),
-        pattern: strongRes.pattern,
-        row2Text: `位子=${formatSeats(strongRes.hits)}　X=${formatXs(strongRes.hits)}`,
-        note: `备注：在72050结构命中的基础上，再命中72050专属强X；${formatStats(strongRes.hits)}`,
-        wr: strongStat.wr,
-        avg: strongStat.avg
-      }, 2)
-    );
-  } else {
-    hitListEl.appendChild(
-      buildSkipCard({
-        label: '72050结构+强X',
-        pattern: strongRes.pattern || getParityPattern(room5),
-        note: structRes.ok ? '备注：72050结构已命中，但当前X未命中72050专属强X' : '备注：结构未命中，强X模型也无法成立'
-      }, 2)
-    );
-  }
-
-  // 模型3：M模型独立输出
-  if(mRes.ok){
-    const mStat = formatWrAvg(mRes.hits);
-    hitListEl.appendChild(
-      buildModelCard({
-        label: '72050 M模型',
-        seatsText: formatSeats(mRes.hits),
-        pattern: mRes.pattern,
-        row2Text: `位子=${formatSeats(mRes.hits)}　M=${formatMs(mRes.hits)}`,
-        note: `备注：独立M模型，不与结构/强X叠加；类型=${formatTags(mRes.hits)}；${formatStats(mRes.hits)}`,
-        wr: mStat.wr,
-        avg: mStat.avg
-      }, 3)
-    );
-  } else {
-    hitListEl.appendChild(
-      buildSkipCard({
-        label: '72050 M模型',
-        pattern: mRes.pattern || getParityPattern(room5),
-        note: '备注：当前房号未命中可用强M，或命中黑M'
-      }, 3)
-    );
-  }
 
   const seats = [];
+  if(structRes.ok) seats.push(...structRes.hits.map(h => h.seat));
   if(strongRes.ok) seats.push(...strongRes.hits.map(h => h.seat));
-  else if(structRes.ok) seats.push(...structRes.hits.map(h => h.seat));
   if(mRes.ok) seats.push(...mRes.hits.map(h => h.seat));
-
-  return [...new Set(seats)].slice(0, 4);
+  return [...new Set(seats)].slice(0,4);
 }
 
 function run(){
@@ -630,7 +688,7 @@ function renderHist(){
     const res = item.seats.length ? item.seats.map(s=>`${s}号`).join(' / ') : '跳';
     div.innerHTML = `
       <div class="histTop"><span>房号 <span class="pill">${item.room}</span></span><span>${item.time}</span></div>
-      <div class="histMain">${item.pattern}　→　${res}</div>`;
+      <div class="histMain">${item.pattern} → ${res}</div>`;
     histListEl.appendChild(div);
   });
 }
