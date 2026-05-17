@@ -1,380 +1,5 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#b00000"/>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="小老虎模型">
-  <title>小老虎模型</title>
-  <style>
-    :root{
-      --bg:#0b0b0f;
-      --card:#11111a;
-      --line:rgba(255,255,255,.10);
-      --text:#f5f5f7;
-      --muted:rgba(255,255,255,.50);
-      --red:#ff2d2d;
-      --green:rgba(80,255,140,.85);
-      --orange:#ff9f2d;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-
-    body{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:
-        radial-gradient(800px 400px at 50% 15%,rgba(255,45,45,.20),transparent 60%),
-        radial-gradient(900px 500px at 50% 110%,rgba(176,0,0,.25),transparent 60%),
-        var(--bg);
-      color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-      padding:12px;
-    }
-
-    .app{width:min(430px,100%);}
-
-    .title{
-      font-size:16px;
-      font-weight:900;
-      margin:0 0 12px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .title::before{
-      content:"";
-      flex-shrink:0;
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--red);
-      box-shadow:0 0 12px rgba(255,45,45,.9);
-    }
-    .version{
-      font-size:10px;
-      color:rgba(255,45,45,.6);
-      margin-left:4px;
-      font-weight:400;
-    }
-
-    .panel{
-      background:linear-gradient(160deg,rgba(255,45,45,.07),transparent 55%),var(--card);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:12px;
-      box-shadow:0 20px 60px rgba(0,0,0,.55);
-    }
-
-    input{
-      width:100%;
-      padding:12px 14px;
-      font-size:22px;
-      letter-spacing:5px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.40);
-      color:var(--text);
-      outline:none;
-      text-align:center;
-      font-weight:700;
-    }
-    input:focus{
-      border-color:rgba(255,45,45,.65);
-      box-shadow:0 0 0 3px rgba(255,45,45,.12);
-    }
-    input::placeholder{
-      font-size:13px;
-      letter-spacing:1px;
-      font-weight:400;
-    }
-
-    .btn-wrap{
-      display:flex;
-      justify-content:center;
-      margin:14px 0 8px;
-    }
-    .btn-circle{
-      width:66px;
-      height:66px;
-      border-radius:50%;
-      border:2px solid rgba(255,45,45,.55);
-      background:radial-gradient(circle at 38% 32%,rgba(255,90,90,.95),rgba(155,0,0,.95));
-      color:#fff;
-      font-size:15px;
-      font-weight:900;
-      letter-spacing:1px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 0 18px rgba(255,45,45,.40),inset 0 1px 0 rgba(255,255,255,.18);
-      transition:transform .1s,box-shadow .1s;
-    }
-    .btn-circle:active{transform:scale(.92);}
-
-    .msg{
-      text-align:center;
-      font-size:12px;
-      color:var(--muted);
-      min-height:14px;
-      margin-bottom:8px;
-    }
-
-    .result{
-      display:none;
-      margin-top:4px;
-    }
-    .result-hdr{
-      text-align:center;
-      font-size:10px;
-      color:var(--muted);
-      margin-bottom:8px;
-      letter-spacing:.3px;
-      line-height:1.45;
-    }
-    .hit-list{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-
-    .hit{
-      display:grid;
-      grid-template-columns:auto 52px 1fr auto;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.07);
-      background:rgba(0,0,0,.22);
-    }
-    .hit.r1{border-color:rgba(255,45,45,.50);background:rgba(255,45,45,.10);}
-    .hit.r2{border-color:rgba(255,140,0,.32);background:rgba(255,140,0,.06);}
-
-    .hit-lbl{
-      font-size:9px;
-      font-weight:900;
-      padding:2px 6px;
-      border-radius:999px;
-      background:rgba(255,45,45,.20);
-      color:#ff8080;
-      white-space:nowrap;
-      letter-spacing:.2px;
-    }
-    .hit.r1 .hit-lbl{
-      background:rgba(255,45,45,.38);
-      color:#ff9090;
-    }
-    .hit.r2 .hit-lbl{
-      background:rgba(255,140,0,.20);
-      color:#ffc080;
-    }
-
-    .hit-seat{
-      font-size:21px;
-      font-weight:1000;
-      color:var(--red);
-      text-shadow:0 0 12px rgba(255,45,45,.35);
-      line-height:1.05;
-      text-align:center;
-      white-space:nowrap;
-    }
-
-    .hit-body{
-      line-height:1.4;
-      min-width:0;
-    }
-    .hit-body .row1{
-      font-size:11px;
-      color:var(--text);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .hit-body .row2{
-      font-size:10px;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .hit-body .row3{
-      font-size:9px;
-      color:rgba(255,255,255,.32);
-      margin-top:1px;
-      line-height:1.25;
-    }
-
-    .hit-right{
-      text-align:right;
-      min-width:42px;
-    }
-    .hit-wr{
-      font-size:11px;
-      font-weight:900;
-      color:var(--green);
-    }
-    .hit-avg{
-      font-size:9px;
-      color:rgba(255,255,255,.35);
-      margin-top:1px;
-    }
-
-    .skip{
-      display:none;
-      text-align:center;
-      padding:18px;
-      font-size:30px;
-      font-weight:1000;
-      color:rgba(255,255,255,.18);
-      letter-spacing:4px;
-    }
-
-    .history{
-      margin-top:12px;
-      padding:10px 11px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-    }
-    .histHead{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:7px;
-    }
-    .histTitle{
-      font-size:11px;
-      font-weight:800;
-      color:var(--muted);
-    }
-    .clearBtn{
-      font-size:10px;
-      padding:4px 8px;
-      border-radius:7px;
-      cursor:pointer;
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.10);
-      color:rgba(255,100,100,.85);
-    }
-    .histList{
-      display:flex;
-      flex-direction:column;
-      gap:5px;
-      max-height:180px;
-      overflow:auto;
-    }
-    .histItem{
-      border:1px solid rgba(255,255,255,.05);
-      border-radius:9px;
-      padding:7px 9px;
-      background:rgba(0,0,0,.14);
-    }
-    .histTop{
-      display:flex;
-      justify-content:space-between;
-      font-size:10px;
-      color:rgba(255,255,255,.35);
-      margin-bottom:2px;
-    }
-    .histMain{
-      font-size:11px;
-      color:rgba(255,255,255,.60);
-      line-height:1.35;
-    }
-    .pill{
-      display:inline-block;
-      padding:1px 6px;
-      border-radius:999px;
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.10);
-      font-weight:800;
-      color:var(--red);
-      margin-right:3px;
-    }
-
-    .tiny{
-      margin-top:12px;
-      padding-top:10px;
-      border-top:1px solid var(--line);
-      font-size:10px;
-      color:rgba(255,255,255,.28);
-      line-height:1.6;
-      white-space:pre-line;
-    }
-
-    @media (max-width: 430px){
-      body{padding:10px;}
-      .app{width:100%;}
-      .panel{padding:10px;border-radius:15px;}
-      .hit{
-        grid-template-columns:auto 46px 1fr auto;
-        gap:6px;
-        padding:7px 8px;
-      }
-      .hit-seat{font-size:19px;}
-      .result-hdr{font-size:10px;}
-      .histMain{font-size:10px;}
-      .tiny{font-size:9px;}
-    }
-  </style>
-</head>
-<body>
-<div class="app">
-  <div class="title">小老虎专属<span class="version">ID 5131861 / 稳健A+B版</span></div>
-  <div class="panel">
-
-    <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
-
-    <div class="btn-wrap">
-      <button class="btn-circle" id="go">开干</button>
-    </div>
-
-    <div class="msg" id="msg"></div>
-
-    <div class="result" id="result">
-      <div class="result-hdr" id="resultHdr">— 小老虎稳健结果 —</div>
-      <div class="hit-list" id="hitList"></div>
-    </div>
-    <div class="skip" id="skip">无A/B，跳</div>
-
-    <div class="history">
-      <div class="histHead">
-        <span class="histTitle">最近记录</span>
-        <button class="clearBtn" id="clearBtn">清空</button>
-      </div>
-      <div class="histList" id="histList"></div>
-    </div>
-
-    <div class="tiny">
-【小老虎 ID 5131861 稳健A+B版】
-只显示 A档 / B档。
-观察档、跳位、未命中位子一律不显示。
-没有A/B命中，直接显示：无A/B，跳。
-
-核心逻辑：
-1）座位奇偶 = X奇偶
-2）X在五位数字里的唯一排名
-3）房号有重号时，看X是否吃到重号
-
-A/B/C/D/E = 房号五位
-1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
-第1名=最大，第5名=最小
-重号不并列，按从左到右单独排序
-
-稳健回测：
-A+B：17局，胜率88.2%，净分+10180，0大输
-    </div>
-
-  </div>
-</div>
-
 <script>
-const HISTORY_KEY   = 'xiaolaohu_5131861_ab_only_v1';
+const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v11_pair_break';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -414,6 +39,7 @@ function getSeatX(room, seat){
 
 function getUniqueRanks(room){
   const digits = getDigits(room);
+
   const order = digits.map((v,i)=>({v,i}))
     .sort((a,b)=>{
       if(b.v !== a.v) return b.v - a.v;
@@ -424,6 +50,7 @@ function getUniqueRanks(room){
   order.forEach((item, idx) => {
     ranks[item.i] = idx + 1;
   });
+
   return ranks;
 }
 
@@ -445,6 +72,7 @@ function countMap(arr){
 function getRepeatInfo(room){
   const digits = getDigits(room);
   const counts = countMap(digits);
+
   const groups = Object.entries(counts)
     .map(([num,cnt])=>({num:Number(num), cnt}))
     .filter(g=>g.cnt > 1)
@@ -497,59 +125,82 @@ function repeatNumsText(info){
   return info.groups.map(g => `${g.num}×${g.cnt}`).join(' / ');
 }
 
-function xEatRepeat(room, seat){
+function getXCount(room, seat){
   const digits = getDigits(room);
   const x = getSeatX(room, seat);
   const counts = countMap(digits);
-  return counts[x] > 1;
+  return counts[x] || 0;
 }
 
-function baseRule(seat, xRank, sameParity){
+function xEatRepeat(room, seat){
+  return getXCount(room, seat) > 1;
+}
+
+function xEatPair(room, seat){
+  return getXCount(room, seat) === 2;
+}
+
+function baseRule(room, seat, xRank, sameParity){
+  const eatsPair = xEatPair(room, seat);
+
   if(seat === 1){
     return { grade:99, tag:'跳', score:-99, reason:'1号位固定跳' };
   }
 
+  /*
+    最新特权：
+    3号位、4号位，X吃对子时，可以破奇偶。
+    但必须继续满足X排名要求。
+  */
+
+  if(seat === 3 && eatsPair){
+    if(xRank === 1) return { grade:1, tag:'A档', score:108, reason:'3号位X吃对子+第1名，破奇偶A档' };
+    if(xRank === 2) return { grade:1, tag:'A档', score:104, reason:'3号位X吃对子+第2名，破奇偶A档' };
+  }
+
+  if(seat === 4 && eatsPair){
+    if(xRank === 5) return { grade:1, tag:'A档', score:106, reason:'4号位X吃对子+第5名，破奇偶A档' };
+    if(xRank === 4) return { grade:2, tag:'B档', score:82, reason:'4号位X吃对子+第4名，破奇偶B档' };
+    if(xRank === 2) return { grade:2, tag:'B档', score:78, reason:'4号位X吃对子+第2名，破奇偶B档' };
+  }
+
+  /*
+    正常规则：
+    没有特权时，必须奇偶同频。
+  */
+
   if(!sameParity){
-    return { grade:99, tag:'跳', score:-20, reason:'奇偶不同频' };
+    return { grade:99, tag:'跳', score:-20, reason:'奇偶不同频，且未触发对子特权' };
   }
 
   if(seat === 2){
-    if(xRank === 5) return { grade:1, tag:'A档', score:95, reason:'2号位最吃X第5名' };
-    if(xRank === 1) return { grade:2, tag:'B档', score:75, reason:'2号位X第1名可短打' };
-    if(xRank === 4) return { grade:3, tag:'观察', score:55, reason:'2号位X第4名观察' };
-    if(xRank === 2) return { grade:99, tag:'跳', score:-80, reason:'2号位X第2名雷' };
-    return { grade:99, tag:'跳', score:-30, reason:'2号位该排名无优势' };
+    if(xRank === 5) return { grade:1, tag:'A档', score:95, reason:'2号位同频+X第5名' };
+    if(xRank === 1) return { grade:2, tag:'B档', score:75, reason:'2号位同频+X第1名' };
+    return { grade:99, tag:'跳', score:-30, reason:'2号位未命中A/B排名' };
   }
 
   if(seat === 3){
-    if(xRank === 1) return { grade:1, tag:'A档', score:96, reason:'3号位吃X第1名' };
-    if(xRank === 2) return { grade:1, tag:'A档', score:90, reason:'3号位吃X第2名' };
-    if(xRank === 4) return { grade:2, tag:'B档', score:72, reason:'3号位X第4名可短打' };
-    if(xRank === 5) return { grade:3, tag:'观察', score:45, reason:'3号位X第5名观察' };
-    if(xRank === 3) return { grade:99, tag:'跳', score:-85, reason:'3号位X第3名雷' };
-    return { grade:99, tag:'跳', score:-30, reason:'3号位该排名无优势' };
+    if(xRank === 1) return { grade:1, tag:'A档', score:96, reason:'3号位同频+X第1名' };
+    if(xRank === 2) return { grade:1, tag:'A档', score:90, reason:'3号位同频+X第2名' };
+    if(xRank === 4) return { grade:2, tag:'B档', score:72, reason:'3号位同频+X第4名' };
+    return { grade:99, tag:'跳', score:-30, reason:'3号位未命中A/B排名' };
   }
 
   if(seat === 4){
-    if(xRank === 5) return { grade:1, tag:'A档', score:92, reason:'4号位最吃X第5名' };
-    if(xRank === 4) return { grade:2, tag:'B档', score:65, reason:'4号位X第4名短打' };
-    if(xRank === 2) return { grade:2, tag:'B档', score:60, reason:'4号位X第2名短打' };
-    if(xRank === 1) return { grade:99, tag:'跳', score:-75, reason:'4号位X第1名高危' };
-    return { grade:99, tag:'跳', score:-25, reason:'4号位该排名无优势' };
+    if(xRank === 5) return { grade:1, tag:'A档', score:92, reason:'4号位同频+X第5名' };
+    if(xRank === 4) return { grade:2, tag:'B档', score:65, reason:'4号位同频+X第4名' };
+    if(xRank === 2) return { grade:2, tag:'B档', score:60, reason:'4号位同频+X第2名' };
+    return { grade:99, tag:'跳', score:-25, reason:'4号位未命中A/B排名' };
   }
 
   if(seat === 5){
-    if(xRank === 5) return { grade:3, tag:'观察', score:40, reason:'5号位仅观察' };
-    return { grade:99, tag:'跳', score:-55, reason:'5号位整体弱' };
+    return { grade:99, tag:'跳', score:-55, reason:'5号位整体弱，稳健版不打' };
   }
 
   if(seat === 6){
-    if(xRank === 4) return { grade:1, tag:'A档', score:92, reason:'6号位最吃X第4名' };
-    if(xRank === 1) return { grade:2, tag:'B档', score:70, reason:'6号位X第1名短打' };
-    if(xRank === 3) return { grade:3, tag:'观察', score:45, reason:'6号位X第3名观察' };
-    if(xRank === 5) return { grade:3, tag:'观察', score:40, reason:'6号位X第5名观察' };
-    if(xRank === 2) return { grade:99, tag:'跳', score:-80, reason:'6号位X第2名雷' };
-    return { grade:99, tag:'跳', score:-30, reason:'6号位该排名无优势' };
+    if(xRank === 4) return { grade:1, tag:'A档', score:92, reason:'6号位同频+X第4名' };
+    if(xRank === 1) return { grade:2, tag:'B档', score:70, reason:'6号位同频+X第1名' };
+    return { grade:99, tag:'跳', score:-30, reason:'6号位未命中A/B排名' };
   }
 
   return { grade:99, tag:'跳', score:-99, reason:'无规则' };
@@ -558,6 +209,7 @@ function baseRule(seat, xRank, sameParity){
 function applyRepeatAdjust(room, seat, decision){
   const info = getRepeatInfo(room);
   const eat = xEatRepeat(room, seat);
+  const eatsPair = xEatPair(room, seat);
   const notes = [];
 
   let grade = decision.grade;
@@ -566,20 +218,23 @@ function applyRepeatAdjust(room, seat, decision){
 
   if(!info.hasRepeat){
     notes.push('无重号');
-    return { grade, score, tag, repeatNote: notes.join('；'), eat, repeatInfo: info };
+    return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, repeatInfo: info };
   }
 
   if(eat){
     score += 10;
     notes.push(`X吃重号：${repeatNumsText(info)}`);
 
-    if(info.short === '单对子'){
-      notes.push('单对子吃到，加分');
+    if(eatsPair){
+      score += 8;
+      notes.push('X吃对子，加分');
     }
+
     if(info.short === '三重号'){
       score += 5;
       notes.push('三重号偏友好');
     }
+
     if(info.short === '四重号'){
       score += 5;
       notes.push('四重号吃到，加分');
@@ -607,18 +262,24 @@ function applyRepeatAdjust(room, seat, decision){
     }
   }
 
+  /*
+    双对子保护：
+    历史里3号位遇双对子偏雷，继续拦截。
+    4号位遇双对子加分。
+  */
+
   if(info.short === '双对子'){
-    if(seat === 4 && decision.grade < 99){
+    if(seat === 3){
+      score -= 50;
+      grade = 99;
+      tag = '跳';
+      notes.push('双对子里3号位偏雷，跳');
+    }else if(seat === 4 && decision.grade < 99){
       score += 12;
       notes.push('双对子里4号位加分');
     }else if(seat === 6 && decision.grade < 99){
       score += 3;
       notes.push('双对子里6号位短打');
-    }else if(seat === 3){
-      score -= 50;
-      grade = 99;
-      tag = '跳';
-      notes.push('双对子里3号位偏雷，跳');
     }else{
       score -= 8;
       notes.push('双对子高波动');
@@ -627,17 +288,16 @@ function applyRepeatAdjust(room, seat, decision){
 
   if(grade === 1) tag = 'A档';
   else if(grade === 2) tag = 'B档';
-  else if(grade === 3) tag = '观察';
   else tag = '跳';
 
-  return { grade, score, tag, repeatNote: notes.join('；'), eat, repeatInfo: info };
+  return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, repeatInfo: info };
 }
 
 function analyzeSeat(room, seat){
   const x = getSeatX(room, seat);
   const xRank = getSeatRank(room, seat);
   const sameParity = isSameParity(seat, x);
-  const base = baseRule(seat, xRank, sameParity);
+  const base = baseRule(room, seat, xRank, sameParity);
   const adjusted = applyRepeatAdjust(room, seat, base);
 
   return {
@@ -651,7 +311,8 @@ function analyzeSeat(room, seat){
     reason: base.reason,
     repeatNote: adjusted.repeatNote,
     repeatInfo: adjusted.repeatInfo,
-    eatRepeat: adjusted.eat
+    eatRepeat: adjusted.eat,
+    eatsPair: adjusted.eatsPair
   };
 }
 
@@ -678,8 +339,8 @@ function buildCard(item){
   const div = document.createElement('div');
   div.className = `hit ${rankClass(item)}`;
 
-  const parityText = item.sameParity ? '同频' : '不同频';
-  const eatText = item.eatRepeat ? '吃重号' : (item.repeatInfo.hasRepeat ? '未吃重号' : '无重号');
+  const parityText = item.sameParity ? '同频' : '破奇偶';
+  const eatText = item.eatRepeat ? (item.eatsPair ? '吃对子' : '吃重号') : (item.repeatInfo.hasRepeat ? '未吃重号' : '无重号');
   const rightTop = item.grade === 1 ? '优先' : '短打';
   const rightBottom = `分${item.score}`;
 
@@ -808,5 +469,3 @@ if('serviceWorker' in navigator){
 renderHist();
 roomEl.focus();
 </script>
-</body>
-</html>
