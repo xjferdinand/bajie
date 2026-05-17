@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#b00000"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="72050专属三模型">
-  <title>72050专属三模型</title>
+  <meta name="apple-mobile-web-app-title" content="小老虎模型">
+  <title>小老虎模型</title>
   <style>
     :root{
       --bg:#0b0b0f;
@@ -16,6 +16,8 @@
       --text:#f5f5f7;
       --muted:rgba(255,255,255,.50);
       --red:#ff2d2d;
+      --green:rgba(80,255,140,.85);
+      --orange:#ff9f2d;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
 
@@ -134,6 +136,7 @@
       color:var(--muted);
       margin-bottom:8px;
       letter-spacing:.3px;
+      line-height:1.45;
     }
     .hit-list{
       display:flex;
@@ -152,8 +155,9 @@
       background:rgba(0,0,0,.22);
     }
     .hit.r1{border-color:rgba(255,45,45,.50);background:rgba(255,45,45,.10);}
-    .hit.r2{border-color:rgba(255,140,0,.28);}
+    .hit.r2{border-color:rgba(255,140,0,.32);background:rgba(255,140,0,.06);}
     .hit.r3{border-color:rgba(255,255,255,.10);}
+    .hit.bad{border-color:rgba(255,255,255,.05);opacity:.72;}
 
     .hit-lbl{
       font-size:9px;
@@ -168,6 +172,14 @@
     .hit.r1 .hit-lbl{
       background:rgba(255,45,45,.38);
       color:#ff9090;
+    }
+    .hit.r2 .hit-lbl{
+      background:rgba(255,140,0,.20);
+      color:#ffc080;
+    }
+    .hit.r3 .hit-lbl{
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.65);
     }
 
     .hit-seat{
@@ -200,7 +212,7 @@
     }
     .hit-body .row3{
       font-size:9px;
-      color:rgba(255,255,255,.30);
+      color:rgba(255,255,255,.32);
       margin-top:1px;
       line-height:1.25;
     }
@@ -212,7 +224,7 @@
     .hit-wr{
       font-size:11px;
       font-weight:900;
-      color:rgba(80,255,140,.85);
+      color:var(--green);
     }
     .hit-avg{
       font-size:9px;
@@ -321,7 +333,7 @@
 </head>
 <body>
 <div class="app">
-  <div class="title">72050专属<span class="version">结构 / 强X / M三模型</span></div>
+  <div class="title">小老虎专属<span class="version">ID 5131861 / 奇偶 + X排名 + 重号 v1.0</span></div>
   <div class="panel">
 
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
@@ -333,7 +345,7 @@
     <div class="msg" id="msg"></div>
 
     <div class="result" id="result">
-      <div class="result-hdr" id="resultHdr">— 72050三模型结果 —</div>
+      <div class="result-hdr" id="resultHdr">— 小老虎模型结果 —</div>
       <div class="hit-list" id="hitList"></div>
     </div>
     <div class="skip" id="skip">跳</div>
@@ -347,104 +359,30 @@
     </div>
 
     <div class="tiny">
-【72050专属三模型】
-1）结构模型
-2）结构+强X
-3）M模型
+【小老虎 ID 5131861 v1.0】
+1）先看座位奇偶 = X奇偶
+2）再看 X 在五位数字里的唯一排名
+3）最后看房号重号，以及 X 是否吃到重号
 
-只显示命中的模型，手机更紧凑。
-M模型独立输出，不和结构/强X叠加。
+A/B/C/D/E = 房号五位
+1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
+第1名=最大，第5名=最小
+重号不并列，按从左到右单独排序
+
+核心口诀：
+2号吃最小；
+3号吃最大/次大；
+4号吃最小，怕最大；
+5号少碰；
+6号吃第4名；
+1号跳。
     </div>
 
   </div>
 </div>
 
 <script>
-const STRUCT_RULES_72050 = {
-  '奇偶奇偶奇': [
-    { seat: 5, tag: '强结构', n: 2, net: 2680, wr: '100%', avg: '+1340' }
-  ],
-  '偶偶奇偶奇': [
-    { seat: 5, tag: '强结构', n: 2, net: 2230, wr: '100%', avg: '+1115' }
-  ],
-  '偶奇奇偶奇': [
-    { seat: 4, tag: '强结构', n: 2, net: 1400, wr: '100%', avg: '+700' }
-  ],
-  '偶奇偶奇偶': [
-    { seat: 6, tag: '强结构', n: 2, net: 160, wr: '100%', avg: '+80' }
-  ],
-  '奇偶偶偶奇': [
-    { seat: 5, tag: '扩容', n: 3, net: 1700, wr: '100%', avg: '+566' }
-  ],
-  '奇偶奇奇偶': [
-    { seat: 6, tag: '扩容', n: 2, net: 1050, wr: '100%', avg: '+525' }
-  ],
-  '奇偶奇偶偶': [
-    { seat: 5, tag: '扩容', n: 2, net: 670, wr: '50%', avg: '+335' }
-  ],
-  '奇偶偶奇奇': [
-    { seat: 6, tag: '扩容', n: 1, net: 1350, wr: '100%', avg: '+1350' },
-    { seat: 4, tag: '扩容', n: 2, net: 630, wr: '100%', avg: '+315' }
-  ],
-  '奇奇奇奇奇': [
-    { seat: 5, tag: '扩容', n: 2, net: 1380, wr: '100%', avg: '+690' }
-  ],
-  '奇奇偶奇奇': [
-    { seat: 3, tag: '扩容', n: 2, net: 720, wr: '50%', avg: '+360' }
-  ],
-  '奇偶偶奇偶': [
-    { seat: 5, tag: '后补', n: 1, net: 1060, wr: '100%', avg: '+1060' }
-  ],
-  '偶偶奇偶偶': [
-    { seat: 5, tag: '后补', n: 1, net: 990, wr: '100%', avg: '+990' }
-  ],
-  '偶奇奇偶偶': [
-    { seat: 6, tag: '后补', n: 1, net: 990, wr: '100%', avg: '+990' }
-  ],
-  '奇偶偶奇奇_2号补充': [
-    { seat: 2, tag: '后补', n: 1, net: 2310, wr: '100%', avg: '+2310' }
-  ]
-};
-
-const STRONG_X_72050 = {
-  2: new Set([4, 8]),
-  3: new Set([2, 6, 7, 8]),
-  4: new Set([0, 2, 4, 5, 6, 7]),
-  5: new Set([0, 1, 3, 7, 9]),
-  6: new Set([1, 2]),
-};
-
-const M_STRONG = {
-  2: new Set([3]),
-  3: new Set([2]),
-  4: new Set([9, -4, 8]),
-  5: new Set([2, 3, 7]),
-  6: new Set([11, 7, 8]),
-};
-
-const M_BLACK = {
-  2: new Set([4, 16, -2]),
-  3: new Set([13, 9, 0, 1]),
-  4: new Set([4]),
-  5: new Set([-1, 5, 9, 4, 12]),
-  6: new Set([9, 1, 4, 6]),
-};
-
-const M_META = {
-  '2_3':   { tag:'强M',   n:'2局', net:'+710',  wr:'100%', avg:'+355'  },
-  '3_2':   { tag:'M值',   n:'5局', net:'+1770', wr:'60%',  avg:'+354'  },
-  '4_9':   { tag:'强M',   n:'2局', net:'+1160', wr:'100%', avg:'+580'  },
-  '4_-4':  { tag:'强M',   n:'2局', net:'+1090', wr:'100%', avg:'+545'  },
-  '4_8':   { tag:'M值',   n:'6局', net:'+2600', wr:'66.7%', avg:'+433' },
-  '5_2':   { tag:'强M',   n:'4局', net:'+2600', wr:'75%',  avg:'+650'  },
-  '5_3':   { tag:'强M',   n:'4局', net:'+1750', wr:'75%',  avg:'+437.5'},
-  '5_7':   { tag:'M值',   n:'3局', net:'+2790', wr:'66.7%', avg:'+930' },
-  '6_11':  { tag:'观察M', n:'1局', net:'+1350', wr:'100%', avg:'+1350' },
-  '6_7':   { tag:'观察M', n:'1局', net:'+970',  wr:'100%', avg:'+970'  },
-  '6_8':   { tag:'观察M', n:'1局', net:'+520',  wr:'100%', avg:'+520'  },
-};
-
-const HISTORY_KEY   = 'model_72050_compact_v1';
+const HISTORY_KEY   = 'xiaolaohu_5131861_v1';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -457,6 +395,10 @@ const skipEl     = document.getElementById('skip');
 const histListEl = document.getElementById('histList');
 const clearBtnEl = document.getElementById('clearBtn');
 
+function getDigits(room){
+  return room.split('').map(Number);
+}
+
 function getParityPattern(room){
   return room
     .split('')
@@ -464,192 +406,397 @@ function getParityPattern(room){
     .join('');
 }
 
-function getSeatX(room, seat){
-  const digits = room.split('').map(Number);
-  return seat >= 5 ? digits[4] : digits[seat - 1];
-}
-
-function getDigits(room){
-  return room.split('').map(Number);
-}
-
-function getSeatM(room, seat){
-  const [A,B,C,D,E] = getDigits(room);
-  if(seat === 2) return A + C - B;
-  if(seat === 3) return B + D - C;
-  if(seat === 4) return C + E - D;
-  if(seat === 5 || seat === 6) return D + A - E;
+function getSeatIndex(seat){
+  if(seat === 1) return 0;
+  if(seat === 2) return 1;
+  if(seat === 3) return 2;
+  if(seat === 4) return 3;
+  if(seat === 5 || seat === 6) return 4;
   return null;
 }
 
-function getRulesForPattern(pattern){
-  const rules = STRUCT_RULES_72050[pattern] || [];
-  if(pattern === '奇偶偶奇奇'){
-    return [...rules, ...(STRUCT_RULES_72050['奇偶偶奇奇_2号补充'] || [])];
-  }
-  return rules;
+function getSeatX(room, seat){
+  const digits = getDigits(room);
+  return digits[getSeatIndex(seat)];
 }
 
-function getStructureModel(room5){
-  const pattern = getParityPattern(room5);
-  const rules = getRulesForPattern(pattern);
+function getUniqueRanks(room){
+  const digits = getDigits(room);
+  const order = digits.map((v,i)=>({v,i}))
+    .sort((a,b)=>{
+      if(b.v !== a.v) return b.v - a.v;
+      return a.i - b.i;
+    });
 
-  if(!rules || !rules.length){
-    return { ok: false, pattern, reason: '无结构命中' };
-  }
-
-  const hits = rules.slice(0, 2).map(rule => ({
-    seat: rule.seat,
-    X: getSeatX(room5, rule.seat),
-    tag: rule.tag,
-    n: rule.n,
-    net: rule.net,
-    wr: rule.wr,
-    avg: rule.avg,
-  }));
-
-  return { ok: true, pattern, hits };
+  const ranks = Array(5);
+  order.forEach((item, idx) => {
+    ranks[item.i] = idx + 1;
+  });
+  return ranks;
 }
 
-function getStructureStrongXModel(room5){
-  const base = getStructureModel(room5);
-  if(!base.ok){
-    return { ok: false, pattern: base.pattern, reason: base.reason };
-  }
-
-  const passed = base.hits.filter(hit => STRONG_X_72050[hit.seat] && STRONG_X_72050[hit.seat].has(hit.X));
-  if(!passed.length){
-    return { ok:false, pattern: base.pattern, reason:'强X未命中' };
-  }
-  return { ok:true, pattern: base.pattern, hits: passed.slice(0,2) };
+function getSeatRank(room, seat){
+  const ranks = getUniqueRanks(room);
+  return ranks[getSeatIndex(seat)];
 }
 
-function getMModel(room5){
-  const pattern = getParityPattern(room5);
-  const hits = [];
+function isSameParity(seat, x){
+  return (seat % 2) === (x % 2);
+}
 
-  for(let seat = 2; seat <= 6; seat++){
-    const M = getSeatM(room5, seat);
-    if(M_BLACK[seat] && M_BLACK[seat].has(M)) continue;
-    if(M_STRONG[seat] && M_STRONG[seat].has(M)){
-      const meta = M_META[`${seat}_${M}`] || { tag:'M模型', n:'—', net:'—', wr:'—', avg:'—' };
-      hits.push({
-        seat,
-        M,
-        tag: meta.tag,
-        n: meta.n,
-        net: meta.net,
-        wr: meta.wr,
-        avg: meta.avg,
-      });
+function countMap(arr){
+  const m = {};
+  arr.forEach(n => m[n] = (m[n] || 0) + 1);
+  return m;
+}
+
+function getRepeatInfo(room){
+  const digits = getDigits(room);
+  const counts = countMap(digits);
+  const groups = Object.entries(counts)
+    .map(([num,cnt])=>({num:Number(num), cnt}))
+    .filter(g=>g.cnt > 1)
+    .sort((a,b)=>b.cnt - a.cnt || b.num - a.num);
+
+  if(groups.length === 0){
+    return {
+      kind:'无重号',
+      short:'无重',
+      groups,
+      hasRepeat:false
+    };
+  }
+
+  const cnts = groups.map(g=>g.cnt).sort((a,b)=>b-a).join(',');
+
+  let kind = '重号';
+  let short = '重号';
+
+  if(cnts === '2'){
+    kind = '单数字双重号';
+    short = '单对子';
+  }else if(cnts === '3'){
+    kind = '单数字三重号';
+    short = '三重号';
+  }else if(cnts === '4'){
+    kind = '单数字四重号';
+    short = '四重号';
+  }else if(cnts === '5'){
+    kind = '五重号';
+    short = '五重号';
+  }else if(cnts === '2,2'){
+    kind = '两个数字同时双重';
+    short = '双对子';
+  }else if(cnts === '3,2'){
+    kind = '三重号+双重号';
+    short = '三带二';
+  }
+
+  return {
+    kind,
+    short,
+    groups,
+    hasRepeat:true
+  };
+}
+
+function xEatRepeat(room, seat){
+  const digits = getDigits(room);
+  const x = getSeatX(room, seat);
+  const counts = countMap(digits);
+  return counts[x] > 1;
+}
+
+function repeatNumsText(info){
+  if(!info.groups.length) return '无';
+  return info.groups.map(g => `${g.num}×${g.cnt}`).join(' / ');
+}
+
+function baseRule(seat, xRank, sameParity){
+  if(seat === 1){
+    return {
+      grade:99,
+      tag:'跳',
+      score:-99,
+      reason:'1号位当前样本大输，固定跳'
+    };
+  }
+
+  if(!sameParity){
+    return {
+      grade:99,
+      tag:'跳',
+      score:-20,
+      reason:'座位奇偶与X奇偶不同频，默认跳'
+    };
+  }
+
+  if(seat === 2){
+    if(xRank === 5) return { grade:1, tag:'A档', score:95, reason:'2号位最吃X第5名' };
+    if(xRank === 1) return { grade:2, tag:'B档', score:75, reason:'2号位X第1名可短打' };
+    if(xRank === 4) return { grade:3, tag:'观察', score:55, reason:'2号位X第4名小观察' };
+    if(xRank === 2) return { grade:99, tag:'跳', score:-80, reason:'2号位X第2名历史雷区' };
+    return { grade:99, tag:'跳', score:-30, reason:'2号位该排名无优势' };
+  }
+
+  if(seat === 3){
+    if(xRank === 1) return { grade:1, tag:'A档', score:96, reason:'3号位吃X第1名' };
+    if(xRank === 2) return { grade:1, tag:'A档', score:90, reason:'3号位吃X第2名' };
+    if(xRank === 4) return { grade:2, tag:'B档', score:72, reason:'3号位X第4名可短打' };
+    if(xRank === 5) return { grade:3, tag:'观察', score:45, reason:'3号位X第5名偏弱观察' };
+    if(xRank === 3) return { grade:99, tag:'跳', score:-85, reason:'3号位X第3名历史雷区' };
+    return { grade:99, tag:'跳', score:-30, reason:'3号位该排名无优势' };
+  }
+
+  if(seat === 4){
+    if(xRank === 5) return { grade:1, tag:'A档', score:92, reason:'4号位最吃X第5名' };
+    if(xRank === 4) return { grade:2, tag:'B档', score:65, reason:'4号位X第4名观察短打' };
+    if(xRank === 2) return { grade:2, tag:'B档', score:60, reason:'4号位X第2名高波动短打' };
+    if(xRank === 1) return { grade:99, tag:'跳', score:-75, reason:'4号位X第1名高危' };
+    return { grade:99, tag:'跳', score:-25, reason:'4号位该排名无优势' };
+  }
+
+  if(seat === 5){
+    if(xRank === 5) return { grade:3, tag:'观察', score:40, reason:'5号位整体弱，仅X第5名观察' };
+    return { grade:99, tag:'跳', score:-55, reason:'5号位整体不是主力位' };
+  }
+
+  if(seat === 6){
+    if(xRank === 4) return { grade:1, tag:'A档', score:92, reason:'6号位最吃X第4名' };
+    if(xRank === 1) return { grade:2, tag:'B档', score:70, reason:'6号位X第1名可短打' };
+    if(xRank === 3) return { grade:3, tag:'观察', score:45, reason:'6号位X第3名高波动' };
+    if(xRank === 5) return { grade:3, tag:'观察', score:40, reason:'6号位X第5名高波动偏弱' };
+    if(xRank === 2) return { grade:99, tag:'跳', score:-80, reason:'6号位X第2名历史雷区' };
+    return { grade:99, tag:'跳', score:-30, reason:'6号位该排名无优势' };
+  }
+
+  return { grade:99, tag:'跳', score:-99, reason:'无规则' };
+}
+
+function applyRepeatAdjust(room, seat, decision){
+  const info = getRepeatInfo(room);
+  const eat = xEatRepeat(room, seat);
+  const notes = [];
+
+  let grade = decision.grade;
+  let score = decision.score;
+  let tag = decision.tag;
+
+  if(!info.hasRepeat){
+    notes.push('无重号');
+    return { grade, score, tag, repeatNote: notes.join('；'), eat, repeatInfo: info };
+  }
+
+  if(eat){
+    score += 10;
+    notes.push(`X吃重号：${repeatNumsText(info)}`);
+
+    if(info.short === '单对子'){
+      notes.push('单对子吃到，加分');
+    }
+    if(info.short === '三重号'){
+      score += 5;
+      notes.push('三重号偏友好');
+    }
+    if(info.short === '四重号'){
+      score += 5;
+      notes.push('四重号吃到，观察加分');
+    }
+  }else{
+    notes.push(`X未吃重号：${repeatNumsText(info)}`);
+
+    if(info.short === '单对子'){
+      score -= 18;
+      if(grade < 3) grade += 1;
+      notes.push('单对子未吃，降级');
+    }
+
+    if(info.short === '四重号'){
+      score -= 15;
+      if(grade < 3) grade += 1;
+      notes.push('四重号未吃，样本不足降级');
+    }
+
+    if(info.short === '三带二'){
+      score -= 40;
+      grade = 99;
+      tag = '跳';
+      notes.push('三带二未吃重号，保守跳');
     }
   }
 
-  if(!hits.length){
-    return { ok:false, pattern, reason:'M未命中' };
+  if(info.short === '三重号'){
+    notes.push('三重号整体可加分，但不单独强进');
   }
 
-  const priority = {4:1, 5:2, 2:3, 3:4, 6:5};
-  hits.sort((a,b)=>(priority[a.seat]||9)-(priority[b.seat]||9));
-  return { ok:true, pattern, hits: hits.slice(0,2) };
+  if(info.short === '双对子'){
+    if(seat === 4 && decision.grade < 99){
+      score += 12;
+      notes.push('双对子里4号位加分');
+    }else if(seat === 6 && decision.grade < 99){
+      score += 3;
+      notes.push('双对子里6号位短打');
+    }else if(seat === 3){
+      score -= 50;
+      grade = 99;
+      tag = '跳';
+      notes.push('双对子里3号位偏雷，跳');
+    }else{
+      score -= 8;
+      notes.push('双对子高波动');
+    }
+  }
+
+  if(grade === 1) tag = 'A档';
+  else if(grade === 2) tag = 'B档';
+  else if(grade === 3) tag = '观察';
+  else tag = '跳';
+
+  return { grade, score, tag, repeatNote: notes.join('；'), eat, repeatInfo: info };
 }
 
-function formatSeats(hits){ return hits.map(h => `${h.seat}`).join('/'); }
-function formatXs(hits){ return hits.map(h => `${h.X}`).join('/'); }
-function formatMs(hits){ return hits.map(h => `${h.M}`).join('/'); }
-function formatWrAvg(hits){
-  if (!hits.length) return { wr: '—', avg: '—' };
-  if (hits.length === 1) return { wr: hits[0].wr, avg: hits[0].avg };
-  return { wr: `${hits[0].wr}/${hits[1].wr}`, avg: `${hits[0].avg}/${hits[1].avg}` };
+function analyzeSeat(room, seat){
+  const x = getSeatX(room, seat);
+  const xRank = getSeatRank(room, seat);
+  const sameParity = isSameParity(seat, x);
+  const base = baseRule(seat, xRank, sameParity);
+  const adjusted = applyRepeatAdjust(room, seat, base);
+
+  return {
+    seat,
+    x,
+    xRank,
+    sameParity,
+    grade: adjusted.grade,
+    score: adjusted.score,
+    tag: adjusted.tag,
+    reason: base.reason,
+    repeatNote: adjusted.repeatNote,
+    repeatInfo: adjusted.repeatInfo,
+    eatRepeat: adjusted.eat
+  };
 }
 
-function buildModelCard({label, seatsText, pattern, row2Text, note, wr, avg}, rank=1){
-  const cls = rank <= 3 ? `r${rank}` : '';
+function analyzeRoom(room){
+  const seats = [1,2,3,4,5,6].map(seat => analyzeSeat(room, seat));
+  const usable = seats
+    .filter(s => s.grade < 99)
+    .sort((a,b) => {
+      if(a.grade !== b.grade) return a.grade - b.grade;
+      return b.score - a.score;
+    });
+
+  return { seats, usable };
+}
+
+function rankClass(item, idx){
+  if(item.grade === 1) return 'r1';
+  if(item.grade === 2) return 'r2';
+  if(item.grade === 3) return 'r3';
+  return 'bad';
+}
+
+function buildCard(item, idx){
   const div = document.createElement('div');
-  div.className = `hit ${cls}`;
+  div.className = `hit ${rankClass(item, idx)}`;
+
+  const parityText = item.sameParity ? '同频' : '不同频';
+  const eatText = item.eatRepeat ? '吃重号' : (item.repeatInfo.hasRepeat ? '未吃重号' : '无重号');
+  const rightTop = item.grade === 1 ? '优先' : item.grade === 2 ? '短打' : '观察';
+  const rightBottom = `分${item.score}`;
+
   div.innerHTML = `
-    <div class="hit-lbl">${label}</div>
-    <div class="hit-seat">${seatsText}</div>
+    <div class="hit-lbl">${item.tag}</div>
+    <div class="hit-seat">${item.seat}号</div>
     <div class="hit-body">
-      <div class="row1">结构=${pattern}</div>
-      <div class="row2">${row2Text}</div>
-      <div class="row3">${note}</div>
+      <div class="row1">X=${item.x}　第${item.xRank}名　${parityText}</div>
+      <div class="row2">${item.repeatInfo.short}｜${eatText}</div>
+      <div class="row3">${item.reason}；${item.repeatNote}</div>
     </div>
     <div class="hit-right">
-      <div class="hit-wr">${wr}</div>
-      <div class="hit-avg">${avg}</div>
+      <div class="hit-wr">${rightTop}</div>
+      <div class="hit-avg">${rightBottom}</div>
     </div>
   `;
   return div;
 }
 
-function render(room5){
-  const structRes = getStructureModel(room5);
-  const strongRes = getStructureStrongXModel(room5);
-  const mRes = getMModel(room5);
+function buildSkipCard(item){
+  const div = document.createElement('div');
+  div.className = 'hit bad';
+
+  const parityText = item.sameParity ? '同频' : '不同频';
+  const eatText = item.eatRepeat ? '吃重号' : (item.repeatInfo.hasRepeat ? '未吃重号' : '无重号');
+
+  div.innerHTML = `
+    <div class="hit-lbl">跳</div>
+    <div class="hit-seat">${item.seat}号</div>
+    <div class="hit-body">
+      <div class="row1">X=${item.x}　第${item.xRank}名　${parityText}</div>
+      <div class="row2">${item.repeatInfo.short}｜${eatText}</div>
+      <div class="row3">${item.reason}；${item.repeatNote}</div>
+    </div>
+    <div class="hit-right">
+      <div class="hit-wr" style="color:rgba(255,255,255,.25)">跳</div>
+      <div class="hit-avg">—</div>
+    </div>
+  `;
+  return div;
+}
+
+function formatDigitRank(room){
+  const digits = getDigits(room);
+  const ranks = getUniqueRanks(room);
+  const labels = ['A','B','C','D','E'];
+  return digits.map((d,i)=>`${labels[i]}${d}=第${ranks[i]}`).join('　');
+}
+
+function render(room){
+  const analysis = analyzeRoom(room);
+  const repeatInfo = getRepeatInfo(room);
 
   resultEl.style.display = 'none';
-  skipEl.style.display   = 'none';
-  hitListEl.innerHTML    = '';
+  skipEl.style.display = 'none';
+  hitListEl.innerHTML = '';
 
-  let shown = 0;
+  const pattern = getParityPattern(room);
+  const rankText = formatDigitRank(room);
+  const repeatText = `${repeatInfo.kind}${repeatInfo.hasRepeat ? '｜' + repeatNumsText(repeatInfo) : ''}`;
 
-  if(structRes.ok){
-    const stat = formatWrAvg(structRes.hits);
-    hitListEl.appendChild(buildModelCard({
-      label:'结构',
-      seatsText: formatSeats(structRes.hits),
-      pattern: structRes.pattern,
-      row2Text: `位=${formatSeats(structRes.hits)}  X=${formatXs(structRes.hits)}`,
-      note: '72050结构命中',
-      wr: stat.wr,
-      avg: stat.avg
-    }, 1));
-    shown++;
-  }
+  resultHdr.innerHTML = `${pattern}｜${repeatText}<br>${rankText}`;
 
-  if(strongRes.ok){
-    const stat = formatWrAvg(strongRes.hits);
-    hitListEl.appendChild(buildModelCard({
-      label:'结构+X',
-      seatsText: formatSeats(strongRes.hits),
-      pattern: strongRes.pattern,
-      row2Text: `位=${formatSeats(strongRes.hits)}  X=${formatXs(strongRes.hits)}`,
-      note: '结构后再命中强X',
-      wr: stat.wr,
-      avg: stat.avg
-    }, 2));
-    shown++;
-  }
-
-  if(mRes.ok){
-    const stat = formatWrAvg(mRes.hits);
-    hitListEl.appendChild(buildModelCard({
-      label:'M模型',
-      seatsText: formatSeats(mRes.hits),
-      pattern: mRes.pattern,
-      row2Text: `位=${formatSeats(mRes.hits)}  M=${formatMs(mRes.hits)}`,
-      note: '独立M结果',
-      wr: stat.wr,
-      avg: stat.avg
-    }, 3));
-    shown++;
-  }
-
-  if(shown === 0){
-    resultHdr.textContent = `${getParityPattern(room5)}　三模型均未命中`;
+  if(!analysis.usable.length){
     skipEl.style.display = 'block';
+
+    const topSkips = analysis.seats
+      .filter(s => s.seat !== 1)
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,3);
+
+    topSkips.forEach(item => hitListEl.appendChild(buildSkipCard(item)));
+
+    resultEl.style.display = 'block';
     return [];
   }
 
-  resultHdr.textContent = `${getParityPattern(room5)}　命中 ${shown} 个模型`;
+  analysis.usable.slice(0,4).forEach((item, idx) => {
+    hitListEl.appendChild(buildCard(item, idx));
+  });
+
+  const hardSkips = analysis.seats
+    .filter(s => s.grade === 99 && s.seat !== 1)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,2);
+
+  hardSkips.forEach(item => {
+    if(analysis.usable.length <= 2){
+      hitListEl.appendChild(buildSkipCard(item));
+    }
+  });
+
   resultEl.style.display = 'block';
 
-  const seats = [];
-  if(structRes.ok) seats.push(...structRes.hits.map(h => h.seat));
-  if(strongRes.ok) seats.push(...strongRes.hits.map(h => h.seat));
-  if(mRes.ok) seats.push(...mRes.hits.map(h => h.seat));
-  return [...new Set(seats)].slice(0,4);
+  return analysis.usable.map(s => s.seat).slice(0,4);
 }
 
 function run(){
@@ -658,6 +805,7 @@ function run(){
     msgEl.textContent = '请输入正确的5位数字';
     return;
   }
+
   msgEl.textContent = '';
   const seats = render(raw);
   pushHistory(raw, seats);
@@ -671,6 +819,7 @@ function loadHist(){
     return [];
   }
 }
+
 function saveHist(items){
   localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
 }
@@ -678,17 +827,20 @@ function saveHist(items){
 function renderHist(){
   const items = loadHist();
   histListEl.innerHTML = '';
+
   if(!items.length){
     histListEl.innerHTML = `<div class="histItem"><div class="histMain" style="color:rgba(255,255,255,.2)">暂无记录</div></div>`;
     return;
   }
+
   items.forEach(item => {
     const div = document.createElement('div');
     div.className = 'histItem';
     const res = item.seats.length ? item.seats.map(s=>`${s}号`).join(' / ') : '跳';
     div.innerHTML = `
       <div class="histTop"><span>房号 <span class="pill">${item.room}</span></span><span>${item.time}</span></div>
-      <div class="histMain">${item.pattern} → ${res}</div>`;
+      <div class="histMain">${item.pattern} → ${res}</div>
+    `;
     histListEl.appendChild(div);
   });
 }
@@ -707,6 +859,7 @@ function pushHistory(room, seats){
 
 goEl.addEventListener('click', run);
 roomEl.addEventListener('keydown', e => { if(e.key === 'Enter') run(); });
+
 clearBtnEl.addEventListener('click', () => {
   localStorage.removeItem(HISTORY_KEY);
   renderHist();
