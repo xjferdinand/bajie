@@ -1,5 +1,388 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#b00000"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="小老虎模型">
+  <title>小老虎模型</title>
+  <style>
+    :root{
+      --bg:#0b0b0f;
+      --card:#11111a;
+      --line:rgba(255,255,255,.10);
+      --text:#f5f5f7;
+      --muted:rgba(255,255,255,.50);
+      --red:#ff2d2d;
+      --green:rgba(80,255,140,.85);
+      --orange:#ff9f2d;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(800px 400px at 50% 15%,rgba(255,45,45,.20),transparent 60%),
+        radial-gradient(900px 500px at 50% 110%,rgba(176,0,0,.25),transparent 60%),
+        var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+      padding:12px;
+    }
+
+    .app{width:min(430px,100%);}
+
+    .title{
+      font-size:16px;
+      font-weight:900;
+      margin:0 0 12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .title::before{
+      content:"";
+      flex-shrink:0;
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--red);
+      box-shadow:0 0 12px rgba(255,45,45,.9);
+    }
+    .version{
+      font-size:10px;
+      color:rgba(255,45,45,.6);
+      margin-left:4px;
+      font-weight:400;
+    }
+
+    .panel{
+      background:linear-gradient(160deg,rgba(255,45,45,.07),transparent 55%),var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 20px 60px rgba(0,0,0,.55);
+    }
+
+    input{
+      width:100%;
+      padding:12px 14px;
+      font-size:22px;
+      letter-spacing:5px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.40);
+      color:var(--text);
+      outline:none;
+      text-align:center;
+      font-weight:700;
+    }
+    input:focus{
+      border-color:rgba(255,45,45,.65);
+      box-shadow:0 0 0 3px rgba(255,45,45,.12);
+    }
+    input::placeholder{
+      font-size:13px;
+      letter-spacing:1px;
+      font-weight:400;
+    }
+
+    .btn-wrap{
+      display:flex;
+      justify-content:center;
+      margin:14px 0 8px;
+    }
+    .btn-circle{
+      width:66px;
+      height:66px;
+      border-radius:50%;
+      border:2px solid rgba(255,45,45,.55);
+      background:radial-gradient(circle at 38% 32%,rgba(255,90,90,.95),rgba(155,0,0,.95));
+      color:#fff;
+      font-size:15px;
+      font-weight:900;
+      letter-spacing:1px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 0 18px rgba(255,45,45,.40),inset 0 1px 0 rgba(255,255,255,.18);
+      transition:transform .1s,box-shadow .1s;
+    }
+    .btn-circle:active{transform:scale(.92);}
+
+    .msg{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      min-height:14px;
+      margin-bottom:8px;
+    }
+
+    .result{
+      display:none;
+      margin-top:4px;
+    }
+    .result-hdr{
+      text-align:center;
+      font-size:10px;
+      color:var(--muted);
+      margin-bottom:8px;
+      letter-spacing:.3px;
+      line-height:1.45;
+    }
+    .hit-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .hit{
+      display:grid;
+      grid-template-columns:auto 52px 1fr auto;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(0,0,0,.22);
+    }
+    .hit.r1{
+      border-color:rgba(255,45,45,.50);
+      background:rgba(255,45,45,.10);
+    }
+    .hit.r2{
+      border-color:rgba(255,140,0,.32);
+      background:rgba(255,140,0,.06);
+    }
+
+    .hit-lbl{
+      font-size:9px;
+      font-weight:900;
+      padding:2px 6px;
+      border-radius:999px;
+      background:rgba(255,45,45,.20);
+      color:#ff8080;
+      white-space:nowrap;
+      letter-spacing:.2px;
+    }
+    .hit.r1 .hit-lbl{
+      background:rgba(255,45,45,.38);
+      color:#ff9090;
+    }
+    .hit.r2 .hit-lbl{
+      background:rgba(255,140,0,.20);
+      color:#ffc080;
+    }
+
+    .hit-seat{
+      font-size:21px;
+      font-weight:1000;
+      color:var(--red);
+      text-shadow:0 0 12px rgba(255,45,45,.35);
+      line-height:1.05;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    .hit-body{
+      line-height:1.4;
+      min-width:0;
+    }
+    .hit-body .row1{
+      font-size:11px;
+      color:var(--text);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hit-body .row2{
+      font-size:10px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hit-body .row3{
+      font-size:9px;
+      color:rgba(255,255,255,.32);
+      margin-top:1px;
+      line-height:1.25;
+    }
+
+    .hit-right{
+      text-align:right;
+      min-width:42px;
+    }
+    .hit-wr{
+      font-size:11px;
+      font-weight:900;
+      color:var(--green);
+    }
+    .hit-avg{
+      font-size:9px;
+      color:rgba(255,255,255,.35);
+      margin-top:1px;
+    }
+
+    .skip{
+      display:none;
+      text-align:center;
+      padding:18px;
+      font-size:30px;
+      font-weight:1000;
+      color:rgba(255,255,255,.18);
+      letter-spacing:4px;
+    }
+
+    .history{
+      margin-top:12px;
+      padding:10px 11px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+    }
+    .histHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:7px;
+    }
+    .histTitle{
+      font-size:11px;
+      font-weight:800;
+      color:var(--muted);
+    }
+    .clearBtn{
+      font-size:10px;
+      padding:4px 8px;
+      border-radius:7px;
+      cursor:pointer;
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.10);
+      color:rgba(255,100,100,.85);
+    }
+    .histList{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      max-height:180px;
+      overflow:auto;
+    }
+    .histItem{
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:9px;
+      padding:7px 9px;
+      background:rgba(0,0,0,.14);
+    }
+    .histTop{
+      display:flex;
+      justify-content:space-between;
+      font-size:10px;
+      color:rgba(255,255,255,.35);
+      margin-bottom:2px;
+    }
+    .histMain{
+      font-size:11px;
+      color:rgba(255,255,255,.60);
+      line-height:1.35;
+    }
+    .pill{
+      display:inline-block;
+      padding:1px 6px;
+      border-radius:999px;
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.10);
+      font-weight:800;
+      color:var(--red);
+      margin-right:3px;
+    }
+
+    .tiny{
+      margin-top:12px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      font-size:10px;
+      color:rgba(255,255,255,.28);
+      line-height:1.6;
+      white-space:pre-line;
+    }
+
+    @media (max-width: 430px){
+      body{padding:10px;}
+      .app{width:100%;}
+      .panel{padding:10px;border-radius:15px;}
+      .hit{
+        grid-template-columns:auto 46px 1fr auto;
+        gap:6px;
+        padding:7px 8px;
+      }
+      .hit-seat{font-size:19px;}
+      .result-hdr{font-size:10px;}
+      .histMain{font-size:10px;}
+      .tiny{font-size:9px;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B单对子修正版 v1.2</span></div>
+  <div class="panel">
+
+    <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
+
+    <div class="btn-wrap">
+      <button class="btn-circle" id="go">开干</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="result" id="result">
+      <div class="result-hdr" id="resultHdr">— 小老虎稳健结果 —</div>
+      <div class="hit-list" id="hitList"></div>
+    </div>
+
+    <div class="skip" id="skip">无A/B，跳</div>
+
+    <div class="history">
+      <div class="histHead">
+        <span class="histTitle">最近记录</span>
+        <button class="clearBtn" id="clearBtn">清空</button>
+      </div>
+      <div class="histList" id="histList"></div>
+    </div>
+
+    <div class="tiny">
+【小老虎 ID 5131861 v1.2】
+只显示 A档 / B档。
+观察档、跳位、未命中位子一律不显示。
+没有A/B命中，直接显示：无A/B，跳。
+
+最新修正：
+只有“单对子 + X吃对子”才可以破奇偶。
+双对子不享受对子特权。
+双对子里3号位直接拦截，4号位可保留，6号位谨慎保留。
+
+基础规则：
+正常看 同频 + X排名。
+单对子吃X时，3号/4号可以破奇偶并放宽排名。
+
+A/B/C/D/E = 房号五位
+1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
+第1名=最大，第5名=最小
+重号不并列，按从左到右单独排序
+    </div>
+
+  </div>
+</div>
+
 <script>
-const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v11_pair_break';
+const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v12_single_pair';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -83,41 +466,55 @@ function getRepeatInfo(room){
       kind:'无重号',
       short:'无重',
       groups,
-      hasRepeat:false
+      hasRepeat:false,
+      isSinglePair:false,
+      isDoublePair:false,
+      isTriple:false,
+      isQuad:false,
+      isTriplePair:false
     };
   }
 
   const cnts = groups.map(g=>g.cnt).sort((a,b)=>b-a).join(',');
 
-  let kind = '重号';
-  let short = '重号';
+  const info = {
+    kind:'重号',
+    short:'重号',
+    groups,
+    hasRepeat:true,
+    isSinglePair:false,
+    isDoublePair:false,
+    isTriple:false,
+    isQuad:false,
+    isTriplePair:false
+  };
 
   if(cnts === '2'){
-    kind = '单数字双重号';
-    short = '单对子';
+    info.kind = '单数字双重号';
+    info.short = '单对子';
+    info.isSinglePair = true;
   }else if(cnts === '3'){
-    kind = '单数字三重号';
-    short = '三重号';
+    info.kind = '单数字三重号';
+    info.short = '三重号';
+    info.isTriple = true;
   }else if(cnts === '4'){
-    kind = '单数字四重号';
-    short = '四重号';
+    info.kind = '单数字四重号';
+    info.short = '四重号';
+    info.isQuad = true;
   }else if(cnts === '5'){
-    kind = '五重号';
-    short = '五重号';
+    info.kind = '五重号';
+    info.short = '五重号';
   }else if(cnts === '2,2'){
-    kind = '两个数字同时双重';
-    short = '双对子';
+    info.kind = '两个数字同时双重';
+    info.short = '双对子';
+    info.isDoublePair = true;
   }else if(cnts === '3,2'){
-    kind = '三重号+双重号';
-    short = '三带二';
+    info.kind = '三重号+双重号';
+    info.short = '三带二';
+    info.isTriplePair = true;
   }
 
-  return {
-    kind,
-    short,
-    groups,
-    hasRepeat:true
-  };
+  return info;
 }
 
 function repeatNumsText(info){
@@ -140,37 +537,65 @@ function xEatPair(room, seat){
   return getXCount(room, seat) === 2;
 }
 
+function xEatSinglePair(room, seat){
+  const info = getRepeatInfo(room);
+  return info.isSinglePair && xEatPair(room, seat);
+}
+
+/*
+  小老虎 v1.2 核心规则：
+
+  正常A/B：
+  2号：同频 + 第5名 = A；同频 + 第1名 = B
+  3号：同频 + 第1/2名 = A；同频 + 第4名 = B
+  4号：同频 + 第5名 = A；同频 + 第2/4名 = B
+  6号：同频 + 第4名 = A；同频 + 第1名 = B
+  1号、5号：稳健版不打
+
+  单对子特权：
+  只有“单对子 + X吃对子”才可以破奇偶。
+  3号：单对子吃X + 第1/2名 = A；第4名 = B
+  4号：单对子吃X + 第5名 = A；第2/3/4名 = B
+
+  双对子：
+  不享受单对子特权。
+  3号位双对子直接拦截。
+  4号位双对子可以保留。
+  6号位双对子谨慎保留。
+*/
+
 function baseRule(room, seat, xRank, sameParity){
-  const eatsPair = xEatPair(room, seat);
+  const eatsSinglePair = xEatSinglePair(room, seat);
 
   if(seat === 1){
     return { grade:99, tag:'跳', score:-99, reason:'1号位固定跳' };
   }
 
   /*
-    最新特权：
-    3号位、4号位，X吃对子时，可以破奇偶。
-    但必须继续满足X排名要求。
+    单对子特权：
+    只有房号里只有一组对子，并且X正好吃到这个对子，才可以破奇偶。
   */
+  if(eatsSinglePair){
+    if(seat === 3){
+      if(xRank === 1) return { grade:1, tag:'A档', score:110, reason:'3号位单对子吃X+第1名，破奇偶A档' };
+      if(xRank === 2) return { grade:1, tag:'A档', score:106, reason:'3号位单对子吃X+第2名，破奇偶A档' };
+      if(xRank === 4) return { grade:2, tag:'B档', score:82, reason:'3号位单对子吃X+第4名，破奇偶B档' };
+    }
 
-  if(seat === 3 && eatsPair){
-    if(xRank === 1) return { grade:1, tag:'A档', score:108, reason:'3号位X吃对子+第1名，破奇偶A档' };
-    if(xRank === 2) return { grade:1, tag:'A档', score:104, reason:'3号位X吃对子+第2名，破奇偶A档' };
-  }
-
-  if(seat === 4 && eatsPair){
-    if(xRank === 5) return { grade:1, tag:'A档', score:106, reason:'4号位X吃对子+第5名，破奇偶A档' };
-    if(xRank === 4) return { grade:2, tag:'B档', score:82, reason:'4号位X吃对子+第4名，破奇偶B档' };
-    if(xRank === 2) return { grade:2, tag:'B档', score:78, reason:'4号位X吃对子+第2名，破奇偶B档' };
+    if(seat === 4){
+      if(xRank === 5) return { grade:1, tag:'A档', score:108, reason:'4号位单对子吃X+第5名，破奇偶A档' };
+      if(xRank === 4) return { grade:2, tag:'B档', score:86, reason:'4号位单对子吃X+第4名，破奇偶B档' };
+      if(xRank === 3) return { grade:2, tag:'B档', score:80, reason:'4号位单对子吃X+第3名，破奇偶B档' };
+      if(xRank === 2) return { grade:2, tag:'B档', score:78, reason:'4号位单对子吃X+第2名，破奇偶B档' };
+    }
   }
 
   /*
     正常规则：
-    没有特权时，必须奇偶同频。
+    没有单对子特权时，必须奇偶同频。
   */
-
   if(!sameParity){
-    return { grade:99, tag:'跳', score:-20, reason:'奇偶不同频，且未触发对子特权' };
+    return { grade:99, tag:'跳', score:-20, reason:'奇偶不同频，且未触发单对子特权' };
   }
 
   if(seat === 2){
@@ -210,6 +635,7 @@ function applyRepeatAdjust(room, seat, decision){
   const info = getRepeatInfo(room);
   const eat = xEatRepeat(room, seat);
   const eatsPair = xEatPair(room, seat);
+  const eatsSinglePair = xEatSinglePair(room, seat);
   const notes = [];
 
   let grade = decision.grade;
@@ -218,43 +644,48 @@ function applyRepeatAdjust(room, seat, decision){
 
   if(!info.hasRepeat){
     notes.push('无重号');
-    return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, repeatInfo: info };
+    return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, eatsSinglePair, repeatInfo: info };
   }
 
   if(eat){
     score += 10;
     notes.push(`X吃重号：${repeatNumsText(info)}`);
 
-    if(eatsPair){
-      score += 8;
-      notes.push('X吃对子，加分');
+    if(eatsSinglePair){
+      score += 12;
+      notes.push('X吃单对子，强加分');
+    }else if(eatsPair && info.isDoublePair){
+      notes.push('X吃双对子，但双对子不享受特权');
+    }else if(eatsPair){
+      score += 3;
+      notes.push('X吃对子，小加分');
     }
 
-    if(info.short === '三重号'){
+    if(info.isTriple){
       score += 5;
       notes.push('三重号偏友好');
     }
 
-    if(info.short === '四重号'){
+    if(info.isQuad){
       score += 5;
       notes.push('四重号吃到，加分');
     }
   }else{
     notes.push(`X未吃重号：${repeatNumsText(info)}`);
 
-    if(info.short === '单对子'){
+    if(info.isSinglePair){
       score -= 18;
       if(grade < 3) grade += 1;
       notes.push('单对子未吃，降级');
     }
 
-    if(info.short === '四重号'){
+    if(info.isQuad){
       score -= 15;
       if(grade < 3) grade += 1;
       notes.push('四重号未吃，降级');
     }
 
-    if(info.short === '三带二'){
+    if(info.isTriplePair){
       score -= 40;
       grade = 99;
       tag = '跳';
@@ -263,23 +694,25 @@ function applyRepeatAdjust(room, seat, decision){
   }
 
   /*
-    双对子保护：
-    历史里3号位遇双对子偏雷，继续拦截。
-    4号位遇双对子加分。
+    双对子单独处理：
+    双对子不再等同于单对子。
   */
-
-  if(info.short === '双对子'){
+  if(info.isDoublePair){
     if(seat === 3){
-      score -= 50;
+      score -= 60;
       grade = 99;
       tag = '跳';
-      notes.push('双对子里3号位偏雷，跳');
+      notes.push('双对子里3号位偏雷，直接拦截');
     }else if(seat === 4 && decision.grade < 99){
       score += 12;
-      notes.push('双对子里4号位加分');
+      notes.push('双对子里4号位可保留，加分');
     }else if(seat === 6 && decision.grade < 99){
-      score += 3;
-      notes.push('双对子里6号位短打');
+      score -= 3;
+      notes.push('双对子里6号位高波动，谨慎保留');
+    }else if(seat === 2){
+      score -= 12;
+      if(grade < 3) grade += 1;
+      notes.push('双对子里2号位不放宽，降级');
     }else{
       score -= 8;
       notes.push('双对子高波动');
@@ -290,7 +723,7 @@ function applyRepeatAdjust(room, seat, decision){
   else if(grade === 2) tag = 'B档';
   else tag = '跳';
 
-  return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, repeatInfo: info };
+  return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, eatsSinglePair, repeatInfo: info };
 }
 
 function analyzeSeat(room, seat){
@@ -312,7 +745,8 @@ function analyzeSeat(room, seat){
     repeatNote: adjusted.repeatNote,
     repeatInfo: adjusted.repeatInfo,
     eatRepeat: adjusted.eat,
-    eatsPair: adjusted.eatsPair
+    eatsPair: adjusted.eatsPair,
+    eatsSinglePair: adjusted.eatsSinglePair
   };
 }
 
@@ -339,8 +773,24 @@ function buildCard(item){
   const div = document.createElement('div');
   div.className = `hit ${rankClass(item)}`;
 
-  const parityText = item.sameParity ? '同频' : '破奇偶';
-  const eatText = item.eatRepeat ? (item.eatsPair ? '吃对子' : '吃重号') : (item.repeatInfo.hasRepeat ? '未吃重号' : '无重号');
+  let parityText = item.sameParity ? '同频' : '破奇偶';
+  if(!item.sameParity && !item.eatsSinglePair){
+    parityText = '不同频';
+  }
+
+  let eatText = '无重号';
+  if(item.repeatInfo.hasRepeat){
+    if(item.eatsSinglePair){
+      eatText = '吃单对子';
+    }else if(item.eatRepeat && item.repeatInfo.isDoublePair){
+      eatText = '吃双对子';
+    }else if(item.eatRepeat){
+      eatText = '吃重号';
+    }else{
+      eatText = '未吃重号';
+    }
+  }
+
   const rightTop = item.grade === 1 ? '优先' : '短打';
   const rightBottom = `分${item.score}`;
 
@@ -469,3 +919,5 @@ if('serviceWorker' in navigator){
 renderHist();
 roomEl.focus();
 </script>
+</body>
+</html>
