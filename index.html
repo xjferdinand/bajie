@@ -331,7 +331,7 @@
 </head>
 <body>
 <div class="app">
-  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B单对子修正版 v1.2</span></div>
+  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B单对子强放开 v1.3</span></div>
   <div class="panel">
 
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
@@ -358,19 +358,23 @@
     </div>
 
     <div class="tiny">
-【小老虎 ID 5131861 v1.2】
+【小老虎 ID 5131861 v1.3】
 只显示 A档 / B档。
 观察档、跳位、未命中位子一律不显示。
 没有A/B命中，直接显示：无A/B，跳。
 
 最新修正：
-只有“单对子 + X吃对子”才可以破奇偶。
+小老虎最喜欢“单对子 + 自己X吃对子”。
+单对子吃X时，3号/4号可以破奇偶并放宽排名。
+新增：5号位如果“单对子 + X吃对子 + 同频 + X第3名”，可B档短打。
 双对子不享受对子特权。
 双对子里3号位直接拦截，4号位可保留，6号位谨慎保留。
 
 基础规则：
 正常看 同频 + X排名。
-单对子吃X时，3号/4号可以破奇偶并放宽排名。
+单对子吃X = 强加分。
+单对子没吃X = 降级。
+双对子 = 高波动，单独处理。
 
 A/B/C/D/E = 房号五位
 1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
@@ -382,7 +386,7 @@ A/B/C/D/E = 房号五位
 </div>
 
 <script>
-const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v12_single_pair';
+const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v13_single_pair_open';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -543,19 +547,20 @@ function xEatSinglePair(room, seat){
 }
 
 /*
-  小老虎 v1.2 核心规则：
+  小老虎 v1.3 核心规则：
 
   正常A/B：
   2号：同频 + 第5名 = A；同频 + 第1名 = B
   3号：同频 + 第1/2名 = A；同频 + 第4名 = B
   4号：同频 + 第5名 = A；同频 + 第2/4名 = B
   6号：同频 + 第4名 = A；同频 + 第1名 = B
-  1号、5号：稳健版不打
+  1号：不打
 
   单对子特权：
   只有“单对子 + X吃对子”才可以破奇偶。
   3号：单对子吃X + 第1/2名 = A；第4名 = B
-  4号：单对子吃X + 第5名 = A；第2/3/4名 = B
+  4号：单对子吃X + 第5名 = A；第1/2/3/4名 = B
+  5号：单对子吃X + 同频 + 第3名 = B
 
   双对子：
   不享受单对子特权。
@@ -573,20 +578,27 @@ function baseRule(room, seat, xRank, sameParity){
 
   /*
     单对子特权：
-    只有房号里只有一组对子，并且X正好吃到这个对子，才可以破奇偶。
+    只有房号里只有一组对子，并且X正好吃到这个对子，才可以放开。
   */
   if(eatsSinglePair){
     if(seat === 3){
-      if(xRank === 1) return { grade:1, tag:'A档', score:110, reason:'3号位单对子吃X+第1名，破奇偶A档' };
-      if(xRank === 2) return { grade:1, tag:'A档', score:106, reason:'3号位单对子吃X+第2名，破奇偶A档' };
-      if(xRank === 4) return { grade:2, tag:'B档', score:82, reason:'3号位单对子吃X+第4名，破奇偶B档' };
+      if(xRank === 1) return { grade:1, tag:'A档', score:112, reason:'3号位单对子吃X+第1名，破奇偶A档' };
+      if(xRank === 2) return { grade:1, tag:'A档', score:108, reason:'3号位单对子吃X+第2名，破奇偶A档' };
+      if(xRank === 4) return { grade:2, tag:'B档', score:84, reason:'3号位单对子吃X+第4名，破奇偶B档' };
     }
 
     if(seat === 4){
-      if(xRank === 5) return { grade:1, tag:'A档', score:108, reason:'4号位单对子吃X+第5名，破奇偶A档' };
-      if(xRank === 4) return { grade:2, tag:'B档', score:86, reason:'4号位单对子吃X+第4名，破奇偶B档' };
-      if(xRank === 3) return { grade:2, tag:'B档', score:80, reason:'4号位单对子吃X+第3名，破奇偶B档' };
-      if(xRank === 2) return { grade:2, tag:'B档', score:78, reason:'4号位单对子吃X+第2名，破奇偶B档' };
+      if(xRank === 5) return { grade:1, tag:'A档', score:110, reason:'4号位单对子吃X+第5名，破奇偶A档' };
+      if(xRank === 4) return { grade:2, tag:'B档', score:88, reason:'4号位单对子吃X+第4名，破奇偶B档' };
+      if(xRank === 3) return { grade:2, tag:'B档', score:84, reason:'4号位单对子吃X+第3名，破奇偶B档' };
+      if(xRank === 2) return { grade:2, tag:'B档', score:86, reason:'4号位单对子吃X+第2名，破奇偶B档' };
+      if(xRank === 1) return { grade:2, tag:'B档', score:76, reason:'4号位单对子吃X+第1名，破奇偶B档但偏谨慎' };
+    }
+
+    if(seat === 5){
+      if(sameParity && xRank === 3){
+        return { grade:2, tag:'B档', score:74, reason:'5号位单对子吃X+同频+第3名，新增B档短打' };
+      }
     }
   }
 
@@ -619,7 +631,7 @@ function baseRule(room, seat, xRank, sameParity){
   }
 
   if(seat === 5){
-    return { grade:99, tag:'跳', score:-55, reason:'5号位整体弱，稳健版不打' };
+    return { grade:99, tag:'跳', score:-55, reason:'5号位仅在单对子吃X+同频+第3名时短打' };
   }
 
   if(seat === 6){
@@ -652,7 +664,7 @@ function applyRepeatAdjust(room, seat, decision){
     notes.push(`X吃重号：${repeatNumsText(info)}`);
 
     if(eatsSinglePair){
-      score += 12;
+      score += 15;
       notes.push('X吃单对子，强加分');
     }else if(eatsPair && info.isDoublePair){
       notes.push('X吃双对子，但双对子不享受特权');
