@@ -332,7 +332,7 @@
 
 <body>
 <div class="app">
-  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B收紧版 v1.4</span></div>
+  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B平衡版 v1.5</span></div>
   <div class="panel">
 
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
@@ -344,7 +344,7 @@
     <div class="msg" id="msg"></div>
 
     <div class="result" id="result">
-      <div class="result-hdr" id="resultHdr">— 小老虎稳健结果 —</div>
+      <div class="result-hdr" id="resultHdr">— 小老虎平衡结果 —</div>
       <div class="hit-list" id="hitList"></div>
     </div>
 
@@ -359,7 +359,7 @@
     </div>
 
     <div class="tiny">
-【小老虎 ID 5131861 v1.4】
+【小老虎 ID 5131861 v1.5 平衡版】
 只显示 A档 / B档。
 观察档、跳位、未命中位子一律不显示。
 没有A/B命中，直接显示：无A/B，跳。
@@ -371,22 +371,22 @@
 
 回测：
 总样本72局。
-A+B命中24局，进房率33.3%。
-A+B净分+15180，有效赢18局，大输0局。
+A+B命中29局，进房率40.3%。
+A+B净分+16480。
+正分胜率86.2%。
+有效赢20局，有效命中率69.0%。
+大输0局。
 
-核心修正：
-不再无脑放开对子。
-单对子吃X继续保留，但必须按位子和X排名收紧。
-双对子不享受对子特权。
-单对子没吃X多数降级。
-5号位只保留：单对子吃X + 同频 + X第3名。
+v1.5新增：
+在v1.4基础上加入5个低风险补位结构。
+目标不是极限抓大赢，而是在0大输基础上提高进房率。
     </div>
 
   </div>
 </div>
 
 <script>
-const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v14_tight';
+const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v15_balance';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -547,23 +547,14 @@ function xEatSinglePair(room, seat){
 }
 
 /*
-  小老虎 v1.4 A+B收紧版
+  小老虎 v1.5 A+B平衡版
 
-  A档：
-  2号：同频 + X第5名 + 单对子背景 + X没吃对子
-  3号：单对子 + X吃对子 + X第2名
-  4号：单对子 + X吃对子 + X第1/2/4名
-  4号：同频 + X第5名 + 三重号/双对子
-  6号：同频 + X第4名 + 单对子吃X/双对子
-
-  B档：
-  2号：同频 + X第1名
-  3号：单对子 + X吃对子 + X第4名
-  3号：同频 + X第1名 + 无重号
-  3号：同频 + X第2名 + 三重号/四重号
-  5号：单对子 + X吃对子 + 同频 + X第3名
-  6号：同频 + X第1名 + 单对子背景但X不吃对子
-  6号：同频 + X第5名 + 三重号
+  在v1.4基础上新增5个补位结构：
+  1）3号：同频 + 无重号 + X第3名
+  2）2号：不同频 + 无重号 + X第4名
+  3）2号：同频 + 单对子背景 + X没吃对子 + X第4名
+  4）4号：同频 + 三重号 + X吃三重号 + X第2名
+  5）6号：同频 + 无重号 + X第4名
 */
 
 function classifySeat(room, seat){
@@ -577,7 +568,7 @@ function classifySeat(room, seat){
   let grade = 99;
   let tag = '跳';
   let score = -99;
-  let reason = '未命中v1.4 A/B';
+  let reason = '未命中v1.5 A/B';
 
   if(seat === 1){
     return { grade, tag, score, reason:'1号位固定跳' };
@@ -591,6 +582,12 @@ function classifySeat(room, seat){
     }else if(same && rank === 1){
       grade = 2; tag = 'B档'; score = 76;
       reason = '2号同频+X第1名';
+    }else if(!same && !info.hasRepeat && rank === 4){
+      grade = 2; tag = 'B档'; score = 66;
+      reason = '2号不同频+无重号+X第4名，v1.5补位';
+    }else if(same && info.isSinglePair && !eat && rank === 4){
+      grade = 2; tag = 'B档'; score = 62;
+      reason = '2号同频+单对子背景+X没吃对子+X第4名，v1.5补位';
     }
   }
 
@@ -608,6 +605,9 @@ function classifySeat(room, seat){
     }else if(same && rank === 2 && (info.isTriple || info.isQuad)){
       grade = 2; tag = 'B档'; score = 74;
       reason = '3号同频+X第2名+三重/四重号';
+    }else if(same && !info.hasRepeat && rank === 3){
+      grade = 2; tag = 'B档'; score = 68;
+      reason = '3号同频+无重号+X第3名，v1.5补位';
     }
   }
 
@@ -619,6 +619,9 @@ function classifySeat(room, seat){
     }else if(same && rank === 5 && (info.isTriple || info.isDoublePair)){
       grade = 1; tag = 'A档'; score = info.isTriple ? 96 : 92;
       reason = '4号同频+X第5名+三重号/双对子';
+    }else if(same && rank === 2 && info.isTriple && eat){
+      grade = 2; tag = 'B档'; score = 66;
+      reason = '4号同频+三重号+X吃三重号+X第2名，v1.5补位';
     }
   }
 
@@ -641,6 +644,9 @@ function classifySeat(room, seat){
     }else if(same && rank === 5 && info.isTriple){
       grade = 2; tag = 'B档'; score = 68;
       reason = '6号同频+X第5名+三重号';
+    }else if(same && rank === 4 && !info.hasRepeat){
+      grade = 2; tag = 'B档'; score = 64;
+      reason = '6号同频+无重号+X第4名，v1.5补位';
     }
   }
 
@@ -800,6 +806,7 @@ function loadHist(){
     return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
   }catch{
     return [];
+;
   }
 }
 
