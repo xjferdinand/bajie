@@ -329,9 +329,10 @@
     }
   </style>
 </head>
+
 <body>
 <div class="app">
-  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B单对子强放开 v1.3</span></div>
+  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B收紧版 v1.4</span></div>
   <div class="panel">
 
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
@@ -358,35 +359,34 @@
     </div>
 
     <div class="tiny">
-【小老虎 ID 5131861 v1.3】
+【小老虎 ID 5131861 v1.4】
 只显示 A档 / B档。
 观察档、跳位、未命中位子一律不显示。
 没有A/B命中，直接显示：无A/B，跳。
 
-最新修正：
-小老虎最喜欢“单对子 + 自己X吃对子”。
-单对子吃X时，3号/4号可以破奇偶并放宽排名。
-新增：5号位如果“单对子 + X吃对子 + 同频 + X第3名”，可B档短打。
+新口径：
+赢少于300分算噪音，不作为有效赢点。
+有效赢 >= +300。
+大输 <= -500。
+
+回测：
+总样本72局。
+A+B命中24局，进房率33.3%。
+A+B净分+15180，有效赢18局，大输0局。
+
+核心修正：
+不再无脑放开对子。
+单对子吃X继续保留，但必须按位子和X排名收紧。
 双对子不享受对子特权。
-双对子里3号位直接拦截，4号位可保留，6号位谨慎保留。
-
-基础规则：
-正常看 同频 + X排名。
-单对子吃X = 强加分。
-单对子没吃X = 降级。
-双对子 = 高波动，单独处理。
-
-A/B/C/D/E = 房号五位
-1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
-第1名=最大，第5名=最小
-重号不并列，按从左到右单独排序
+单对子没吃X多数降级。
+5号位只保留：单对子吃X + 同频 + X第3名。
     </div>
 
   </div>
 </div>
 
 <script>
-const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v13_single_pair_open';
+const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v14_tight';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -547,218 +547,142 @@ function xEatSinglePair(room, seat){
 }
 
 /*
-  小老虎 v1.3 核心规则：
+  小老虎 v1.4 A+B收紧版
 
-  正常A/B：
-  2号：同频 + 第5名 = A；同频 + 第1名 = B
-  3号：同频 + 第1/2名 = A；同频 + 第4名 = B
-  4号：同频 + 第5名 = A；同频 + 第2/4名 = B
-  6号：同频 + 第4名 = A；同频 + 第1名 = B
-  1号：不打
+  A档：
+  2号：同频 + X第5名 + 单对子背景 + X没吃对子
+  3号：单对子 + X吃对子 + X第2名
+  4号：单对子 + X吃对子 + X第1/2/4名
+  4号：同频 + X第5名 + 三重号/双对子
+  6号：同频 + X第4名 + 单对子吃X/双对子
 
-  单对子特权：
-  只有“单对子 + X吃对子”才可以破奇偶。
-  3号：单对子吃X + 第1/2名 = A；第4名 = B
-  4号：单对子吃X + 第5名 = A；第1/2/3/4名 = B
-  5号：单对子吃X + 同频 + 第3名 = B
-
-  双对子：
-  不享受单对子特权。
-  3号位双对子直接拦截。
-  4号位双对子可以保留。
-  6号位双对子谨慎保留。
+  B档：
+  2号：同频 + X第1名
+  3号：单对子 + X吃对子 + X第4名
+  3号：同频 + X第1名 + 无重号
+  3号：同频 + X第2名 + 三重号/四重号
+  5号：单对子 + X吃对子 + 同频 + X第3名
+  6号：同频 + X第1名 + 单对子背景但X不吃对子
+  6号：同频 + X第5名 + 三重号
 */
 
-function baseRule(room, seat, xRank, sameParity){
-  const eatsSinglePair = xEatSinglePair(room, seat);
+function classifySeat(room, seat){
+  const info = getRepeatInfo(room);
+  const x = getSeatX(room, seat);
+  const rank = getSeatRank(room, seat);
+  const same = isSameParity(seat, x);
+  const eat = xEatRepeat(room, seat);
+  const eatSingle = xEatSinglePair(room, seat);
+
+  let grade = 99;
+  let tag = '跳';
+  let score = -99;
+  let reason = '未命中v1.4 A/B';
 
   if(seat === 1){
-    return { grade:99, tag:'跳', score:-99, reason:'1号位固定跳' };
+    return { grade, tag, score, reason:'1号位固定跳' };
   }
 
-  /*
-    单对子特权：
-    只有房号里只有一组对子，并且X正好吃到这个对子，才可以放开。
-  */
-  if(eatsSinglePair){
-    if(seat === 3){
-      if(xRank === 1) return { grade:1, tag:'A档', score:112, reason:'3号位单对子吃X+第1名，破奇偶A档' };
-      if(xRank === 2) return { grade:1, tag:'A档', score:108, reason:'3号位单对子吃X+第2名，破奇偶A档' };
-      if(xRank === 4) return { grade:2, tag:'B档', score:84, reason:'3号位单对子吃X+第4名，破奇偶B档' };
-    }
-
-    if(seat === 4){
-      if(xRank === 5) return { grade:1, tag:'A档', score:110, reason:'4号位单对子吃X+第5名，破奇偶A档' };
-      if(xRank === 4) return { grade:2, tag:'B档', score:88, reason:'4号位单对子吃X+第4名，破奇偶B档' };
-      if(xRank === 3) return { grade:2, tag:'B档', score:84, reason:'4号位单对子吃X+第3名，破奇偶B档' };
-      if(xRank === 2) return { grade:2, tag:'B档', score:86, reason:'4号位单对子吃X+第2名，破奇偶B档' };
-      if(xRank === 1) return { grade:2, tag:'B档', score:76, reason:'4号位单对子吃X+第1名，破奇偶B档但偏谨慎' };
-    }
-
-    if(seat === 5){
-      if(sameParity && xRank === 3){
-        return { grade:2, tag:'B档', score:74, reason:'5号位单对子吃X+同频+第3名，新增B档短打' };
-      }
-    }
-  }
-
-  /*
-    正常规则：
-    没有单对子特权时，必须奇偶同频。
-  */
-  if(!sameParity){
-    return { grade:99, tag:'跳', score:-20, reason:'奇偶不同频，且未触发单对子特权' };
-  }
-
+  // 2号位
   if(seat === 2){
-    if(xRank === 5) return { grade:1, tag:'A档', score:95, reason:'2号位同频+X第5名' };
-    if(xRank === 1) return { grade:2, tag:'B档', score:75, reason:'2号位同频+X第1名' };
-    return { grade:99, tag:'跳', score:-30, reason:'2号位未命中A/B排名' };
+    if(same && rank === 5 && info.isSinglePair && !eat){
+      grade = 1; tag = 'A档'; score = 96;
+      reason = '2号同频+第5名+单对子背景+X没吃对子';
+    }else if(same && rank === 1){
+      grade = 2; tag = 'B档'; score = 76;
+      reason = '2号同频+X第1名';
+    }
   }
 
+  // 3号位
   if(seat === 3){
-    if(xRank === 1) return { grade:1, tag:'A档', score:96, reason:'3号位同频+X第1名' };
-    if(xRank === 2) return { grade:1, tag:'A档', score:90, reason:'3号位同频+X第2名' };
-    if(xRank === 4) return { grade:2, tag:'B档', score:72, reason:'3号位同频+X第4名' };
-    return { grade:99, tag:'跳', score:-30, reason:'3号位未命中A/B排名' };
+    if(eatSingle && rank === 2){
+      grade = 1; tag = 'A档'; score = 108;
+      reason = '3号单对子吃X+X第2名';
+    }else if(eatSingle && rank === 4){
+      grade = 2; tag = 'B档'; score = 82;
+      reason = '3号单对子吃X+X第4名';
+    }else if(same && rank === 1 && !info.hasRepeat){
+      grade = 2; tag = 'B档'; score = 78;
+      reason = '3号同频+X第1名+无重号';
+    }else if(same && rank === 2 && (info.isTriple || info.isQuad)){
+      grade = 2; tag = 'B档'; score = 74;
+      reason = '3号同频+X第2名+三重/四重号';
+    }
   }
 
+  // 4号位
   if(seat === 4){
-    if(xRank === 5) return { grade:1, tag:'A档', score:92, reason:'4号位同频+X第5名' };
-    if(xRank === 4) return { grade:2, tag:'B档', score:65, reason:'4号位同频+X第4名' };
-    if(xRank === 2) return { grade:2, tag:'B档', score:60, reason:'4号位同频+X第2名' };
-    return { grade:99, tag:'跳', score:-25, reason:'4号位未命中A/B排名' };
+    if(eatSingle && (rank === 1 || rank === 2 || rank === 4)){
+      grade = 1; tag = 'A档'; score = rank === 2 ? 112 : rank === 4 ? 106 : 100;
+      reason = `4号单对子吃X+X第${rank}名`;
+    }else if(same && rank === 5 && (info.isTriple || info.isDoublePair)){
+      grade = 1; tag = 'A档'; score = info.isTriple ? 96 : 92;
+      reason = '4号同频+X第5名+三重号/双对子';
+    }
   }
 
+  // 5号位
   if(seat === 5){
-    return { grade:99, tag:'跳', score:-55, reason:'5号位仅在单对子吃X+同频+第3名时短打' };
+    if(eatSingle && same && rank === 3){
+      grade = 2; tag = 'B档'; score = 74;
+      reason = '5号单对子吃X+同频+X第3名';
+    }
   }
 
+  // 6号位
   if(seat === 6){
-    if(xRank === 4) return { grade:1, tag:'A档', score:92, reason:'6号位同频+X第4名' };
-    if(xRank === 1) return { grade:2, tag:'B档', score:70, reason:'6号位同频+X第1名' };
-    return { grade:99, tag:'跳', score:-30, reason:'6号位未命中A/B排名' };
-  }
-
-  return { grade:99, tag:'跳', score:-99, reason:'无规则' };
-}
-
-function applyRepeatAdjust(room, seat, decision){
-  const info = getRepeatInfo(room);
-  const eat = xEatRepeat(room, seat);
-  const eatsPair = xEatPair(room, seat);
-  const eatsSinglePair = xEatSinglePair(room, seat);
-  const notes = [];
-
-  let grade = decision.grade;
-  let score = decision.score;
-  let tag = decision.tag;
-
-  if(!info.hasRepeat){
-    notes.push('无重号');
-    return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, eatsSinglePair, repeatInfo: info };
-  }
-
-  if(eat){
-    score += 10;
-    notes.push(`X吃重号：${repeatNumsText(info)}`);
-
-    if(eatsSinglePair){
-      score += 15;
-      notes.push('X吃单对子，强加分');
-    }else if(eatsPair && info.isDoublePair){
-      notes.push('X吃双对子，但双对子不享受特权');
-    }else if(eatsPair){
-      score += 3;
-      notes.push('X吃对子，小加分');
-    }
-
-    if(info.isTriple){
-      score += 5;
-      notes.push('三重号偏友好');
-    }
-
-    if(info.isQuad){
-      score += 5;
-      notes.push('四重号吃到，加分');
-    }
-  }else{
-    notes.push(`X未吃重号：${repeatNumsText(info)}`);
-
-    if(info.isSinglePair){
-      score -= 18;
-      if(grade < 3) grade += 1;
-      notes.push('单对子未吃，降级');
-    }
-
-    if(info.isQuad){
-      score -= 15;
-      if(grade < 3) grade += 1;
-      notes.push('四重号未吃，降级');
-    }
-
-    if(info.isTriplePair){
-      score -= 40;
-      grade = 99;
-      tag = '跳';
-      notes.push('三带二未吃，跳');
+    if(same && rank === 4 && (eatSingle || info.isDoublePair)){
+      grade = 1; tag = 'A档'; score = eatSingle ? 94 : 90;
+      reason = '6号同频+X第4名+单对子吃X/双对子';
+    }else if(same && rank === 1 && info.isSinglePair && !eat){
+      grade = 2; tag = 'B档'; score = 70;
+      reason = '6号同频+X第1名+单对子背景但X没吃对子';
+    }else if(same && rank === 5 && info.isTriple){
+      grade = 2; tag = 'B档'; score = 68;
+      reason = '6号同频+X第5名+三重号';
     }
   }
 
-  /*
-    双对子单独处理：
-    双对子不再等同于单对子。
-  */
-  if(info.isDoublePair){
-    if(seat === 3){
-      score -= 60;
-      grade = 99;
-      tag = '跳';
-      notes.push('双对子里3号位偏雷，直接拦截');
-    }else if(seat === 4 && decision.grade < 99){
-      score += 12;
-      notes.push('双对子里4号位可保留，加分');
-    }else if(seat === 6 && decision.grade < 99){
-      score -= 3;
-      notes.push('双对子里6号位高波动，谨慎保留');
-    }else if(seat === 2){
-      score -= 12;
-      if(grade < 3) grade += 1;
-      notes.push('双对子里2号位不放宽，降级');
-    }else{
-      score -= 8;
-      notes.push('双对子高波动');
-    }
-  }
-
-  if(grade === 1) tag = 'A档';
-  else if(grade === 2) tag = 'B档';
-  else tag = '跳';
-
-  return { grade, score, tag, repeatNote: notes.join('；'), eat, eatsPair, eatsSinglePair, repeatInfo: info };
+  return { grade, tag, score, reason };
 }
 
 function analyzeSeat(room, seat){
   const x = getSeatX(room, seat);
   const xRank = getSeatRank(room, seat);
   const sameParity = isSameParity(seat, x);
-  const base = baseRule(room, seat, xRank, sameParity);
-  const adjusted = applyRepeatAdjust(room, seat, base);
+  const repeatInfo = getRepeatInfo(room);
+  const eatRepeat = xEatRepeat(room, seat);
+  const eatsSinglePair = xEatSinglePair(room, seat);
+  const base = classifySeat(room, seat);
+
+  let repeatNote = '';
+
+  if(!repeatInfo.hasRepeat){
+    repeatNote = '无重号';
+  }else if(eatsSinglePair){
+    repeatNote = `吃单对子：${repeatNumsText(repeatInfo)}`;
+  }else if(eatRepeat && repeatInfo.isDoublePair){
+    repeatNote = `吃双对子：${repeatNumsText(repeatInfo)}`;
+  }else if(eatRepeat){
+    repeatNote = `吃重号：${repeatNumsText(repeatInfo)}`;
+  }else{
+    repeatNote = `未吃重号：${repeatNumsText(repeatInfo)}`;
+  }
 
   return {
     seat,
     x,
     xRank,
     sameParity,
-    grade: adjusted.grade,
-    score: adjusted.score,
-    tag: adjusted.tag,
+    grade: base.grade,
+    score: base.score,
+    tag: base.tag,
     reason: base.reason,
-    repeatNote: adjusted.repeatNote,
-    repeatInfo: adjusted.repeatInfo,
-    eatRepeat: adjusted.eat,
-    eatsPair: adjusted.eatsPair,
-    eatsSinglePair: adjusted.eatsSinglePair
+    repeatNote,
+    repeatInfo,
+    eatRepeat,
+    eatsSinglePair
   };
 }
 
