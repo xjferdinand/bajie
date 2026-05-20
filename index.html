@@ -332,7 +332,7 @@
 
 <body>
 <div class="app">
-  <div class="title">小老虎专属<span class="version">ID 5131861 / A+B平衡版 v1.5</span></div>
+  <div class="title">小老虎专属<span class="version">ID 5131861 / v2.0防过拟合实战版</span></div>
   <div class="panel">
 
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
@@ -344,7 +344,7 @@
     <div class="msg" id="msg"></div>
 
     <div class="result" id="result">
-      <div class="result-hdr" id="resultHdr">— 小老虎平衡结果 —</div>
+      <div class="result-hdr" id="resultHdr">— 小老虎 v2.0 结果 —</div>
       <div class="hit-list" id="hitList"></div>
     </div>
 
@@ -359,34 +359,39 @@
     </div>
 
     <div class="tiny">
-【小老虎 ID 5131861 v1.5 平衡版】
+【小老虎 ID 5131861 v2.0 防过拟合实战版】
+旧 v1.4 / v1.5 / v1.6 已不作为网页规则。
 只显示 A档 / B档。
 观察档、跳位、未命中位子一律不显示。
 没有A/B命中，直接显示：无A/B，跳。
 
-新口径：
-赢少于300分算噪音，不作为有效赢点。
-有效赢 >= +300。
-大输 <= -500。
-
 回测：
-总样本72局。
-A+B命中29局，进房率40.3%。
-A+B净分+16480。
-正分胜率86.2%。
-有效赢20局，有效命中率69.0%。
-大输0局。
+总样本96局。
+命中31局，进房率32.3%。
+净分+15420。
+有效赢18局，噪音赢6局，小输7局，大输0局。
+最大亏损-400。
 
-v1.5新增：
-在v1.4基础上加入5个低风险补位结构。
-目标不是极限抓大赢，而是在0大输基础上提高进房率。
+一眼口诀：
+1号跳。
+2号只看X第4名。
+3号单对子吃X可坐；同频无重号可坐；双对子跳。
+4号只吃单对子。
+5号只看同频。
+6号只看同频第4名。
+
+定义：
+A/B/C/D/E = 房号五位
+1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
+第1名=最大，第5名=最小
+重号不并列，按从左到右单独排序
     </div>
 
   </div>
 </div>
 
 <script>
-const HISTORY_KEY   = 'xiaolaohu_5131861_ab_v15_balance';
+const HISTORY_KEY   = 'xiaolaohu_5131861_v20_anti_overfit';
 const HISTORY_LIMIT = 30;
 
 const roomEl     = document.getElementById('room');
@@ -426,7 +431,6 @@ function getSeatX(room, seat){
 
 function getUniqueRanks(room){
   const digits = getDigits(room);
-
   const order = digits.map((v,i)=>({v,i}))
     .sort((a,b)=>{
       if(b.v !== a.v) return b.v - a.v;
@@ -547,14 +551,18 @@ function xEatSinglePair(room, seat){
 }
 
 /*
-  小老虎 v1.5 A+B平衡版
+  小老虎 v2.0 防过拟合实战版
 
-  在v1.4基础上新增5个补位结构：
-  1）3号：同频 + 无重号 + X第3名
-  2）2号：不同频 + 无重号 + X第4名
-  3）2号：同频 + 单对子背景 + X没吃对子 + X第4名
-  4）4号：同频 + 三重号 + X吃三重号 + X第2名
-  5）6号：同频 + 无重号 + X第4名
+  1号：永远跳
+  2号：X第4名
+  3号：单对子吃X；或者 同频 + 无重号
+  4号：单对子吃X
+  5号：同频
+  6号：同频 + X第4名
+
+  双对子：
+  不作为加分项。
+  3号双对子因为不是单对子，自动不会命中。
 */
 
 function classifySeat(room, seat){
@@ -562,91 +570,64 @@ function classifySeat(room, seat){
   const x = getSeatX(room, seat);
   const rank = getSeatRank(room, seat);
   const same = isSameParity(seat, x);
-  const eat = xEatRepeat(room, seat);
   const eatSingle = xEatSinglePair(room, seat);
 
   let grade = 99;
   let tag = '跳';
   let score = -99;
-  let reason = '未命中v1.5 A/B';
+  let reason = '未命中v2.0实战规则';
 
   if(seat === 1){
     return { grade, tag, score, reason:'1号位固定跳' };
   }
 
-  // 2号位
   if(seat === 2){
-    if(same && rank === 5 && info.isSinglePair && !eat){
-      grade = 1; tag = 'A档'; score = 96;
-      reason = '2号同频+第5名+单对子背景+X没吃对子';
-    }else if(same && rank === 1){
-      grade = 2; tag = 'B档'; score = 76;
-      reason = '2号同频+X第1名';
-    }else if(!same && !info.hasRepeat && rank === 4){
-      grade = 2; tag = 'B档'; score = 66;
-      reason = '2号不同频+无重号+X第4名，v1.5补位';
-    }else if(same && info.isSinglePair && !eat && rank === 4){
-      grade = 2; tag = 'B档'; score = 62;
-      reason = '2号同频+单对子背景+X没吃对子+X第4名，v1.5补位';
+    if(rank === 4){
+      grade = 1;
+      tag = 'A档';
+      score = 90;
+      reason = '2号位只看X第4名';
     }
   }
 
-  // 3号位
   if(seat === 3){
-    if(eatSingle && rank === 2){
-      grade = 1; tag = 'A档'; score = 108;
-      reason = '3号单对子吃X+X第2名';
-    }else if(eatSingle && rank === 4){
-      grade = 2; tag = 'B档'; score = 82;
-      reason = '3号单对子吃X+X第4名';
-    }else if(same && rank === 1 && !info.hasRepeat){
-      grade = 2; tag = 'B档'; score = 78;
-      reason = '3号同频+X第1名+无重号';
-    }else if(same && rank === 2 && (info.isTriple || info.isQuad)){
-      grade = 2; tag = 'B档'; score = 74;
-      reason = '3号同频+X第2名+三重/四重号';
-    }else if(same && !info.hasRepeat && rank === 3){
-      grade = 2; tag = 'B档'; score = 68;
-      reason = '3号同频+无重号+X第3名，v1.5补位';
+    if(eatSingle){
+      grade = 1;
+      tag = 'A档';
+      score = 96;
+      reason = '3号位单对子吃X';
+    }else if(same && !info.hasRepeat){
+      grade = 2;
+      tag = 'B档';
+      score = 76;
+      reason = '3号位同频+无重号';
     }
   }
 
-  // 4号位
   if(seat === 4){
-    if(eatSingle && (rank === 1 || rank === 2 || rank === 4)){
-      grade = 1; tag = 'A档'; score = rank === 2 ? 112 : rank === 4 ? 106 : 100;
-      reason = `4号单对子吃X+X第${rank}名`;
-    }else if(same && rank === 5 && (info.isTriple || info.isDoublePair)){
-      grade = 1; tag = 'A档'; score = info.isTriple ? 96 : 92;
-      reason = '4号同频+X第5名+三重号/双对子';
-    }else if(same && rank === 2 && info.isTriple && eat){
-      grade = 2; tag = 'B档'; score = 66;
-      reason = '4号同频+三重号+X吃三重号+X第2名，v1.5补位';
+    if(eatSingle){
+      grade = 1;
+      tag = 'A档';
+      score = 100;
+      reason = '4号位单对子吃X';
     }
   }
 
-  // 5号位
   if(seat === 5){
-    if(eatSingle && same && rank === 3){
-      grade = 2; tag = 'B档'; score = 74;
-      reason = '5号单对子吃X+同频+X第3名';
+    if(same){
+      grade = 2;
+      tag = 'B档';
+      score = 72;
+      reason = '5号位只看同频';
     }
   }
 
-  // 6号位
   if(seat === 6){
-    if(same && rank === 4 && (eatSingle || info.isDoublePair)){
-      grade = 1; tag = 'A档'; score = eatSingle ? 94 : 90;
-      reason = '6号同频+X第4名+单对子吃X/双对子';
-    }else if(same && rank === 1 && info.isSinglePair && !eat){
-      grade = 2; tag = 'B档'; score = 70;
-      reason = '6号同频+X第1名+单对子背景但X没吃对子';
-    }else if(same && rank === 5 && info.isTriple){
-      grade = 2; tag = 'B档'; score = 68;
-      reason = '6号同频+X第5名+三重号';
-    }else if(same && rank === 4 && !info.hasRepeat){
-      grade = 2; tag = 'B档'; score = 64;
-      reason = '6号同频+无重号+X第4名，v1.5补位';
+    if(same && rank === 4){
+      grade = 1;
+      tag = 'A档';
+      score = 92;
+      reason = '6号位同频+X第4名';
     }
   }
 
@@ -669,7 +650,7 @@ function analyzeSeat(room, seat){
   }else if(eatsSinglePair){
     repeatNote = `吃单对子：${repeatNumsText(repeatInfo)}`;
   }else if(eatRepeat && repeatInfo.isDoublePair){
-    repeatNote = `吃双对子：${repeatNumsText(repeatInfo)}`;
+    repeatNote = `吃双对子：${repeatNumsText(repeatInfo)}，但v2.0不因双对子加分`;
   }else if(eatRepeat){
     repeatNote = `吃重号：${repeatNumsText(repeatInfo)}`;
   }else{
@@ -715,10 +696,7 @@ function buildCard(item){
   const div = document.createElement('div');
   div.className = `hit ${rankClass(item)}`;
 
-  let parityText = item.sameParity ? '同频' : '破奇偶';
-  if(!item.sameParity && !item.eatsSinglePair){
-    parityText = '不同频';
-  }
+  const parityText = item.sameParity ? '同频' : '不同频';
 
   let eatText = '无重号';
   if(item.repeatInfo.hasRepeat){
@@ -806,7 +784,6 @@ function loadHist(){
     return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
   }catch{
     return [];
-;
   }
 }
 
