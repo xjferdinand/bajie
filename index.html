@@ -1,354 +1,102 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#b00000"/>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="小老虎模型">
-  <title>小老虎模型</title>
-  <style>
-    :root{
-      --bg:#0b0b0f;
-      --card:#11111a;
-      --line:rgba(255,255,255,.10);
-      --text:#f5f5f7;
-      --muted:rgba(255,255,255,.50);
-      --red:#ff2d2d;
-      --green:rgba(80,255,140,.85);
-      --orange:#ff9f2d;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-
-    body{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:
-        radial-gradient(800px 400px at 50% 15%,rgba(255,45,45,.20),transparent 60%),
-        radial-gradient(900px 500px at 50% 110%,rgba(176,0,0,.25),transparent 60%),
-        var(--bg);
-      color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-      padding:12px;
-    }
-
-    .app{width:min(430px,100%);}
-
-    .title{
-      font-size:16px;
-      font-weight:900;
-      margin:0 0 12px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .title::before{
-      content:"";
-      flex-shrink:0;
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--red);
-      box-shadow:0 0 12px rgba(255,45,45,.9);
-    }
-    .version{
-      font-size:10px;
-      color:rgba(255,45,45,.6);
-      margin-left:4px;
-      font-weight:400;
-    }
-
-    .panel{
-      background:linear-gradient(160deg,rgba(255,45,45,.07),transparent 55%),var(--card);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:12px;
-      box-shadow:0 20px 60px rgba(0,0,0,.55);
-    }
-
-    input{
-      width:100%;
-      padding:12px 14px;
-      font-size:22px;
-      letter-spacing:5px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.40);
-      color:var(--text);
-      outline:none;
-      text-align:center;
-      font-weight:700;
-    }
-    input:focus{
-      border-color:rgba(255,45,45,.65);
-      box-shadow:0 0 0 3px rgba(255,45,45,.12);
-    }
-    input::placeholder{
-      font-size:13px;
-      letter-spacing:1px;
-      font-weight:400;
-    }
-
-    .btn-wrap{
-      display:flex;
-      justify-content:center;
-      margin:14px 0 8px;
-    }
-    .btn-circle{
-      width:66px;
-      height:66px;
-      border-radius:50%;
-      border:2px solid rgba(255,45,45,.55);
-      background:radial-gradient(circle at 38% 32%,rgba(255,90,90,.95),rgba(155,0,0,.95));
-      color:#fff;
-      font-size:15px;
-      font-weight:900;
-      letter-spacing:1px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 0 18px rgba(255,45,45,.40),inset 0 1px 0 rgba(255,255,255,.18);
-      transition:transform .1s,box-shadow .1s;
-    }
-    .btn-circle:active{transform:scale(.92);}
-
-    .msg{
-      text-align:center;
-      font-size:12px;
-      color:var(--muted);
-      min-height:14px;
-      margin-bottom:8px;
-    }
-
-    .result{
-      display:none;
-      margin-top:4px;
-    }
-    .result-hdr{
-      text-align:center;
-      font-size:10px;
-      color:var(--muted);
-      margin-bottom:8px;
-      letter-spacing:.3px;
-      line-height:1.45;
-    }
-    .hit-list{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-
-    .hit{
-      display:grid;
-      grid-template-columns:auto 52px 1fr auto;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.07);
-      background:rgba(0,0,0,.22);
-    }
-    .hit.r1{
-      border-color:rgba(255,45,45,.50);
-      background:rgba(255,45,45,.10);
-    }
-    .hit.r2{
-      border-color:rgba(255,140,0,.32);
-      background:rgba(255,140,0,.06);
-    }
-
-    .hit-lbl{
-      font-size:9px;
-      font-weight:900;
-      padding:2px 6px;
-      border-radius:999px;
-      background:rgba(255,45,45,.20);
-      color:#ff8080;
-      white-space:nowrap;
-      letter-spacing:.2px;
-    }
-    .hit.r1 .hit-lbl{
-      background:rgba(255,45,45,.38);
-      color:#ff9090;
-    }
-    .hit.r2 .hit-lbl{
-      background:rgba(255,140,0,.20);
-      color:#ffc080;
-    }
-
-    .hit-seat{
-      font-size:21px;
-      font-weight:1000;
-      color:var(--red);
-      text-shadow:0 0 12px rgba(255,45,45,.35);
-      line-height:1.05;
-      text-align:center;
-      white-space:nowrap;
-    }
-
-    .hit-body{
-      line-height:1.4;
-      min-width:0;
-    }
-    .hit-body .row1{
-      font-size:11px;
-      color:var(--text);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .hit-body .row2{
-      font-size:10px;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .hit-body .row3{
-      font-size:9px;
-      color:rgba(255,255,255,.32);
-      margin-top:1px;
-      line-height:1.25;
-    }
-
-    .hit-right{
-      text-align:right;
-      min-width:42px;
-    }
-    .hit-wr{
-      font-size:11px;
-      font-weight:900;
-      color:var(--green);
-    }
-    .hit-avg{
-      font-size:9px;
-      color:rgba(255,255,255,.35);
-      margin-top:1px;
-    }
-
-    .skip{
-      display:none;
-      text-align:center;
-      padding:18px;
-      font-size:30px;
-      font-weight:1000;
-      color:rgba(255,255,255,.18);
-      letter-spacing:4px;
-    }
-
-    .history{
-      margin-top:12px;
-      padding:10px 11px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-    }
-    .histHead{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:7px;
-    }
-    .histTitle{
-      font-size:11px;
-      font-weight:800;
-      color:var(--muted);
-    }
-    .clearBtn{
-      font-size:10px;
-      padding:4px 8px;
-      border-radius:7px;
-      cursor:pointer;
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.10);
-      color:rgba(255,100,100,.85);
-    }
-    .histList{
-      display:flex;
-      flex-direction:column;
-      gap:5px;
-      max-height:180px;
-      overflow:auto;
-    }
-    .histItem{
-      border:1px solid rgba(255,255,255,.05);
-      border-radius:9px;
-      padding:7px 9px;
-      background:rgba(0,0,0,.14);
-    }
-    .histTop{
-      display:flex;
-      justify-content:space-between;
-      font-size:10px;
-      color:rgba(255,255,255,.35);
-      margin-bottom:2px;
-    }
-    .histMain{
-      font-size:11px;
-      color:rgba(255,255,255,.60);
-      line-height:1.35;
-    }
-    .pill{
-      display:inline-block;
-      padding:1px 6px;
-      border-radius:999px;
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.10);
-      font-weight:800;
-      color:var(--red);
-      margin-right:3px;
-    }
-
-    .tiny{
-      margin-top:12px;
-      padding-top:10px;
-      border-top:1px solid var(--line);
-      font-size:10px;
-      color:rgba(255,255,255,.28);
-      line-height:1.6;
-      white-space:pre-line;
-    }
-
-    @media (max-width: 430px){
-      body{padding:10px;}
-      .app{width:100%;}
-      .panel{padding:10px;border-radius:15px;}
-      .hit{
-        grid-template-columns:auto 46px 1fr auto;
-        gap:6px;
-        padding:7px 8px;
-      }
-      .hit-seat{font-size:19px;}
-      .result-hdr{font-size:10px;}
-      .histMain{font-size:10px;}
-      .tiny{font-size:9px;}
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#b00000"/>
+<title>蜡笔小新模型</title>
+<style>
+:root{
+  --bg:#0b0b0f;--card:#11111a;--line:rgba(255,255,255,.10);
+  --text:#f5f5f7;--muted:rgba(255,255,255,.50);
+  --red:#ff2d2d;--green:rgba(80,255,140,.9);--orange:#ff9f2d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(800px 400px at 50% 15%,rgba(255,45,45,.20),transparent 60%),
+    radial-gradient(900px 500px at 50% 110%,rgba(176,0,0,.25),transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  padding:12px;
+}
+.app{width:min(430px,100%)}
+.title{font-size:16px;font-weight:900;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+.title:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px rgba(255,45,45,.9)}
+.version{font-size:10px;color:rgba(255,45,45,.65);font-weight:400}
+.panel{
+  background:linear-gradient(160deg,rgba(255,45,45,.07),transparent 55%),var(--card);
+  border:1px solid var(--line);border-radius:16px;padding:12px;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+}
+input{
+  width:100%;padding:12px 14px;font-size:22px;letter-spacing:5px;border-radius:12px;
+  border:1px solid var(--line);background:rgba(0,0,0,.40);color:var(--text);
+  outline:none;text-align:center;font-weight:800;
+}
+input:focus{border-color:rgba(255,45,45,.65);box-shadow:0 0 0 3px rgba(255,45,45,.12)}
+input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
+.btn-wrap{display:flex;justify-content:center;margin:14px 0 8px}
+.btn-circle{
+  width:66px;height:66px;border-radius:50%;border:2px solid rgba(255,45,45,.55);
+  background:radial-gradient(circle at 38% 32%,rgba(255,90,90,.95),rgba(155,0,0,.95));
+  color:white;font-size:15px;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 18px rgba(255,45,45,.40),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.btn-circle:active{transform:scale(.92)}
+.msg{text-align:center;font-size:12px;color:var(--muted);min-height:14px;margin-bottom:8px}
+.result{display:none;margin-top:4px}
+.result-hdr{text-align:center;font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+.hit-list{display:flex;flex-direction:column;gap:6px}
+.hit{
+  display:grid;grid-template-columns:auto 54px 1fr auto;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.07);
+  background:rgba(0,0,0,.22);
+}
+.hit.r1{border-color:rgba(255,45,45,.55);background:rgba(255,45,45,.11)}
+.hit.r2{border-color:rgba(255,140,0,.35);background:rgba(255,140,0,.07)}
+.hit-lbl{
+  font-size:9px;font-weight:900;padding:2px 6px;border-radius:999px;
+  background:rgba(255,45,45,.25);color:#ff9090;white-space:nowrap;
+}
+.hit-seat{font-size:22px;font-weight:1000;color:var(--red);text-align:center;white-space:nowrap}
+.row1{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row2{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row3{font-size:9px;color:rgba(255,255,255,.34);margin-top:1px;line-height:1.3}
+.hit-right{text-align:right;min-width:42px}
+.hit-wr{font-size:11px;font-weight:900;color:var(--green)}
+.hit-avg{font-size:9px;color:rgba(255,255,255,.35)}
+.skip{display:none;text-align:center;padding:18px;font-size:30px;font-weight:1000;color:rgba(255,255,255,.18);letter-spacing:4px}
+.history{margin-top:12px;padding:10px 11px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.histHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.histTitle{font-size:11px;font-weight:800;color:var(--muted)}
+.clearBtn{font-size:10px;padding:4px 8px;border-radius:7px;cursor:pointer;border:1px solid rgba(255,45,45,.35);background:rgba(255,45,45,.10);color:rgba(255,100,100,.85)}
+.histList{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow:auto}
+.histItem{border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:7px 9px;background:rgba(0,0,0,.14)}
+.histTop{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:2px}
+.histMain{font-size:11px;color:rgba(255,255,255,.60);line-height:1.35}
+.pill{display:inline-block;padding:1px 6px;border-radius:999px;border:1px solid rgba(255,45,45,.35);background:rgba(255,45,45,.10);font-weight:800;color:var(--red);margin-right:3px}
+.tiny{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:10px;color:rgba(255,255,255,.30);line-height:1.65;white-space:pre-line}
+</style>
 </head>
 
 <body>
 <div class="app">
-  <div class="title">小老虎专属<span class="version">ID 5131861 / v2.0防过拟合实战版</span></div>
+  <div class="title">蜡笔小新专属<span class="version">ID 5103476 / 当前口诀版</span></div>
   <div class="panel">
-
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
-
-    <div class="btn-wrap">
-      <button class="btn-circle" id="go">开干</button>
-    </div>
-
+    <div class="btn-wrap"><button class="btn-circle" id="go">开干</button></div>
     <div class="msg" id="msg"></div>
 
     <div class="result" id="result">
-      <div class="result-hdr" id="resultHdr">— 小老虎 v2.0 结果 —</div>
+      <div class="result-hdr" id="resultHdr"></div>
       <div class="hit-list" id="hitList"></div>
     </div>
 
-    <div class="skip" id="skip">无A/B，跳</div>
+    <div class="skip" id="skip">无命中，跳</div>
 
     <div class="history">
       <div class="histHead">
@@ -359,482 +107,276 @@
     </div>
 
     <div class="tiny">
-【小老虎 ID 5131861 v2.0 防过拟合实战版】
-旧 v1.4 / v1.5 / v1.6 已不作为网页规则。
-只显示 A档 / B档。
-观察档、跳位、未命中位子一律不显示。
-没有A/B命中，直接显示：无A/B，跳。
+【蜡笔小新 ID 5103476 当前口诀版】
 
-回测：
-总样本96局。
-命中31局，进房率32.3%。
-净分+15420。
-有效赢18局，噪音赢6局，小输7局，大输0局。
-最大亏损-400。
+当前回测：
+80局样本。
+命中37局，进房率46.3%。
+31胜6负，胜率83.8%。
+总净分+15700。
+大输≤-1000：0局。
 
 一眼口诀：
-1号跳。
-2号只看X第4名。
-3号单对子吃X可坐；同频无重号可坐；双对子跳。
-4号只吃单对子。
-5号只看同频。
-6号只看同频第4名。
+有重号：4吃奇，5吃偶，6只吃468。
+无重号：3吃偶，5吃奇。
+2号单独：不坐重号，只吃高排序，B=9最好。
 
 定义：
 A/B/C/D/E = 房号五位
 1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
+X = 当前座位对应数字
 第1名=最大，第5名=最小
 重号不并列，按从左到右单独排序
     </div>
-
   </div>
 </div>
 
 <script>
-const HISTORY_KEY   = 'xiaolaohu_5131861_v20_anti_overfit';
-const HISTORY_LIMIT = 30;
+const HISTORY_KEY='lbx_5103476_current_model';
+const HISTORY_LIMIT=30;
 
-const roomEl     = document.getElementById('room');
-const goEl       = document.getElementById('go');
-const msgEl      = document.getElementById('msg');
-const resultEl   = document.getElementById('result');
-const resultHdr  = document.getElementById('resultHdr');
-const hitListEl  = document.getElementById('hitList');
-const skipEl     = document.getElementById('skip');
-const histListEl = document.getElementById('histList');
-const clearBtnEl = document.getElementById('clearBtn');
+const roomEl=document.getElementById('room');
+const goEl=document.getElementById('go');
+const msgEl=document.getElementById('msg');
+const resultEl=document.getElementById('result');
+const resultHdr=document.getElementById('resultHdr');
+const hitListEl=document.getElementById('hitList');
+const skipEl=document.getElementById('skip');
+const histListEl=document.getElementById('histList');
+const clearBtnEl=document.getElementById('clearBtn');
 
-function getDigits(room){
-  return room.split('').map(Number);
+function digits(room){return room.split('').map(Number)}
+function seatIndex(seat){
+  if(seat===1)return 0;
+  if(seat===2)return 1;
+  if(seat===3)return 2;
+  if(seat===4)return 3;
+  if(seat===5||seat===6)return 4;
 }
-
-function getParityPattern(room){
-  return room
-    .split('')
-    .map(n => (parseInt(n, 10) % 2 === 0 ? '偶' : '奇'))
-    .join('');
-}
-
-function getSeatIndex(seat){
-  if(seat === 1) return 0;
-  if(seat === 2) return 1;
-  if(seat === 3) return 2;
-  if(seat === 4) return 3;
-  if(seat === 5 || seat === 6) return 4;
-  return null;
-}
-
-function getSeatX(room, seat){
-  const digits = getDigits(room);
-  return digits[getSeatIndex(seat)];
-}
-
-function getUniqueRanks(room){
-  const digits = getDigits(room);
-  const order = digits.map((v,i)=>({v,i}))
-    .sort((a,b)=>{
-      if(b.v !== a.v) return b.v - a.v;
-      return a.i - b.i;
-    });
-
-  const ranks = Array(5);
-  order.forEach((item, idx) => {
-    ranks[item.i] = idx + 1;
-  });
-
-  return ranks;
-}
-
-function getSeatRank(room, seat){
-  const ranks = getUniqueRanks(room);
-  return ranks[getSeatIndex(seat)];
-}
-
-function isSameParity(seat, x){
-  return (seat % 2) === (x % 2);
-}
+function xVal(room,seat){return digits(room)[seatIndex(seat)]}
+function isOdd(n){return n%2===1}
+function isEven(n){return n%2===0}
 
 function countMap(arr){
-  const m = {};
-  arr.forEach(n => m[n] = (m[n] || 0) + 1);
+  const m={};
+  arr.forEach(n=>m[n]=(m[n]||0)+1);
   return m;
 }
 
-function getRepeatInfo(room){
-  const digits = getDigits(room);
-  const counts = countMap(digits);
+function repeatInfo(room){
+  const ds=digits(room);
+  const m=countMap(ds);
+  const groups=Object.entries(m)
+    .map(([num,cnt])=>({num:Number(num),cnt}))
+    .filter(g=>g.cnt>1)
+    .sort((a,b)=>b.cnt-a.cnt||b.num-a.num);
 
-  const groups = Object.entries(counts)
-    .map(([num,cnt])=>({num:Number(num), cnt}))
-    .filter(g=>g.cnt > 1)
-    .sort((a,b)=>b.cnt - a.cnt || b.num - a.num);
+  const hasRepeat=groups.length>0;
+  const cnts=groups.map(g=>g.cnt).sort((a,b)=>b-a).join(',');
 
-  if(groups.length === 0){
-    return {
-      kind:'无重号',
-      short:'无重',
-      groups,
-      hasRepeat:false,
-      isSinglePair:false,
-      isDoublePair:false,
-      isTriple:false,
-      isQuad:false,
-      isTriplePair:false
-    };
+  let kind='无重号';
+  if(cnts==='2')kind='单对子';
+  else if(cnts==='2,2')kind='双对子';
+  else if(cnts==='3')kind='三重号';
+  else if(cnts==='3,2')kind='三带二';
+  else if(cnts==='4')kind='四重号';
+  else if(cnts==='5')kind='五重号';
+
+  return {hasRepeat,groups,kind};
+}
+
+function repeatText(info){
+  if(!info.hasRepeat)return '无';
+  return info.groups.map(g=>`${g.num}×${g.cnt}`).join(' / ');
+}
+
+function xCount(room,seat){
+  const x=xVal(room,seat);
+  return countMap(digits(room))[x]||0;
+}
+
+function xEatRepeat(room,seat){
+  return xCount(room,seat)>1;
+}
+
+function uniqueRanks(room){
+  const ds=digits(room);
+  const order=ds.map((v,i)=>({v,i})).sort((a,b)=>{
+    if(b.v!==a.v)return b.v-a.v;
+    return a.i-b.i;
+  });
+  const ranks=Array(5);
+  order.forEach((it,idx)=>ranks[it.i]=idx+1);
+  return ranks;
+}
+
+function xRank(room,seat){
+  return uniqueRanks(room)[seatIndex(seat)];
+}
+
+function parityPattern(room){
+  return digits(room).map(n=>isEven(n)?'偶':'奇').join('');
+}
+
+function rankText(room){
+  const ds=digits(room),rs=uniqueRanks(room),labs=['A','B','C','D','E'];
+  return ds.map((d,i)=>`${labs[i]}${d}=第${rs[i]}`).join('　');
+}
+
+function classify(room,seat){
+  const info=repeatInfo(room);
+  const x=xVal(room,seat);
+  const rank=xRank(room,seat);
+  const eat=xEatRepeat(room,seat);
+
+  let grade=99, tag='跳', score=0, reason='未命中当前口诀';
+
+  if(seat===1){
+    reason='1号位不纳入当前模型';
   }
 
-  const cnts = groups.map(g=>g.cnt).sort((a,b)=>b-a).join(',');
-
-  const info = {
-    kind:'重号',
-    short:'重号',
-    groups,
-    hasRepeat:true,
-    isSinglePair:false,
-    isDoublePair:false,
-    isTriple:false,
-    isQuad:false,
-    isTriplePair:false
-  };
-
-  if(cnts === '2'){
-    info.kind = '单数字双重号';
-    info.short = '单对子';
-    info.isSinglePair = true;
-  }else if(cnts === '3'){
-    info.kind = '单数字三重号';
-    info.short = '三重号';
-    info.isTriple = true;
-  }else if(cnts === '4'){
-    info.kind = '单数字四重号';
-    info.short = '四重号';
-    info.isQuad = true;
-  }else if(cnts === '5'){
-    info.kind = '五重号';
-    info.short = '五重号';
-  }else if(cnts === '2,2'){
-    info.kind = '两个数字同时双重';
-    info.short = '双对子';
-    info.isDoublePair = true;
-  }else if(cnts === '3,2'){
-    info.kind = '三重号+双重号';
-    info.short = '三带二';
-    info.isTriplePair = true;
-  }
-
-  return info;
-}
-
-function repeatNumsText(info){
-  if(!info.groups.length) return '无';
-  return info.groups.map(g => `${g.num}×${g.cnt}`).join(' / ');
-}
-
-function getXCount(room, seat){
-  const digits = getDigits(room);
-  const x = getSeatX(room, seat);
-  const counts = countMap(digits);
-  return counts[x] || 0;
-}
-
-function xEatRepeat(room, seat){
-  return getXCount(room, seat) > 1;
-}
-
-function xEatPair(room, seat){
-  return getXCount(room, seat) === 2;
-}
-
-function xEatSinglePair(room, seat){
-  const info = getRepeatInfo(room);
-  return info.isSinglePair && xEatPair(room, seat);
-}
-
-/*
-  小老虎 v2.0 防过拟合实战版
-
-  1号：永远跳
-  2号：X第4名
-  3号：单对子吃X；或者 同频 + 无重号
-  4号：单对子吃X
-  5号：同频
-  6号：同频 + X第4名
-
-  双对子：
-  不作为加分项。
-  3号双对子因为不是单对子，自动不会命中。
-*/
-
-function classifySeat(room, seat){
-  const info = getRepeatInfo(room);
-  const x = getSeatX(room, seat);
-  const rank = getSeatRank(room, seat);
-  const same = isSameParity(seat, x);
-  const eatSingle = xEatSinglePair(room, seat);
-
-  let grade = 99;
-  let tag = '跳';
-  let score = -99;
-  let reason = '未命中v2.0实战规则';
-
-  if(seat === 1){
-    return { grade, tag, score, reason:'1号位固定跳' };
-  }
-
-  if(seat === 2){
-    if(rank === 4){
-      grade = 1;
-      tag = 'A档';
-      score = 90;
-      reason = '2号位只看X第4名';
+  if(seat===2){
+    if(!eat && (rank===4 || rank===5 || x===9)){
+      grade=2; tag='B档'; score=70;
+      reason='2号单独逻辑：不坐重号 + 高排序 / B=9';
     }
   }
 
-  if(seat === 3){
-    if(eatSingle){
-      grade = 1;
-      tag = 'A档';
-      score = 96;
-      reason = '3号位单对子吃X';
-    }else if(same && !info.hasRepeat){
-      grade = 2;
-      tag = 'B档';
-      score = 76;
-      reason = '3号位同频+无重号';
+  if(info.hasRepeat){
+    if(seat===4 && isOdd(x)){
+      grade=1; tag='A档'; score=92;
+      reason='有重号：4号吃奇X';
     }
-  }
-
-  if(seat === 4){
-    if(eatSingle){
-      grade = 1;
-      tag = 'A档';
-      score = 100;
-      reason = '4号位单对子吃X';
+    if(seat===5 && isEven(x)){
+      grade=1; tag='A档'; score=95;
+      reason='有重号：5号吃偶X';
     }
-  }
-
-  if(seat === 5){
-    if(same){
-      grade = 2;
-      tag = 'B档';
-      score = 72;
-      reason = '5号位只看同频';
+    if(seat===6 && eat && [4,6,8].includes(x)){
+      grade=1; tag='A档'; score=98;
+      reason='有重号：6号只吃偶数重号468';
     }
-  }
-
-  if(seat === 6){
-    if(same && rank === 4){
-      grade = 1;
-      tag = 'A档';
-      score = 92;
-      reason = '6号位同频+X第4名';
-    }
-  }
-
-  return { grade, tag, score, reason };
-}
-
-function analyzeSeat(room, seat){
-  const x = getSeatX(room, seat);
-  const xRank = getSeatRank(room, seat);
-  const sameParity = isSameParity(seat, x);
-  const repeatInfo = getRepeatInfo(room);
-  const eatRepeat = xEatRepeat(room, seat);
-  const eatsSinglePair = xEatSinglePair(room, seat);
-  const base = classifySeat(room, seat);
-
-  let repeatNote = '';
-
-  if(!repeatInfo.hasRepeat){
-    repeatNote = '无重号';
-  }else if(eatsSinglePair){
-    repeatNote = `吃单对子：${repeatNumsText(repeatInfo)}`;
-  }else if(eatRepeat && repeatInfo.isDoublePair){
-    repeatNote = `吃双对子：${repeatNumsText(repeatInfo)}，但v2.0不因双对子加分`;
-  }else if(eatRepeat){
-    repeatNote = `吃重号：${repeatNumsText(repeatInfo)}`;
   }else{
-    repeatNote = `未吃重号：${repeatNumsText(repeatInfo)}`;
-  }
-
-  return {
-    seat,
-    x,
-    xRank,
-    sameParity,
-    grade: base.grade,
-    score: base.score,
-    tag: base.tag,
-    reason: base.reason,
-    repeatNote,
-    repeatInfo,
-    eatRepeat,
-    eatsSinglePair
-  };
-}
-
-function analyzeRoom(room){
-  const seats = [1,2,3,4,5,6].map(seat => analyzeSeat(room, seat));
-
-  const usable = seats
-    .filter(s => s.grade === 1 || s.grade === 2)
-    .sort((a,b) => {
-      if(a.grade !== b.grade) return a.grade - b.grade;
-      return b.score - a.score;
-    });
-
-  return { seats, usable };
-}
-
-function rankClass(item){
-  if(item.grade === 1) return 'r1';
-  if(item.grade === 2) return 'r2';
-  return '';
-}
-
-function buildCard(item){
-  const div = document.createElement('div');
-  div.className = `hit ${rankClass(item)}`;
-
-  const parityText = item.sameParity ? '同频' : '不同频';
-
-  let eatText = '无重号';
-  if(item.repeatInfo.hasRepeat){
-    if(item.eatsSinglePair){
-      eatText = '吃单对子';
-    }else if(item.eatRepeat && item.repeatInfo.isDoublePair){
-      eatText = '吃双对子';
-    }else if(item.eatRepeat){
-      eatText = '吃重号';
-    }else{
-      eatText = '未吃重号';
+    if(seat===3 && isEven(x)){
+      grade=1; tag='A档'; score=90;
+      reason='无重号：3号吃偶X';
+    }
+    if(seat===5 && isOdd(x)){
+      grade=1; tag='A档'; score=88;
+      reason='无重号：5号吃奇X';
     }
   }
 
-  const rightTop = item.grade === 1 ? '优先' : '短打';
-  const rightBottom = `分${item.score}`;
+  return {seat,x,rank,eat,grade,tag,score,reason,info};
+}
 
-  div.innerHTML = `
+function analyze(room){
+  const arr=[1,2,3,4,5,6].map(s=>classify(room,s));
+  return arr
+    .filter(s=>s.grade===1||s.grade===2)
+    .sort((a,b)=>{
+      if(a.grade!==b.grade)return a.grade-b.grade;
+      return b.score-a.score;
+    });
+}
+
+function card(item){
+  const div=document.createElement('div');
+  div.className='hit '+(item.grade===1?'r1':'r2');
+
+  const xParity=isEven(item.x)?'偶':'奇';
+  const eatText=item.info.hasRepeat?(item.eat?'坐重号':'非重号'):'无重号';
+  const right=item.grade===1?'优先':'短打';
+
+  div.innerHTML=`
     <div class="hit-lbl">${item.tag}</div>
     <div class="hit-seat">${item.seat}号</div>
-    <div class="hit-body">
-      <div class="row1">X=${item.x}　第${item.xRank}名　${parityText}</div>
-      <div class="row2">${item.repeatInfo.short}｜${eatText}</div>
-      <div class="row3">${item.reason}；${item.repeatNote}</div>
+    <div>
+      <div class="row1">X=${item.x}（${xParity}）　第${item.rank}名　${eatText}</div>
+      <div class="row2">${item.info.kind}｜${repeatText(item.info)}</div>
+      <div class="row3">${item.reason}</div>
     </div>
     <div class="hit-right">
-      <div class="hit-wr">${rightTop}</div>
-      <div class="hit-avg">${rightBottom}</div>
+      <div class="hit-wr">${right}</div>
+      <div class="hit-avg">分${item.score}</div>
     </div>
   `;
   return div;
 }
 
-function formatDigitRank(room){
-  const digits = getDigits(room);
-  const ranks = getUniqueRanks(room);
-  const labels = ['A','B','C','D','E'];
-  return digits.map((d,i)=>`${labels[i]}${d}=第${ranks[i]}`).join('　');
-}
-
 function render(room){
-  const analysis = analyzeRoom(room);
-  const repeatInfo = getRepeatInfo(room);
+  const info=repeatInfo(room);
+  const hits=analyze(room);
 
-  resultEl.style.display = 'none';
-  skipEl.style.display = 'none';
-  hitListEl.innerHTML = '';
+  resultEl.style.display='none';
+  skipEl.style.display='none';
+  hitListEl.innerHTML='';
 
-  const pattern = getParityPattern(room);
-  const rankText = formatDigitRank(room);
-  const repeatText = `${repeatInfo.kind}${repeatInfo.hasRepeat ? '｜' + repeatNumsText(repeatInfo) : ''}`;
+  resultHdr.innerHTML=`${parityPattern(room)}｜${info.kind}｜${repeatText(info)}<br>${rankText(room)}`;
 
-  resultHdr.innerHTML = `${pattern}｜${repeatText}<br>${rankText}`;
-
-  if(!analysis.usable.length){
-    skipEl.style.display = 'block';
-    resultEl.style.display = 'none';
+  if(!hits.length){
+    skipEl.style.display='block';
     return [];
   }
 
-  analysis.usable.slice(0,4).forEach(item => {
-    hitListEl.appendChild(buildCard(item));
-  });
-
-  resultEl.style.display = 'block';
-
-  return analysis.usable.map(s => s.seat).slice(0,4);
+  hits.slice(0,4).forEach(h=>hitListEl.appendChild(card(h)));
+  resultEl.style.display='block';
+  return hits.map(h=>h.seat);
 }
 
 function run(){
-  const raw = roomEl.value.trim().replace(/\s+/g, '');
-  if(!/^\d{5}$/.test(raw)){
-    msgEl.textContent = '请输入正确的5位数字';
+  const room=roomEl.value.trim().replace(/\s+/g,'');
+  if(!/^\d{5}$/.test(room)){
+    msgEl.textContent='请输入正确的5位房号';
     return;
   }
-
-  msgEl.textContent = '';
-  const seats = render(raw);
-  pushHistory(raw, seats);
-  setTimeout(() => { roomEl.value = ''; roomEl.focus(); }, 180);
+  msgEl.textContent='';
+  const seats=render(room);
+  pushHistory(room,seats);
+  setTimeout(()=>{roomEl.value='';roomEl.focus()},150);
 }
 
 function loadHist(){
-  try{
-    return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-  }catch{
-    return [];
-  }
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]}catch{return[]}
 }
-
 function saveHist(items){
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,HISTORY_LIMIT)));
 }
-
 function renderHist(){
-  const items = loadHist();
-  histListEl.innerHTML = '';
-
+  const items=loadHist();
+  histListEl.innerHTML='';
   if(!items.length){
-    histListEl.innerHTML = `<div class="histItem"><div class="histMain" style="color:rgba(255,255,255,.2)">暂无记录</div></div>`;
+    histListEl.innerHTML='<div class="histItem"><div class="histMain" style="color:rgba(255,255,255,.22)">暂无记录</div></div>';
     return;
   }
-
-  items.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'histItem';
-    const res = item.seats.length ? item.seats.map(s=>`${s}号`).join(' / ') : '跳';
-    div.innerHTML = `
+  items.forEach(item=>{
+    const div=document.createElement('div');
+    div.className='histItem';
+    const res=item.seats.length?item.seats.map(s=>`${s}号`).join(' / '):'跳';
+    div.innerHTML=`
       <div class="histTop"><span>房号 <span class="pill">${item.room}</span></span><span>${item.time}</span></div>
       <div class="histMain">${item.pattern} → ${res}</div>
     `;
     histListEl.appendChild(div);
   });
 }
-
-function pushHistory(room, seats){
-  const items = loadHist();
+function pushHistory(room,seats){
+  const items=loadHist();
   items.unshift({
     room,
     seats,
-    pattern: getParityPattern(room),
-    time: new Date().toLocaleString('zh-CN', {hour12:false})
+    pattern:parityPattern(room),
+    time:new Date().toLocaleString('zh-CN',{hour12:false})
   });
   saveHist(items);
   renderHist();
 }
 
-goEl.addEventListener('click', run);
-roomEl.addEventListener('keydown', e => { if(e.key === 'Enter') run(); });
-
-clearBtnEl.addEventListener('click', () => {
+goEl.addEventListener('click',run);
+roomEl.addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+clearBtnEl.addEventListener('click',()=>{
   localStorage.removeItem(HISTORY_KEY);
   renderHist();
 });
-
-if('serviceWorker' in navigator){
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-}
 
 renderHist();
 roomEl.focus();
