@@ -85,7 +85,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 
 <body>
 <div class="app">
-  <div class="title">蜡笔小新专属<span class="version">ID 5103476 / 当前口诀版</span></div>
+  <div class="title">蜡笔小新专属<span class="version">ID 5103476 / AE补丁版</span></div>
   <div class="panel">
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
     <div class="btn-wrap"><button class="btn-circle" id="go">开干</button></div>
@@ -107,19 +107,17 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
     </div>
 
     <div class="tiny">
-【蜡笔小新 ID 5103476 当前口诀版】
+【蜡笔小新 ID 5103476 AE补丁版】
 
-当前回测：
-80局样本。
-命中37局，进房率46.3%。
-31胜6负，胜率83.8%。
-总净分+15700。
-大输≤-1000：0局。
-
-一眼口诀：
+核心口诀：
 有重号：4吃奇，5吃偶，6只吃468。
 无重号：3吃偶，5吃奇。
 2号单独：不坐重号，只吃高排序，B=9最好。
+
+AE补丁：
+A=E偶数：硬跳。
+A=E奇数：只保留3号/5号轻仓慎进，其余跳。
+A=E不当主进点，只能短打观察。
 
 定义：
 A/B/C/D/E = 房号五位
@@ -132,7 +130,7 @@ X = 当前座位对应数字
 </div>
 
 <script>
-const HISTORY_KEY='lbx_5103476_current_model';
+const HISTORY_KEY='lbx_5103476_ae_patch';
 const HISTORY_LIMIT=30;
 
 const roomEl=document.getElementById('room');
@@ -146,6 +144,12 @@ const histListEl=document.getElementById('histList');
 const clearBtnEl=document.getElementById('clearBtn');
 
 function digits(room){return room.split('').map(Number)}
+function A(room){return digits(room)[0]}
+function E(room){return digits(room)[4]}
+function isAE(room){return A(room)===E(room)}
+function isAEEven(room){return isAE(room) && A(room)%2===0}
+function isAEOdd(room){return isAE(room) && A(room)%2===1}
+
 function seatIndex(seat){
   if(seat===1)return 0;
   if(seat===2)return 1;
@@ -223,7 +227,7 @@ function rankText(room){
   return ds.map((d,i)=>`${labs[i]}${d}=第${rs[i]}`).join('　');
 }
 
-function classify(room,seat){
+function classifyBase(room,seat){
   const info=repeatInfo(room);
   const x=xVal(room,seat);
   const rank=xRank(room,seat);
@@ -266,7 +270,65 @@ function classify(room,seat){
     }
   }
 
-  return {seat,x,rank,eat,grade,tag,score,reason,info};
+  return {grade,tag,score,reason};
+}
+
+function applyAEPatch(room,seat,base){
+  if(!isAE(room)) return base;
+
+  const aeNum=A(room);
+
+  if(isAEEven(room)){
+    return {
+      grade:99,
+      tag:'跳',
+      score:0,
+      reason:`AE同值补丁：A=E=${aeNum}为偶数，历史高危，硬跳`
+    };
+  }
+
+  if(isAEOdd(room)){
+    if(base.grade===99){
+      return base;
+    }
+
+    if(seat===3 || seat===5){
+      return {
+        grade:2,
+        tag:'慎进',
+        score:55,
+        reason:`AE同值补丁：A=E=${aeNum}为奇数，只允许3/5号轻仓观察；${base.reason}`
+      };
+    }
+
+    return {
+      grade:99,
+      tag:'跳',
+      score:0,
+      reason:`AE同值补丁：A=E=${aeNum}为奇数，但非3/5号，不当主进点`
+    };
+  }
+
+  return base;
+}
+
+function classify(room,seat){
+  const info=repeatInfo(room);
+  const x=xVal(room,seat);
+  const rank=xRank(room,seat);
+  const eat=xEatRepeat(room,seat);
+
+  const base=classifyBase(room,seat);
+  const patched=applyAEPatch(room,seat,base);
+
+  return {
+    seat,x,rank,eat,
+    grade:patched.grade,
+    tag:patched.tag,
+    score:patched.score,
+    reason:patched.reason,
+    info
+  };
 }
 
 function analyze(room){
@@ -311,9 +373,14 @@ function render(room){
   skipEl.style.display='none';
   hitListEl.innerHTML='';
 
-  resultHdr.innerHTML=`${parityPattern(room)}｜${info.kind}｜${repeatText(info)}<br>${rankText(room)}`;
+  const aeText=isAE(room)
+    ? `｜AE同值 A=E=${A(room)}${isAEEven(room)?' 偶数硬跳':' 奇数慎'}`
+    : '';
+
+  resultHdr.innerHTML=`${parityPattern(room)}｜${info.kind}｜${repeatText(info)}${aeText}<br>${rankText(room)}`;
 
   if(!hits.length){
+    skipEl.textContent = isAEEven(room) ? 'AE偶数，硬跳' : '无命中，跳';
     skipEl.style.display='block';
     return [];
   }
