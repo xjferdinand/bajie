@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#b00000"/>
-<title>蜡笔小新模型</title>
+<title>八戒别跑组合核模型</title>
 <style>
 :root{
   --bg:#0b0b0f;--card:#11111a;--line:rgba(255,255,255,.10);
@@ -58,6 +58,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 }
 .hit.r1{border-color:rgba(255,45,45,.55);background:rgba(255,45,45,.11)}
 .hit.r2{border-color:rgba(255,140,0,.35);background:rgba(255,140,0,.07)}
+.hit.r3{border-color:rgba(80,255,140,.35);background:rgba(80,255,140,.06)}
 .hit-lbl{
   font-size:9px;font-weight:900;padding:2px 6px;border-radius:999px;
   background:rgba(255,45,45,.25);color:#ff9090;white-space:nowrap;
@@ -85,7 +86,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 
 <body>
 <div class="app">
-  <div class="title">蜡笔小新专属<span class="version">ID 5103476 / AE补丁版</span></div>
+  <div class="title">八戒别跑专属<span class="version">ID 5098636 / 组合核 v2</span></div>
   <div class="panel">
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
     <div class="btn-wrap"><button class="btn-circle" id="go">开干</button></div>
@@ -107,30 +108,46 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
     </div>
 
     <div class="tiny">
-【蜡笔小新 ID 5103476 AE补丁版】
+【八戒别跑 ID 5098636 组合核 v2】
 
-核心口诀：
-有重号：4吃奇，5吃偶，6只吃468。
-无重号：3吃偶，5吃奇。
-2号单独：不坐重号，只吃高排序，B=9最好。
+核心逻辑：
+只看X参与的核。
+X = 当前座位对应数字。
+X与其余4位分别计算：
+1）差值：|X-另一位|，1-9有效，0不算。
+2）和值：X+另一位，≤9有效，>9作废。
+差值核与和值核分开判断。
 
-AE补丁：
-A=E偶数：硬跳。
-A=E奇数：只保留3号/5号轻仓慎进，其余跳。
-A=E不当主进点，只能短打观察。
+稳定池10条：
+差5+和2
+差5+和4
+差2+和2
+差4+和2
+差7+和2
+差6+和3
+差7+和3
+和2+和7
+和3+和7
+和2+和4
 
-定义：
-A/B/C/D/E = 房号五位
-1号=A，2号=B，3号=C，4号=D，5号=E，6号=E
-X = 当前座位对应数字
-第1名=最大，第5名=最小
-重号不并列，按从左到右单独排序
+爆分补丁2条：
+差1+差5
+差2+和3
+
+历史回测：
+原稳定池：52局，胜率63.5%，净分+14140，均分+271.9，大输2。
+v2合并池：84局，胜率64.3%，净分+29050，均分+345.8，大输5。
+
+选位规则：
+输入房号后，自动试算1-6号位。
+有多个位子命中时，推荐X数字最大的命中位；
+如果X相同，优先座位号更大的。
     </div>
   </div>
 </div>
 
 <script>
-const HISTORY_KEY='lbx_5103476_ae_patch';
+const HISTORY_KEY='bajie_5098636_combo_v2';
 const HISTORY_LIMIT=30;
 
 const roomEl=document.getElementById('room');
@@ -143,13 +160,25 @@ const skipEl=document.getElementById('skip');
 const histListEl=document.getElementById('histList');
 const clearBtnEl=document.getElementById('clearBtn');
 
-function digits(room){return room.split('').map(Number)}
-function A(room){return digits(room)[0]}
-function E(room){return digits(room)[4]}
-function isAE(room){return A(room)===E(room)}
-function isAEEven(room){return isAE(room) && A(room)%2===0}
-function isAEOdd(room){return isAE(room) && A(room)%2===1}
+const STABLE_COMBOS=[
+  ['D5','S2','差5+和2'],
+  ['D5','S4','差5+和4'],
+  ['D2','S2','差2+和2'],
+  ['D4','S2','差4+和2'],
+  ['D7','S2','差7+和2'],
+  ['D6','S3','差6+和3'],
+  ['D7','S3','差7+和3'],
+  ['S2','S7','和2+和7'],
+  ['S3','S7','和3+和7'],
+  ['S2','S4','和2+和4']
+];
 
+const BURST_COMBOS=[
+  ['D1','D5','差1+差5'],
+  ['D2','S3','差2+和3']
+];
+
+function digits(room){return room.split('').map(Number)}
 function seatIndex(seat){
   if(seat===1)return 0;
   if(seat===2)return 1;
@@ -158,8 +187,21 @@ function seatIndex(seat){
   if(seat===5||seat===6)return 4;
 }
 function xVal(room,seat){return digits(room)[seatIndex(seat)]}
-function isOdd(n){return n%2===1}
-function isEven(n){return n%2===0}
+
+function parityPattern(room){
+  return digits(room).map(n=>n%2===0?'偶':'奇').join('');
+}
+
+function rankText(room){
+  const ds=digits(room),labs=['A','B','C','D','E'];
+  const order=ds.map((v,i)=>({v,i})).sort((a,b)=>{
+    if(b.v!==a.v)return b.v-a.v;
+    return a.i-b.i;
+  });
+  const ranks=Array(5);
+  order.forEach((it,idx)=>ranks[it.i]=idx+1);
+  return ds.map((d,i)=>`${labs[i]}${d}=第${ranks[i]}`).join('　');
+}
 
 function countMap(arr){
   const m={};
@@ -194,167 +236,116 @@ function repeatText(info){
   return info.groups.map(g=>`${g.num}×${g.cnt}`).join(' / ');
 }
 
-function xCount(room,seat){
-  const x=xVal(room,seat);
-  return countMap(digits(room))[x]||0;
-}
-
-function xEatRepeat(room,seat){
-  return xCount(room,seat)>1;
-}
-
-function uniqueRanks(room){
+function calcKernels(room,seat){
   const ds=digits(room);
-  const order=ds.map((v,i)=>({v,i})).sort((a,b)=>{
-    if(b.v!==a.v)return b.v-a.v;
-    return a.i-b.i;
+  const idx=seatIndex(seat);
+  const x=ds[idx];
+  const diffs=new Set();
+  const sums=new Set();
+
+  ds.forEach((n,i)=>{
+    if(i===idx)return;
+
+    const d=Math.abs(x-n);
+    if(d>=1 && d<=9) diffs.add(d);
+
+    const s=x+n;
+    if(s>=1 && s<=9) sums.add(s);
   });
-  const ranks=Array(5);
-  order.forEach((it,idx)=>ranks[it.i]=idx+1);
-  return ranks;
+
+  return {x,diffs,sums};
 }
 
-function xRank(room,seat){
-  return uniqueRanks(room)[seatIndex(seat)];
+function hasToken(k,token){
+  const type=token[0];
+  const num=Number(token.slice(1));
+  if(type==='D')return k.diffs.has(num);
+  if(type==='S')return k.sums.has(num);
+  return false;
 }
 
-function parityPattern(room){
-  return digits(room).map(n=>isEven(n)?'偶':'奇').join('');
-}
+function hitCombos(room,seat){
+  const k=calcKernels(room,seat);
 
-function rankText(room){
-  const ds=digits(room),rs=uniqueRanks(room),labs=['A','B','C','D','E'];
-  return ds.map((d,i)=>`${labs[i]}${d}=第${rs[i]}`).join('　');
-}
+  const stable=STABLE_COMBOS
+    .filter(c=>hasToken(k,c[0]) && hasToken(k,c[1]))
+    .map(c=>c[2]);
 
-function classifyBase(room,seat){
-  const info=repeatInfo(room);
-  const x=xVal(room,seat);
-  const rank=xRank(room,seat);
-  const eat=xEatRepeat(room,seat);
+  const burst=BURST_COMBOS
+    .filter(c=>hasToken(k,c[0]) && hasToken(k,c[1]))
+    .map(c=>c[2]);
 
-  let grade=99, tag='跳', score=0, reason='未命中当前口诀';
-
-  if(seat===1){
-    reason='1号位不纳入当前模型';
-  }
-
-  if(seat===2){
-    if(!eat && (rank===4 || rank===5 || x===9)){
-      grade=2; tag='B档'; score=70;
-      reason='2号单独逻辑：不坐重号 + 高排序 / B=9';
-    }
-  }
-
-  if(info.hasRepeat){
-    if(seat===4 && isOdd(x)){
-      grade=1; tag='A档'; score=92;
-      reason='有重号：4号吃奇X';
-    }
-    if(seat===5 && isEven(x)){
-      grade=1; tag='A档'; score=95;
-      reason='有重号：5号吃偶X';
-    }
-    if(seat===6 && eat && [4,6,8].includes(x)){
-      grade=1; tag='A档'; score=98;
-      reason='有重号：6号只吃偶数重号468';
-    }
-  }else{
-    if(seat===3 && isEven(x)){
-      grade=1; tag='A档'; score=90;
-      reason='无重号：3号吃偶X';
-    }
-    if(seat===5 && isOdd(x)){
-      grade=1; tag='A档'; score=88;
-      reason='无重号：5号吃奇X';
-    }
-  }
-
-  return {grade,tag,score,reason};
-}
-
-function applyAEPatch(room,seat,base){
-  if(!isAE(room)) return base;
-
-  const aeNum=A(room);
-
-  if(isAEEven(room)){
-    return {
-      grade:99,
-      tag:'跳',
-      score:0,
-      reason:`AE同值补丁：A=E=${aeNum}为偶数，历史高危，硬跳`
-    };
-  }
-
-  if(isAEOdd(room)){
-    if(base.grade===99){
-      return base;
-    }
-
-    if(seat===3 || seat===5){
-      return {
-        grade:2,
-        tag:'慎进',
-        score:55,
-        reason:`AE同值补丁：A=E=${aeNum}为奇数，只允许3/5号轻仓观察；${base.reason}`
-      };
-    }
-
-    return {
-      grade:99,
-      tag:'跳',
-      score:0,
-      reason:`AE同值补丁：A=E=${aeNum}为奇数，但非3/5号，不当主进点`
-    };
-  }
-
-  return base;
+  return {k,stable,burst};
 }
 
 function classify(room,seat){
-  const info=repeatInfo(room);
-  const x=xVal(room,seat);
-  const rank=xRank(room,seat);
-  const eat=xEatRepeat(room,seat);
+  const {k,stable,burst}=hitCombos(room,seat);
+  const all=[...stable,...burst];
 
-  const base=classifyBase(room,seat);
-  const patched=applyAEPatch(room,seat,base);
+  if(!all.length){
+    return {
+      seat,x:k.x,grade:99,tag:'跳',score:0,
+      stable,burst,all,k,
+      reason:'未命中八戒组合核v2'
+    };
+  }
 
-  return {
-    seat,x,rank,eat,
-    grade:patched.grade,
-    tag:patched.tag,
-    score:patched.score,
-    reason:patched.reason,
-    info
-  };
+  let grade=2;
+  let tag='稳池';
+  let score=80;
+  let reason=`命中稳定池：${stable.join(' / ')}`;
+
+  if(stable.length && burst.length){
+    grade=1;
+    tag='强进';
+    score=98;
+    reason=`稳定池+爆分补丁共振：${all.join(' / ')}`;
+  }else if(burst.length){
+    grade=2;
+    tag='爆池';
+    score=88;
+    reason=`命中爆分补丁：${burst.join(' / ')}`;
+  }else if(stable.length>=2){
+    grade=1;
+    tag='优先进';
+    score=92;
+    reason=`稳定池多组合：${stable.join(' / ')}`;
+  }
+
+  return {seat,x:k.x,grade,tag,score,stable,burst,all,k,reason};
 }
 
 function analyze(room){
-  const arr=[1,2,3,4,5,6].map(s=>classify(room,s));
-  return arr
-    .filter(s=>s.grade===1||s.grade===2)
-    .sort((a,b)=>{
-      if(a.grade!==b.grade)return a.grade-b.grade;
-      return b.score-a.score;
-    });
+  const arr=[1,2,3,4,5,6].map(s=>classify(room,s)).filter(s=>s.grade<99);
+
+  return arr.sort((a,b)=>{
+    // 推荐逻辑：先X数字最大，再座位号最大；同时保留强进优先
+    if(b.x!==a.x)return b.x-a.x;
+    if(b.seat!==a.seat)return b.seat-a.seat;
+    if(a.grade!==b.grade)return a.grade-b.grade;
+    return b.score-a.score;
+  });
 }
 
-function card(item){
-  const div=document.createElement('div');
-  div.className='hit '+(item.grade===1?'r1':'r2');
+function kernelText(item){
+  const d=[...item.k.diffs].sort((a,b)=>a-b).map(n=>'差'+n).join(' ');
+  const s=[...item.k.sums].sort((a,b)=>a-b).map(n=>'和'+n).join(' ');
+  return `差值：${d||'无'}｜和值：${s||'无'}`;
+}
 
-  const xParity=isEven(item.x)?'偶':'奇';
-  const eatText=item.info.hasRepeat?(item.eat?'坐重号':'非重号'):'无重号';
-  const right=item.grade===1?'优先':'短打';
+function card(item,idx){
+  const div=document.createElement('div');
+  div.className='hit '+(idx===0?'r1':(item.burst.length?'r2':'r3'));
+
+  const right=idx===0?'推荐':'可选';
+  const comboText=item.all.join(' / ');
 
   div.innerHTML=`
     <div class="hit-lbl">${item.tag}</div>
     <div class="hit-seat">${item.seat}号</div>
     <div>
-      <div class="row1">X=${item.x}（${xParity}）　第${item.rank}名　${eatText}</div>
-      <div class="row2">${item.info.kind}｜${repeatText(item.info)}</div>
+      <div class="row1">X=${item.x}　${comboText}</div>
+      <div class="row2">${kernelText(item)}</div>
       <div class="row3">${item.reason}</div>
     </div>
     <div class="hit-right">
@@ -373,19 +364,15 @@ function render(room){
   skipEl.style.display='none';
   hitListEl.innerHTML='';
 
-  const aeText=isAE(room)
-    ? `｜AE同值 A=E=${A(room)}${isAEEven(room)?' 偶数硬跳':' 奇数慎'}`
-    : '';
-
-  resultHdr.innerHTML=`${parityPattern(room)}｜${info.kind}｜${repeatText(info)}${aeText}<br>${rankText(room)}`;
+  resultHdr.innerHTML=`${parityPattern(room)}｜${info.kind}｜${repeatText(info)}<br>${rankText(room)}`;
 
   if(!hits.length){
-    skipEl.textContent = isAEEven(room) ? 'AE偶数，硬跳' : '无命中，跳';
+    skipEl.textContent='无命中，跳';
     skipEl.style.display='block';
     return [];
   }
 
-  hits.slice(0,4).forEach(h=>hitListEl.appendChild(card(h)));
+  hits.forEach((h,idx)=>hitListEl.appendChild(card(h,idx)));
   resultEl.style.display='block';
   return hits.map(h=>h.seat);
 }
