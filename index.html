@@ -59,6 +59,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 .hit.r1{border-color:rgba(255,45,45,.55);background:rgba(255,45,45,.11)}
 .hit.r2{border-color:rgba(255,140,0,.35);background:rgba(255,140,0,.07)}
 .hit.r3{border-color:rgba(80,255,140,.35);background:rgba(80,255,140,.06)}
+.hit.warn{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.035)}
 .hit-lbl{
   font-size:9px;font-weight:900;padding:2px 6px;border-radius:999px;
   background:rgba(255,45,45,.25);color:#ff9090;white-space:nowrap;
@@ -86,7 +87,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 
 <body>
 <div class="app">
-  <div class="title">抓奖机专属<span class="version">ID 5137307 / 组合核 v1</span></div>
+  <div class="title">抓奖机专属<span class="version">ID 5137307 / 组合核 v2过滤版</span></div>
   <div class="panel">
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
     <div class="btn-wrap"><button class="btn-circle" id="go">开干</button></div>
@@ -108,53 +109,60 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
     </div>
 
     <div class="tiny">
-【抓奖机 ID 5137307 组合核 v1】
+【抓奖机 ID 5137307 组合核 v2过滤版】
 
-核心逻辑：
-只看X参与的核。
-X = 当前座位对应数字。
-房号ABCDE：
+取X：
+房号ABCDE。
 1号=A，2号=B，3号=C，4号=D，5号=E，6号=E。
-X与其余4位分别计算：
-1）差值：|X-另一位|，0-9有效。
-2）和值：X+另一位，≤9有效，>9作废。
-差值核与和值核分开判断。
 
-主黄金组合5条：
-差1+差6+和5
-差3+和8
-差3+和4
-和3+和6
-差0+差3
+核计算：
+只看X参与。
+差值：|X-另一位|，差0也算。
+和值：X+另一位，≤9有效，>9作废。
 
-补充黄金组合4条：
-和6+和8
-差0+和9
-差2+差6
-和4+和5
+主组合9条：
+1 差1+差6+和5
+2 差3+和8
+3 差3+和4
+4 和3+和6
+5 差0+差3
+6 和6+和8
+7 差0+和9
+8 差2+差6
+9 和4+和5
 
-当前组合分层：
-A+档：差1+差6+和5 / 差3+和4 / 和3+和6
-A档：差3+和8 / 差0+差3 / 差2+差6
-B档：和6+和8 / 差0+和9 / 和4+和5
+新增双核补丁6条：
+10 差1+双差2
+11 双和9
+12 和8+双差4
+13 和2+双差2
+14 差5+双差3
+15 差2+双差3
 
-已知回测：
-原5个主黄金组合：22局，17胜5负，胜率77.3%，净得分+7640，场均+347，大赢9，大输2。
-加入4个补充组合后：约30局，24胜，净得分约+9090，大输2。
+过滤逻辑：
+1）单独差3+和8，不打，历史大输来自这里。
+2）只有差3+和8+差0+差3，降级谨慎。
+3）单独和4+和5，不打，只能当加分。
+4）双核重复优先。
+5）多组合共振优先。
+6）差0结构必须有共振才优先。
+
+强过滤回测口径：
+原15组合：35局，29胜6负，胜率82.9%，净分+11430，大输2。
+排除单独差3+和8后：32局，29胜3负，胜率90.6%，净分+13070，大输0。
+再严格过滤后：31局，29胜2负，胜率93.5%，净分+13490，大输0。
 
 选位规则：
-输入房号后，自动试算1-6号位。
-有多个位子命中时：
-优先组合等级更高；
-同等级看命中组合数量；
-再看X数字更大；
-如果X相同，优先座位号更大的。
+优先A+与双核重复；
+其次多组合共振；
+再看A档组合；
+弱结构只显示谨慎，不作为第一推荐。
     </div>
   </div>
 </div>
 
 <script>
-const HISTORY_KEY='zhuajiangji_5137307_combo_v1';
+const HISTORY_KEY='zhuajiangji_5137307_combo_v2_filter';
 const HISTORY_LIMIT=30;
 
 const roomEl=document.getElementById('room');
@@ -167,22 +175,24 @@ const skipEl=document.getElementById('skip');
 const histListEl=document.getElementById('histList');
 const clearBtnEl=document.getElementById('clearBtn');
 
-const MAIN_COMBOS=[
-  ['D1','D6','S5','差1+差6+和5','A+'],
-  ['D3','S8',null,'差3+和8','A'],
-  ['D3','S4',null,'差3+和4','A+'],
-  ['S3','S6',null,'和3+和6','A+'],
-  ['D0','D3',null,'差0+差3','A']
-];
+const COMBOS=[
+  ['D1','D6','S5','差1+差6+和5','A+','主'],
+  ['D3','S8',null,'差3+和8','A','主'],
+  ['D3','S4',null,'差3+和4','A+','主'],
+  ['S3','S6',null,'和3+和6','A+','主'],
+  ['D0','D3',null,'差0+差3','A','主'],
+  ['S6','S8',null,'和6+和8','B','补'],
+  ['D0','S9',null,'差0+和9','B','补'],
+  ['D2','D6',null,'差2+差6','A','补'],
+  ['S4','S5',null,'和4+和5','B','补'],
 
-const EXTRA_COMBOS=[
-  ['S6','S8',null,'和6+和8','B'],
-  ['D0','S9',null,'差0+和9','B'],
-  ['D2','D6',null,'差2+差6','A'],
-  ['S4','S5',null,'和4+和5','B']
+  ['D1','DD2',null,'差1+双差2','A+','双'],
+  ['SS9',null,null,'双和9','A+','双'],
+  ['S8','DD4',null,'和8+双差4','A+','双'],
+  ['S2','DD2',null,'和2+双差2','A','双'],
+  ['D5','DD3',null,'差5+双差3','A','双'],
+  ['D2','DD3',null,'差2+双差3','A','双']
 ];
-
-const ALL_COMBOS=[...MAIN_COMBOS,...EXTRA_COMBOS];
 
 function digits(room){return room.split('').map(Number)}
 function seatIndex(seat){
@@ -192,12 +202,9 @@ function seatIndex(seat){
   if(seat===4)return 3;
   if(seat===5||seat===6)return 4;
 }
-function xVal(room,seat){return digits(room)[seatIndex(seat)]}
-
 function parityPattern(room){
   return digits(room).map(n=>n%2===0?'偶':'奇').join('');
 }
-
 function rankText(room){
   const ds=digits(room),labs=['A','B','C','D','E'];
   const order=ds.map((v,i)=>({v,i})).sort((a,b)=>{
@@ -208,13 +215,11 @@ function rankText(room){
   order.forEach((it,idx)=>ranks[it.i]=idx+1);
   return ds.map((d,i)=>`${labs[i]}${d}=第${ranks[i]}`).join('　');
 }
-
 function countMap(arr){
   const m={};
   arr.forEach(n=>m[n]=(m[n]||0)+1);
   return m;
 }
-
 function repeatInfo(room){
   const ds=digits(room);
   const m=countMap(ds);
@@ -223,9 +228,7 @@ function repeatInfo(room){
     .filter(g=>g.cnt>1)
     .sort((a,b)=>b.cnt-a.cnt||b.num-a.num);
 
-  const hasRepeat=groups.length>0;
   const cnts=groups.map(g=>g.cnt).sort((a,b)=>b-a).join(',');
-
   let kind='无重号';
   if(cnts==='2')kind='单对子';
   else if(cnts==='2,2')kind='双对子';
@@ -233,10 +236,8 @@ function repeatInfo(room){
   else if(cnts==='3,2')kind='三带二';
   else if(cnts==='4')kind='四重号';
   else if(cnts==='5')kind='五重号';
-
-  return {hasRepeat,groups,kind};
+  return {hasRepeat:groups.length>0,groups,kind};
 }
-
 function repeatText(info){
   if(!info.hasRepeat)return '无';
   return info.groups.map(g=>`${g.num}×${g.cnt}`).join(' / ');
@@ -246,43 +247,49 @@ function calcKernels(room,seat){
   const ds=digits(room);
   const idx=seatIndex(seat);
   const x=ds[idx];
-  const diffs=new Set();
-  const sums=new Set();
+  const diffs=[];
+  const sums=[];
 
   ds.forEach((n,i)=>{
     if(i===idx)return;
-
     const d=Math.abs(x-n);
-    if(d>=0 && d<=9) diffs.add(d);
+    if(d>=0 && d<=9) diffs.push(d);
 
     const s=x+n;
-    if(s>=0 && s<=9) sums.add(s);
+    if(s>=0 && s<=9) sums.push(s);
   });
 
-  return {x,diffs,sums};
+  const diffSet=new Set(diffs);
+  const sumSet=new Set(sums);
+  const diffCount=countMap(diffs);
+  const sumCount=countMap(sums);
+
+  return {x,diffs,sums,diffSet,sumSet,diffCount,sumCount};
 }
 
 function hasToken(k,token){
   if(!token)return true;
+  if(token.startsWith('DD')){
+    const n=Number(token.slice(2));
+    return (k.diffCount[n]||0)>=2;
+  }
+  if(token.startsWith('SS')){
+    const n=Number(token.slice(2));
+    return (k.sumCount[n]||0)>=2;
+  }
   const type=token[0];
   const num=Number(token.slice(1));
-  if(type==='D')return k.diffs.has(num);
-  if(type==='S')return k.sums.has(num);
+  if(type==='D')return k.diffSet.has(num);
+  if(type==='S')return k.sumSet.has(num);
   return false;
 }
 
 function hitCombos(room,seat){
   const k=calcKernels(room,seat);
-
-  const main=MAIN_COMBOS
+  const hits=COMBOS
     .filter(c=>hasToken(k,c[0]) && hasToken(k,c[1]) && hasToken(k,c[2]))
-    .map(c=>({name:c[3],level:c[4]}));
-
-  const extra=EXTRA_COMBOS
-    .filter(c=>hasToken(k,c[0]) && hasToken(k,c[1]) && hasToken(k,c[2]))
-    .map(c=>({name:c[3],level:c[4]}));
-
-  return {k,main,extra,all:[...main,...extra]};
+    .map(c=>({name:c[3],level:c[4],type:c[5]}));
+  return {k,hits};
 }
 
 function levelWeight(level){
@@ -291,83 +298,147 @@ function levelWeight(level){
   return 1;
 }
 
-function classify(room,seat){
-  const {k,main,extra,all}=hitCombos(room,seat);
+function onlyNames(hits){
+  return hits.map(h=>h.name).sort().join('|');
+}
 
-  if(!all.length){
+function applyFilters(hits){
+  const names=hits.map(h=>h.name);
+  const key=onlyNames(hits);
+  const hasDouble=hits.some(h=>h.type==='双');
+  const hasAplus=hits.some(h=>h.level==='A+');
+  const hasA=hits.some(h=>h.level==='A');
+  const comboCount=hits.length;
+
+  let status='play';
+  let tag='可打';
+  let filterNote='正常命中';
+  let filterScore=0;
+
+  // 1）单独差3+和8，历史大输来源，直接跳
+  if(key==='差3+和8'){
     return {
-      seat,x:k.x,grade:99,tag:'跳',score:0,
-      main,extra,all,k,
-      reason:'未命中抓奖机组合核v1'
+      status:'skip',
+      tag:'过滤',
+      filterNote:'单独差3+和8，历史大输结构，跳',
+      filterScore:-999
     };
   }
 
-  const hasAplus=all.some(c=>c.level==='A+');
-  const hasA=all.some(c=>c.level==='A');
-  const mainNames=main.map(c=>c.name);
-  const extraNames=extra.map(c=>c.name);
-  const allNames=all.map(c=>c.name);
-  const levelScore=all.reduce((sum,c)=>sum+levelWeight(c.level),0);
-
-  let grade=3;
-  let tag='补充';
-  let score=70 + levelScore * 5 + all.length * 3;
-  let reason=`命中补充黄金组合：${extraNames.join(' / ')}`;
-
-  if(hasAplus && all.length>=2){
-    grade=1;
-    tag='强进';
-    score=96 + Math.min(3, all.length);
-    reason=`A+组合共振：${allNames.join(' / ')}`;
-  }else if(hasAplus){
-    grade=1;
-    tag='A+';
-    score=92;
-    reason=`命中A+黄金组合：${allNames.join(' / ')}`;
-  }else if(hasA && main.length){
-    grade=2;
-    tag='主打';
-    score=86 + all.length * 2;
-    reason=`命中主黄金组合：${mainNames.join(' / ')}`;
-  }else if(hasA){
-    grade=2;
-    tag='A档';
-    score=84 + all.length * 2;
-    reason=`命中A档补充组合：${allNames.join(' / ')}`;
-  }else if(main.length){
-    grade=3;
-    tag='主池';
-    score=80 + all.length * 2;
-    reason=`命中主黄金组合：${mainNames.join(' / ')}`;
+  // 2）只有和4+和5，不打
+  if(key==='和4+和5'){
+    return {
+      status:'skip',
+      tag:'过滤',
+      filterNote:'单独和4+和5，只作加分，不单独打',
+      filterScore:-999
+    };
   }
 
-  return {seat,x:k.x,grade,tag,score,main,extra,all,k,reason};
+  // 3）只有差3+和8+差0+差3，降级谨慎
+  if(key==='差0+差3|差3+和8'){
+    status='warn';
+    tag='谨慎';
+    filterNote='差3+和8叠差0+差3但无其他共振，历史有回撤';
+    filterScore=-20;
+  }
+
+  // 4）只有差1+差6+和5 + 和4+和5，降级
+  if(key==='和4+和5|差1+差6+和5'){
+    status='warn';
+    tag='谨慎';
+    filterNote='弱共振结构，优先级降低';
+    filterScore=-15;
+  }
+
+  // 5）双核重复优先
+  if(hasDouble){
+    status='play';
+    tag='双核';
+    filterNote='双差/双和重复结构，优先';
+    filterScore+=25;
+  }
+
+  // 6）多组合共振优先
+  if(comboCount>=2 && status!=='warn'){
+    tag=hasAplus?'强进':'共振';
+    filterNote='多组合共振，优先';
+    filterScore+=15;
+  }
+
+  if(hasAplus)filterScore+=20;
+  else if(hasA)filterScore+=10;
+
+  return {status,tag,filterNote,filterScore};
+}
+
+function classify(room,seat){
+  const {k,hits}=hitCombos(room,seat);
+  if(!hits.length){
+    return {seat,x:k.x,grade:99,tag:'跳',score:0,hits,k,reason:'未命中抓奖机组合核v2',status:'skip'};
+  }
+
+  const f=applyFilters(hits);
+  if(f.status==='skip'){
+    return {seat,x:k.x,grade:98,tag:f.tag,score:0,hits,k,reason:f.filterNote,status:'skip'};
+  }
+
+  const base=hits.reduce((sum,h)=>sum+levelWeight(h.level)*10,0)+hits.length*5;
+  let score=base+f.filterScore;
+  let grade=3;
+
+  if(f.status==='warn')grade=4;
+  else if(hits.some(h=>h.type==='双') || hits.some(h=>h.level==='A+'))grade=1;
+  else if(hits.length>=2)grade=2;
+  else grade=3;
+
+  return {
+    seat,x:k.x,grade,tag:f.tag,score,hits,k,
+    reason:f.filterNote,
+    status:f.status
+  };
 }
 
 function analyze(room){
-  const arr=[1,2,3,4,5,6].map(s=>classify(room,s)).filter(s=>s.grade<99);
+  const items=[1,2,3,4,5,6].map(s=>classify(room,s));
 
-  return arr.sort((a,b)=>{
+  const play=items.filter(s=>s.grade<98);
+  const skipped=items.filter(s=>s.grade===98);
+
+  play.sort((a,b)=>{
     if(a.grade!==b.grade)return a.grade-b.grade;
-    if(b.all.length!==a.all.length)return b.all.length-a.all.length;
     if(b.score!==a.score)return b.score-a.score;
+    if(b.hits.length!==a.hits.length)return b.hits.length-a.hits.length;
     if(b.x!==a.x)return b.x-a.x;
     return b.seat-a.seat;
   });
+
+  skipped.sort((a,b)=>{
+    if(b.x!==a.x)return b.x-a.x;
+    return b.seat-a.seat;
+  });
+
+  return {play,skipped};
 }
 
 function kernelText(item){
-  const d=[...item.k.diffs].sort((a,b)=>a-b).map(n=>'差'+n).join(' ');
-  const s=[...item.k.sums].sort((a,b)=>a-b).map(n=>'和'+n).join(' ');
+  const d=[...item.k.diffSet].sort((a,b)=>a-b).map(n=>{
+    const c=item.k.diffCount[n]||0;
+    return c>=2?`差${n}×${c}`:`差${n}`;
+  }).join(' ');
+  const s=[...item.k.sumSet].sort((a,b)=>a-b).map(n=>{
+    const c=item.k.sumCount[n]||0;
+    return c>=2?`和${n}×${c}`:`和${n}`;
+  }).join(' ');
   return `差值：${d||'无'}｜和值：${s||'无'}`;
 }
 
 function card(item,idx){
   const div=document.createElement('div');
-  div.className='hit '+(idx===0?'r1':(item.grade<=2?'r2':'r3'));
+  div.className='hit '+(item.status==='warn'?'warn':(idx===0?'r1':(item.grade<=2?'r2':'r3')));
 
-  const right=idx===0?'推荐':'可选';
-  const comboText=item.all.map(c=>c.name).join(' / ');
+  const right=idx===0 && item.status!=='warn'?'推荐':(item.status==='warn'?'慎':'可选');
+  const comboText=item.hits.map(c=>c.name).join(' / ');
 
   div.innerHTML=`
     <div class="hit-lbl">${item.tag}</div>
@@ -379,7 +450,7 @@ function card(item,idx){
     </div>
     <div class="hit-right">
       <div class="hit-wr">${right}</div>
-      <div class="hit-avg">分${item.score}</div>
+      <div class="hit-avg">分${Math.max(0,item.score)}</div>
     </div>
   `;
   return div;
@@ -387,7 +458,7 @@ function card(item,idx){
 
 function render(room){
   const info=repeatInfo(room);
-  const hits=analyze(room);
+  const {play,skipped}=analyze(room);
 
   resultEl.style.display='none';
   skipEl.style.display='none';
@@ -395,15 +466,15 @@ function render(room){
 
   resultHdr.innerHTML=`${parityPattern(room)}｜${info.kind}｜${repeatText(info)}<br>${rankText(room)}`;
 
-  if(!hits.length){
-    skipEl.textContent='无命中，跳';
+  if(!play.length){
+    skipEl.textContent='无可打命中，跳';
     skipEl.style.display='block';
     return [];
   }
 
-  hits.forEach((h,idx)=>hitListEl.appendChild(card(h,idx)));
+  play.forEach((h,idx)=>hitListEl.appendChild(card(h,idx)));
   resultEl.style.display='block';
-  return hits.map(h=>h.seat);
+  return play.map(h=>h.seat);
 }
 
 function run(){
