@@ -87,7 +87,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 
 <body>
 <div class="app">
-  <div class="title">抓奖机专属<span class="version">ID 5137307 / 组合核 v2过滤版</span></div>
+  <div class="title">抓奖机专属<span class="version">ID 5137307 / 组合核 v3过滤版</span></div>
   <div class="panel">
     <input id="room" inputmode="numeric" placeholder="输入5位房号" maxlength="5"/>
     <div class="btn-wrap"><button class="btn-circle" id="go">开干</button></div>
@@ -109,7 +109,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
     </div>
 
     <div class="tiny">
-【抓奖机 ID 5137307 组合核 v2过滤版】
+【抓奖机 ID 5137307 组合核 v3过滤版】
 
 取X：
 房号ABCDE。
@@ -140,17 +140,18 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 15 差2+双差3
 
 过滤逻辑：
-1）单独差3+和8，不打，历史大输来自这里。
-2）只有差3+和8+差0+差3，降级谨慎。
+1）X=0 直接过滤，53340 5号 -1040 已打穿。
+2）单独差3+和8，不打，历史大输来自这里。
 3）单独和4+和5，不打，只能当加分。
-4）双核重复优先。
-5）多组合共振优先。
-6）差0结构必须有共振才优先。
+4）只有差3+和8+差0+差3，降级谨慎。
+5）双核重复优先。
+6）多组合共振优先。
+7）差0结构必须有共振才优先。
 
-强过滤回测口径：
-原15组合：35局，29胜6负，胜率82.9%，净分+11430，大输2。
-排除单独差3+和8后：32局，29胜3负，胜率90.6%，净分+13070，大输0。
-再严格过滤后：31局，29胜2负，胜率93.5%，净分+13490，大输0。
+已知回测：
+15组合不过滤：35局，29胜6负，胜率82.9%，净分+11430，大输2。
+v2过滤后：28局，26胜2负，胜率92.9%，净分+12870，大输0。
+v3新增过滤：X=0直接跳，避免53340 5号 -1040假强结构。
 
 选位规则：
 优先A+与双核重复；
@@ -162,7 +163,7 @@ input::placeholder{font-size:13px;letter-spacing:1px;font-weight:400}
 </div>
 
 <script>
-const HISTORY_KEY='zhuajiangji_5137307_combo_v2_filter';
+const HISTORY_KEY='zhuajiangji_5137307_combo_v3_filter';
 const HISTORY_LIMIT=30;
 
 const roomEl=document.getElementById('room');
@@ -302,8 +303,7 @@ function onlyNames(hits){
   return hits.map(h=>h.name).sort().join('|');
 }
 
-function applyFilters(hits){
-  const names=hits.map(h=>h.name);
+function applyFilters(hits,k){
   const key=onlyNames(hits);
   const hasDouble=hits.some(h=>h.type==='双');
   const hasAplus=hits.some(h=>h.level==='A+');
@@ -314,6 +314,16 @@ function applyFilters(hits){
   let tag='可打';
   let filterNote='正常命中';
   let filterScore=0;
+
+  // 新增规则：X=0 直接过滤
+  if(k.x===0){
+    return {
+      status:'skip',
+      tag:'过滤',
+      filterNote:'X=0假强结构，53340 5号-1040已打穿，跳',
+      filterScore:-999
+    };
+  }
 
   // 1）单独差3+和8，历史大输来源，直接跳
   if(key==='差3+和8'){
@@ -375,12 +385,20 @@ function applyFilters(hits){
 function classify(room,seat){
   const {k,hits}=hitCombos(room,seat);
   if(!hits.length){
-    return {seat,x:k.x,grade:99,tag:'跳',score:0,hits,k,reason:'未命中抓奖机组合核v2',status:'skip'};
+    return {
+      seat,x:k.x,grade:99,tag:'跳',score:0,hits,k,
+      reason:'未命中抓奖机组合核v3',
+      status:'skip'
+    };
   }
 
-  const f=applyFilters(hits);
+  const f=applyFilters(hits,k);
   if(f.status==='skip'){
-    return {seat,x:k.x,grade:98,tag:f.tag,score:0,hits,k,reason:f.filterNote,status:'skip'};
+    return {
+      seat,x:k.x,grade:98,tag:f.tag,score:0,hits,k,
+      reason:f.filterNote,
+      status:'skip'
+    };
   }
 
   const base=hits.reduce((sum,h)=>sum+levelWeight(h.level)*10,0)+hits.length*5;
@@ -458,7 +476,7 @@ function card(item,idx){
 
 function render(room){
   const info=repeatInfo(room);
-  const {play,skipped}=analyze(room);
+  const {play}=analyze(room);
 
   resultEl.style.display='none';
   skipEl.style.display='none';
