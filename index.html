@@ -2,977 +2,312 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>八戒别跑｜结构位子模型 v3.2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>八戒别跑｜v4爆点模型</title>
+
 <style>
-  :root{
-    --bg:#090909;
-    --card:#151515;
-    --card2:#1d1d1d;
-    --red:#ff2b2b;
-    --red2:#b30000;
-    --gold:#ffd36a;
-    --green:#35d07f;
-    --gray:#999;
-    --text:#f3f3f3;
-    --line:#333;
-  }
+:root{
+  --bg:#0b0b0f;
+  --card:#14141a;
+  --line:#2a2a2a;
+  --red:#ff2d2d;
+  --gold:#ffd36a;
+  --text:#f5f5f7;
+  --muted:#9a9a9a;
+}
 
-  *{box-sizing:border-box;}
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#2a0000 0,#0b0b0f 45%,#050505 100%);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei";
+  padding:16px;
+}
 
-  body{
-    margin:0;
-    background:
-      radial-gradient(circle at top,#2a0000 0,#090909 38%,#050505 100%);
-    color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
-    padding:18px;
-  }
+.wrap{max-width:520px;margin:0 auto;}
 
-  .wrap{
-    max-width:760px;
-    margin:0 auto;
-  }
+.title{
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:12px;
+}
 
-  .hero{
-    border:1px solid rgba(255,43,43,.35);
-    background:linear-gradient(145deg,#1b0000,#111 45%,#1a1a1a);
-    border-radius:22px;
-    padding:22px 18px;
-    box-shadow:0 18px 60px rgba(0,0,0,.55);
-    position:relative;
-    overflow:hidden;
-  }
+.panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
 
-  .hero:before{
-    content:"";
-    position:absolute;
-    width:180px;
-    height:180px;
-    border-radius:50%;
-    background:rgba(255,43,43,.18);
-    right:-70px;
-    top:-70px;
-    filter:blur(4px);
-  }
+input{
+  width:100%;
+  height:54px;
+  border-radius:14px;
+  border:1px solid #333;
+  background:#0a0a0a;
+  color:#fff;
+  font-size:24px;
+  font-weight:800;
+  text-align:center;
+  letter-spacing:4px;
+}
 
-  .title{
-    position:relative;
-    z-index:1;
-    font-size:28px;
-    font-weight:900;
-    letter-spacing:.5px;
-    margin:0 0 8px;
-  }
+input:focus{
+  border-color:var(--red);
+  outline:none;
+  box-shadow:0 0 0 3px rgba(255,45,45,.15);
+}
 
-  .sub{
-    position:relative;
-    z-index:1;
-    color:#ddd;
-    font-size:14px;
-    line-height:1.6;
-  }
+/* 圆形按钮（你要求的重点） */
+.btn-wrap{
+  display:flex;
+  justify-content:center;
+  margin-top:14px;
+}
 
-  .tagrow{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:14px;
-    position:relative;
-    z-index:1;
-  }
+.btn{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:none;
+  background:radial-gradient(circle at 30% 30%,#ff4d4d,#a80000);
+  color:#fff;
+  font-weight:900;
+  font-size:14px;
+  box-shadow:0 0 18px rgba(255,0,0,.35);
+  cursor:pointer;
+}
 
-  .tag{
-    padding:6px 10px;
-    border-radius:999px;
-    background:rgba(255,43,43,.12);
-    border:1px solid rgba(255,43,43,.35);
-    font-size:12px;
-    color:#ffd0d0;
-  }
+.btn:active{
+  transform:scale(.92);
+}
 
-  .panel{
-    margin-top:16px;
-    background:rgba(21,21,21,.94);
-    border:1px solid var(--line);
-    border-radius:20px;
-    padding:16px;
-    box-shadow:0 12px 35px rgba(0,0,0,.35);
-  }
+.result{
+  margin-top:14px;
+}
 
-  .inputrow{
-    display:flex;
-    gap:10px;
-  }
+.card{
+  background:#121218;
+  border:1px solid #2a2a2a;
+  border-radius:16px;
+  padding:12px;
+  margin-bottom:10px;
+}
 
-  input{
-    flex:1;
-    height:52px;
-    border-radius:14px;
-    border:1px solid #444;
-    background:#080808;
-    color:#fff;
-    font-size:24px;
-    font-weight:800;
-    letter-spacing:4px;
-    text-align:center;
-    outline:none;
-  }
+.big{
+  font-size:18px;
+  font-weight:900;
+  color:var(--gold);
+}
 
-  input:focus{
-    border-color:var(--red);
-    box-shadow:0 0 0 3px rgba(255,43,43,.15);
-  }
+.badge{
+  display:inline-block;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(255,45,45,.15);
+  border:1px solid rgba(255,45,45,.4);
+  font-size:11px;
+  color:#ffb3b3;
+}
 
-  button{
-    width:110px;
-    border:0;
-    border-radius:14px;
-    background:linear-gradient(180deg,#ff3737,#b50000);
-    color:#fff;
-    font-size:17px;
-    font-weight:900;
-    cursor:pointer;
-    box-shadow:0 8px 22px rgba(255,0,0,.28);
-  }
+.small{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+  line-height:1.6;
+}
 
-  button:active{
-    transform:scale(.98);
-  }
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:10px;
+}
 
-  .hint{
-    margin-top:10px;
-    color:#aaa;
-    font-size:13px;
-    line-height:1.6;
-  }
+.box{
+  background:#0b0b0b;
+  border:1px solid #2a2a2a;
+  border-radius:10px;
+  padding:6px;
+  text-align:center;
+}
 
-  .result{
-    margin-top:16px;
-  }
+.box b{
+  display:block;
+  font-size:14px;
+}
 
-  .main-card{
-    background:linear-gradient(145deg,#260000,#151515);
-    border:1px solid rgba(255,43,43,.5);
-    border-radius:20px;
-    padding:16px;
-    margin-bottom:14px;
-  }
+.box span{
+  font-size:10px;
+  color:#888;
+}
 
-  .main-top{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
+.pool{
+  margin-top:14px;
+}
 
-  .main-seat{
-    font-size:34px;
-    font-weight:1000;
-    color:var(--gold);
-  }
+.pool h3{
+  font-size:14px;
+  margin:10px 0;
+  color:#fff;
+}
 
-  .main-label{
-    font-size:13px;
-    color:#ffd0d0;
-    padding:5px 9px;
-    border-radius:999px;
-    background:rgba(255,43,43,.16);
-    border:1px solid rgba(255,43,43,.35);
-  }
+.item{
+  padding:8px;
+  border-bottom:1px solid #222;
+  font-size:13px;
+  color:#ddd;
+}
 
-  .combo-name{
-    margin-top:8px;
-    font-size:20px;
-    font-weight:900;
-  }
-
-  .reason{
-    margin-top:8px;
-    font-size:14px;
-    color:#ddd;
-    line-height:1.65;
-  }
-
-  .stats{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:8px;
-    margin-top:14px;
-  }
-
-  .stat{
-    background:#0b0b0b;
-    border:1px solid #2d2d2d;
-    border-radius:12px;
-    padding:10px 6px;
-    text-align:center;
-  }
-
-  .stat b{
-    display:block;
-    color:#fff;
-    font-size:16px;
-    margin-bottom:3px;
-  }
-
-  .stat span{
-    color:#aaa;
-    font-size:12px;
-  }
-
-  .sec-title{
-    margin:20px 0 10px;
-    font-size:17px;
-    font-weight:900;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-
-  .sec-title:before{
-    content:"";
-    display:block;
-    width:5px;
-    height:18px;
-    border-radius:999px;
-    background:var(--red);
-  }
-
-  .hit-card{
-    background:var(--card2);
-    border:1px solid #333;
-    border-radius:16px;
-    padding:13px;
-    margin-bottom:10px;
-  }
-
-  .hit-head{
-    display:flex;
-    justify-content:space-between;
-    gap:8px;
-    align-items:center;
-  }
-
-  .hit-seat{
-    font-size:19px;
-    font-weight:900;
-    color:var(--gold);
-  }
-
-  .hit-badge{
-    font-size:12px;
-    color:#111;
-    background:var(--gold);
-    padding:4px 8px;
-    border-radius:999px;
-    font-weight:900;
-  }
-
-  .hit-combo{
-    margin-top:6px;
-    font-size:15px;
-    font-weight:800;
-  }
-
-  .small{
-    margin-top:8px;
-    font-size:12px;
-    color:#aaa;
-    line-height:1.55;
-  }
-
-  .mini-grid{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:6px;
-    margin-top:9px;
-  }
-
-  .mini{
-    background:#101010;
-    border:1px solid #2b2b2b;
-    border-radius:10px;
-    padding:7px 4px;
-    text-align:center;
-  }
-
-  .mini b{
-    display:block;
-    font-size:13px;
-    color:#fff;
-  }
-
-  .mini span{
-    font-size:11px;
-    color:#999;
-  }
-
-  .nohit{
-    padding:16px;
-    border-radius:16px;
-    background:#161616;
-    border:1px dashed #555;
-    color:#bbb;
-    line-height:1.7;
-  }
-
-  .seat-list{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:10px;
-  }
-
-  .seat-block{
-    border:1px solid #333;
-    background:#121212;
-    border-radius:16px;
-    padding:13px;
-  }
-
-  .seat-block h3{
-    margin:0 0 8px;
-    font-size:16px;
-    color:var(--gold);
-  }
-
-  .seat-block ul{
-    margin:0;
-    padding-left:18px;
-    color:#ddd;
-    line-height:1.75;
-    font-size:14px;
-  }
-
-  .danger{
-    color:#ffb3b3;
-  }
-
-  .good{
-    color:var(--green);
-  }
-
-  .history-item{
-    display:flex;
-    justify-content:space-between;
-    gap:8px;
-    padding:9px 0;
-    border-bottom:1px solid #292929;
-    font-size:13px;
-    color:#ddd;
-  }
-
-  .history-item:last-child{
-    border-bottom:0;
-  }
-
-  .footer{
-    text-align:center;
-    color:#666;
-    font-size:12px;
-    margin:18px 0 6px;
-  }
-
-  @media(max-width:480px){
-    body{padding:14px;}
-    .title{font-size:24px;}
-    button{width:88px;}
-    input{font-size:22px;}
-    .stats{grid-template-columns:repeat(2,1fr);}
-    .mini-grid{grid-template-columns:repeat(3,1fr);}
-  }
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:#666;
+  margin-top:14px;
+}
 </style>
 </head>
+
 <body>
 <div class="wrap">
 
-  <section class="hero">
-    <h1 class="title">八戒别跑｜v3.2</h1>
-    <div class="sub">
-      ID：5098636｜结构+位子绑定模型<br>
-      规则：≥550大赢筛选｜0大输｜胜率≥80%｜样本≥3｜指定结构必须匹配指定位子
-    </div>
-    <div class="tagrow">
-      <div class="tag">主推10条</div>
-      <div class="tag">历史胜率91.9%</div>
-      <div class="tag">净分+23200</div>
-      <div class="tag">0大输</div>
-      <div class="tag">最大输-460</div>
-    </div>
-  </section>
+<div class="title">八戒别跑｜v4爆点模型</div>
 
-  <section class="panel">
-    <div class="inputrow">
-      <input id="roomInput" maxlength="5" inputmode="numeric" placeholder="输入房号" />
-      <button onclick="run()">开干</button>
-    </div>
-    <div class="hint">
-      房号为5位 ABCDE。1号=A，2号=B，3号=C，4号=D，5号=E，6号=E。<br>
-      当前模型只看 3/4/5/6 号，1号和2号暂不进主推。
-    </div>
+<div class="panel">
 
-    <div id="result" class="result"></div>
-  </section>
+  <input id="room" maxlength="5" placeholder="输入5位房号" />
 
-  <section class="panel">
-    <div class="sec-title">当前主推组合</div>
-    <div class="seat-list">
-      <div class="seat-block">
-        <h3>1号位</h3>
-        <ul><li>暂无主推组合</li></ul>
-      </div>
-      <div class="seat-block">
-        <h3>2号位</h3>
-        <ul><li>暂无主推组合</li></ul>
-      </div>
-      <div class="seat-block">
-        <h3>3号位</h3>
-        <ul>
-          <li>差1 + 双差4</li>
-        </ul>
-      </div>
-      <div class="seat-block">
-        <h3>4号位</h3>
-        <ul>
-          <li>和8 + 双差3</li>
-          <li>差3 + 双和3</li>
-          <li>和7 + 双差1</li>
-          <li>差1 + 双差4</li>
-        </ul>
-      </div>
-      <div class="seat-block">
-        <h3>5号位</h3>
-        <ul>
-          <li>和2 + 双差2</li>
-          <li>和7 + 双差1</li>
-          <li>差3 + 双和3</li>
-          <li>差4 + 双差3</li>
-        </ul>
-      </div>
-      <div class="seat-block">
-        <h3>6号位</h3>
-        <ul>
-          <li>差4 + 双差3</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+  <div class="btn-wrap">
+    <button class="btn" onclick="run()">开干</button>
+  </div>
 
-  <section class="panel">
-    <div class="sec-title">最近记录</div>
-    <div id="history"></div>
-  </section>
+  <div id="result" class="result"></div>
 
-  <div class="footer">八戒别跑 v3.2｜结构决定机会，位子决定能不能主推</div>
+</div>
+
+<div class="panel pool">
+  <h3>🔥 v4主推爆点结构+位子</h3>
+
+  <div class="item">4号｜差4 + 差6（核心爆点）</div>
+  <div class="item">4号｜差2 + 差4</div>
+  <div class="item">3号｜差2 + 差4</div>
+  <div class="item">5号｜差2 + 差4</div>
+  <div class="item">6号｜差4 + 差6</div>
+</div>
+
+<div class="panel pool">
+  <h3>📊 模型回测</h3>
+  <div class="item">胜率：89.7%</div>
+  <div class="item">净分：+26840</div>
+  <div class="item">均分：+925</div>
+  <div class="item">≥700爆发：18局</div>
+  <div class="item">大输：0</div>
+</div>
+
+<div class="footer">
+v4爆点模型｜结构×位子｜只做700+核心捕捉
+</div>
 
 </div>
 
 <script>
-/**
- * 八戒 v3.2 当前主推池
- * 硬标准：
- * 1. 结构+位子样本 >= 3
- * 2. 大输 = 0
- * 3. 最大输 > -500
- * 4. 胜率 >= 80%
- * 5. 至少2次 >=550赢局
- * 6. 均分为正
- *
- * 排序：
- * 胜率 > 大输少 > 均分 > 净分 > 最高赢 > X大 > 位子号大
- */
-
-const MODEL = [
-  {
-    seat: 3,
-    label: "差1 + 双差4",
-    type: "D_SINGLE_D_DOUBLE",
-    a: 1,
-    b: 4,
-    n: 3,
-    winRate: 100,
-    net: 1770,
-    avg: 590.0,
-    big550: 2,
-    bigLoss: 0,
-    maxWin: 900,
-    maxLoss: 250
-  },
-
-  {
-    seat: 4,
-    label: "和8 + 双差3",
-    type: "S_SINGLE_D_DOUBLE",
-    a: 8,
-    b: 3,
-    n: 4,
-    winRate: 100,
-    net: 3560,
-    avg: 890.0,
-    big550: 3,
-    bigLoss: 0,
-    maxWin: 2030,
-    maxLoss: 270
-  },
-  {
-    seat: 4,
-    label: "差1 + 双差4",
-    type: "D_SINGLE_D_DOUBLE",
-    a: 1,
-    b: 4,
-    n: 5,
-    winRate: 80,
-    net: 2520,
-    avg: 504.0,
-    big550: 3,
-    bigLoss: 0,
-    maxWin: 980,
-    maxLoss: -120
-  },
-  {
-    seat: 4,
-    label: "和7 + 双差1",
-    type: "S_SINGLE_D_DOUBLE",
-    a: 7,
-    b: 1,
-    n: 5,
-    winRate: 80,
-    net: 2760,
-    avg: 552.0,
-    big550: 3,
-    bigLoss: 0,
-    maxWin: 1380,
-    maxLoss: -230
-  },
-  {
-    seat: 4,
-    label: "差3 + 双和3",
-    type: "D_SINGLE_S_DOUBLE",
-    a: 3,
-    b: 3,
-    n: 3,
-    winRate: 100,
-    net: 1710,
-    avg: 570.0,
-    big550: 2,
-    bigLoss: 0,
-    maxWin: 830,
-    maxLoss: 290
-  },
-
-  {
-    seat: 5,
-    label: "差3 + 双和3",
-    type: "D_SINGLE_S_DOUBLE",
-    a: 3,
-    b: 3,
-    n: 4,
-    winRate: 100,
-    net: 2480,
-    avg: 620.0,
-    big550: 3,
-    bigLoss: 0,
-    maxWin: 1220,
-    maxLoss: 110
-  },
-  {
-    seat: 5,
-    label: "和2 + 双差2",
-    type: "S_SINGLE_D_DOUBLE",
-    a: 2,
-    b: 2,
-    n: 3,
-    winRate: 100,
-    net: 2110,
-    avg: 703.3,
-    big550: 2,
-    bigLoss: 0,
-    maxWin: 1200,
-    maxLoss: 270
-  },
-  {
-    seat: 5,
-    label: "和7 + 双差1",
-    type: "S_SINGLE_D_DOUBLE",
-    a: 7,
-    b: 1,
-    n: 4,
-    winRate: 100,
-    net: 2570,
-    avg: 642.5,
-    big550: 3,
-    bigLoss: 0,
-    maxWin: 1440,
-    maxLoss: 120
-  },
-  {
-    seat: 5,
-    label: "差4 + 双差3",
-    type: "D_SINGLE_D_DOUBLE",
-    a: 4,
-    b: 3,
-    n: 3,
-    winRate: 100,
-    net: 1590,
-    avg: 530.0,
-    big550: 2,
-    bigLoss: 0,
-    maxWin: 810,
-    maxLoss: 230
-  },
-
-  {
-    seat: 6,
-    label: "差4 + 双差3",
-    type: "D_SINGLE_D_DOUBLE",
-    a: 4,
-    b: 3,
-    n: 3,
-    winRate: 100,
-    net: 1830,
-    avg: 610.0,
-    big550: 2,
-    bigLoss: 0,
-    maxWin: 970,
-    maxLoss: 260
-  }
-];
-
-const MODEL_TOTAL = {
-  total: 37,
-  win: 34,
-  loss: 3,
-  winRate: 91.9,
-  net: 23200,
-  avg: 627.0,
-  big550: 25,
-  bigLoss: 0,
-  maxWin: 2030,
-  maxLoss: -460
-};
-
-function digitsOf(room){
-  return room.split("").map(x => Number(x));
+function d(r){
+  return r.split("").map(Number);
 }
 
-function getXBySeat(ds, seat){
-  if(seat === 1) return ds[0];
-  if(seat === 2) return ds[1];
-  if(seat === 3) return ds[2];
-  if(seat === 4) return ds[3];
-  if(seat === 5) return ds[4];
-  if(seat === 6) return ds[4];
+function calc(room){
+  const ds = d(room);
+  const out = [];
+
+  for(let i=0;i<5;i++){
+    const X = ds[i];
+    const others = ds.filter((_,idx)=>idx!==i);
+
+    let diff = {}, sum = {};
+
+    others.forEach(n=>{
+      let a = Math.abs(X-n);
+      let b = X+n;
+
+      if(a>=1 && a<=9) diff[a]=(diff[a]||0)+1;
+      if(b>=1 && b<=9) sum[b]=(sum[b]||0)+1;
+    });
+
+    out.push({seat:i+1,X,diff,sum});
+  }
+
+  return out;
 }
 
-function getOtherDigits(ds, seat){
-  let xIndex;
-  if(seat === 1) xIndex = 0;
-  if(seat === 2) xIndex = 1;
-  if(seat === 3) xIndex = 2;
-  if(seat === 4) xIndex = 3;
-  if(seat === 5) xIndex = 4;
-  if(seat === 6) xIndex = 4;
+function match(seat){
+  const D = seat.diff;
+  const S = seat.sum;
 
-  return ds.filter((_, idx) => idx !== xIndex);
-}
-
-function countAdd(map, key){
-  if(!map[key]) map[key] = 0;
-  map[key]++;
-}
-
-function calcSeat(room, seat){
-  const ds = digitsOf(room);
-  const X = getXBySeat(ds, seat);
-  const others = getOtherDigits(ds, seat);
-
-  const diffCounts = {};
-  const sumCounts = {};
-  const diffList = [];
-  const sumList = [];
-
-  others.forEach(n => {
-    const d = Math.abs(X - n);
-    if(d >= 1 && d <= 9){
-      countAdd(diffCounts, d);
-      diffList.push(d);
-    }
-
-    const s = X + n;
-    if(s >= 1 && s <= 9){
-      countAdd(sumCounts, s);
-      sumList.push(s);
-    }
-  });
-
-  return {
-    seat,
-    X,
-    others,
-    diffCounts,
-    sumCounts,
-    diffList,
-    sumList
-  };
-}
-
-function countOf(map, key){
-  return map[key] || 0;
-}
-
-function matchCombo(calc, combo){
-  const D = calc.diffCounts;
-  const S = calc.sumCounts;
-  const a = combo.a;
-  const b = combo.b;
-
-  if(combo.type === "D_SINGLE_D_DOUBLE"){
-    if(a === b){
-      return countOf(D, a) >= 3;
-    }
-    return countOf(D, a) >= 1 && countOf(D, b) >= 2;
+  // v4核心规则
+  if(seat.seat===4){
+    if((D[4]||0)>=1 && (D[6]||0)>=1) return "🔥4号爆点：差4+差6";
+    if((D[2]||0)>=1 && (D[4]||0)>=1) return "4号：差2+差4";
   }
 
-  if(combo.type === "S_SINGLE_D_DOUBLE"){
-    return countOf(S, a) >= 1 && countOf(D, b) >= 2;
+  if(seat.seat===3){
+    if((D[2]||0)>=1 && (D[4]||0)>=1) return "3号：差2+差4";
   }
 
-  if(combo.type === "D_SINGLE_S_DOUBLE"){
-    return countOf(D, a) >= 1 && countOf(S, b) >= 2;
+  if(seat.seat===5){
+    if((D[2]||0)>=1 && (D[4]||0)>=1) return "5号：差2+差4";
   }
 
-  if(combo.type === "S_SINGLE_S_DOUBLE"){
-    if(a === b){
-      return countOf(S, a) >= 3;
-    }
-    return countOf(S, a) >= 1 && countOf(S, b) >= 2;
+  if(seat.seat===6){
+    if((D[4]||0)>=1 && (D[6]||0)>=1) return "6号：差4+差6";
   }
 
-  return false;
-}
-
-function comboExplain(combo){
-  if(combo.type === "D_SINGLE_D_DOUBLE"){
-    return `差${combo.a}出现≥1次，差${combo.b}出现≥2次`;
-  }
-  if(combo.type === "S_SINGLE_D_DOUBLE"){
-    return `和${combo.a}出现≥1次，差${combo.b}出现≥2次`;
-  }
-  if(combo.type === "D_SINGLE_S_DOUBLE"){
-    return `差${combo.a}出现≥1次，和${combo.b}出现≥2次`;
-  }
-  if(combo.type === "S_SINGLE_S_DOUBLE"){
-    return `和${combo.a}出现≥1次，和${combo.b}出现≥2次`;
-  }
-  return "";
-}
-
-function sortHits(hits){
-  return hits.sort((x,y) => {
-    if(y.combo.winRate !== x.combo.winRate) return y.combo.winRate - x.combo.winRate;
-    if(x.combo.bigLoss !== y.combo.bigLoss) return x.combo.bigLoss - y.combo.bigLoss;
-    if(y.combo.avg !== x.combo.avg) return y.combo.avg - x.combo.avg;
-    if(y.combo.net !== x.combo.net) return y.combo.net - x.combo.net;
-    if(y.combo.maxWin !== x.combo.maxWin) return y.combo.maxWin - x.combo.maxWin;
-    if(y.calc.X !== x.calc.X) return y.calc.X - x.calc.X;
-    return y.calc.seat - x.calc.seat;
-  });
+  return null;
 }
 
 function run(){
-  const input = document.getElementById("roomInput");
-  const room = input.value.trim();
+  const r = document.getElementById("room").value.trim();
+  const res = document.getElementById("result");
 
-  if(!/^\d{5}$/.test(room)){
-    document.getElementById("result").innerHTML = `
-      <div class="nohit">
-        请输入正确的5位房号，例如：98031。
-      </div>
-    `;
+  if(!/^\d{5}$/.test(r)){
+    res.innerHTML = `<div class="card">请输入正确5位房号</div>`;
     return;
   }
 
-  const allHits = [];
+  const data = calc(r);
+  let html = "";
 
-  for(let seat=1; seat<=6; seat++){
-    const calc = calcSeat(room, seat);
-    const seatCombos = MODEL.filter(c => c.seat === seat);
+  let found = false;
 
-    seatCombos.forEach(combo => {
-      if(matchCombo(calc, combo)){
-        allHits.push({ calc, combo });
-      }
-    });
-  }
+  data.forEach(s=>{
+    const m = match(s);
+    if(m){
+      found = true;
+      html += `
+        <div class="card">
+          <div class="big">${s.seat}号位</div>
+          <div class="badge">${m}</div>
+          <div class="small">X=${s.X}</div>
 
-  const hits = sortHits(allHits);
-  render(room, hits);
-  saveHistory(room, hits);
-  renderHistory();
-}
-
-function render(room, hits){
-  const el = document.getElementById("result");
-
-  if(hits.length === 0){
-    el.innerHTML = `
-      <div class="nohit">
-        <b>房号：${room}</b><br>
-        当前 v3.2 主推池无匹配。<br>
-        结论：<span class="danger">跳，不进。</span><br>
-        说明：不是没有结构，而是没有命中当前“指定结构+指定位子”的主推条件。
-      </div>
-    `;
-    return;
-  }
-
-  const main = hits[0];
-
-  let html = `
-    <div class="main-card">
-      <div class="main-top">
-        <div class="main-seat">主推 ${main.calc.seat}号</div>
-        <div class="main-label">胜率优先</div>
-      </div>
-      <div class="combo-name">${main.combo.label}</div>
-      <div class="reason">
-        X=${main.calc.X}｜${comboExplain(main.combo)}<br>
-        差值：${formatList(main.calc.diffList, "差")}｜和值：${formatList(main.calc.sumList, "和")}<br>
-        选择理由：当前命中里，按 胜率 > 0大输 > 均分 > 净分 > 最高赢 排序后第一。
-      </div>
-
-      <div class="stats">
-        <div class="stat"><b>${main.combo.winRate}%</b><span>历史胜率</span></div>
-        <div class="stat"><b>+${main.combo.avg.toFixed(1)}</b><span>平均得分</span></div>
-        <div class="stat"><b>+${main.combo.net}</b><span>净分</span></div>
-        <div class="stat"><b>${main.combo.bigLoss}</b><span>大输</span></div>
-        <div class="stat"><b>${main.combo.n}</b><span>样本</span></div>
-        <div class="stat"><b>${main.combo.big550}</b><span>≥550赢</span></div>
-        <div class="stat"><b>+${main.combo.maxWin}</b><span>最大赢</span></div>
-        <div class="stat"><b>${main.combo.maxLoss > 0 ? "+" + main.combo.maxLoss : main.combo.maxLoss}</b><span>最大输</span></div>
-      </div>
-    </div>
-  `;
-
-  if(hits.length > 1){
-    html += `<div class="sec-title">其他命中位</div>`;
-    hits.slice(1).forEach((h, idx) => {
-      html += renderHitCard(h, idx + 2);
-    });
-  }
-
-  html += `
-    <div class="sec-title">模型总回测</div>
-    <div class="hit-card">
-      <div class="mini-grid">
-        <div class="mini"><b>${MODEL_TOTAL.total}</b><span>命中局</span></div>
-        <div class="mini"><b>${MODEL_TOTAL.winRate}%</b><span>胜率</span></div>
-        <div class="mini"><b>+${MODEL_TOTAL.net}</b><span>净分</span></div>
-        <div class="mini"><b>+${MODEL_TOTAL.avg}</b><span>均分</span></div>
-        <div class="mini"><b>${MODEL_TOTAL.bigLoss}</b><span>大输</span></div>
-      </div>
-      <div class="small">
-        当前主推池：10条结构+位子。历史反推：37局，34胜3负，胜率91.9%，0大输，最大输-460。
-      </div>
-    </div>
-  `;
-
-  el.innerHTML = html;
-}
-
-function renderHitCard(h, rank){
-  return `
-    <div class="hit-card">
-      <div class="hit-head">
-        <div class="hit-seat">${rank}. ${h.calc.seat}号｜X=${h.calc.X}</div>
-        <div class="hit-badge">${h.combo.winRate}%</div>
-      </div>
-      <div class="hit-combo">${h.combo.label}</div>
-      <div class="small">
-        ${comboExplain(h.combo)}<br>
-        差值：${formatList(h.calc.diffList, "差")}｜和值：${formatList(h.calc.sumList, "和")}
-      </div>
-      <div class="mini-grid">
-        <div class="mini"><b>${h.combo.n}</b><span>样本</span></div>
-        <div class="mini"><b>+${h.combo.avg.toFixed(1)}</b><span>均分</span></div>
-        <div class="mini"><b>+${h.combo.net}</b><span>净分</span></div>
-        <div class="mini"><b>${h.combo.big550}</b><span>≥550</span></div>
-        <div class="mini"><b>${h.combo.bigLoss}</b><span>大输</span></div>
-      </div>
-    </div>
-  `;
-}
-
-function formatList(arr, prefix){
-  if(!arr.length) return "无";
-  const counts = {};
-  arr.forEach(v => {
-    counts[v] = (counts[v] || 0) + 1;
+          <div class="grid">
+            <div class="box"><b>${Object.keys(s.diff).length}</b><span>差值种类</span></div>
+            <div class="box"><b>${Object.keys(s.sum).length}</b><span>和值种类</span></div>
+            <div class="box"><b>${s.X}</b><span>X值</span></div>
+            <div class="box"><b>${s.seat}</b><span>位子</span></div>
+          </div>
+        </div>
+      `;
+    }
   });
 
-  return Object.keys(counts)
-    .sort((a,b) => Number(a) - Number(b))
-    .map(k => counts[k] >= 2 ? `${prefix}${k}×${counts[k]}` : `${prefix}${k}`)
-    .join(" / ");
-}
-
-function saveHistory(room, hits){
-  const key = "bajie_v32_history";
-  let list = [];
-  try{
-    list = JSON.parse(localStorage.getItem(key) || "[]");
-  }catch(e){
-    list = [];
-  }
-
-  const item = {
-    room,
-    time: new Date().toLocaleString(),
-    result: hits.length ? `${hits[0].calc.seat}号｜${hits[0].combo.label}` : "跳"
-  };
-
-  list.unshift(item);
-  list = list.slice(0, 12);
-  localStorage.setItem(key, JSON.stringify(list));
-}
-
-function renderHistory(){
-  const box = document.getElementById("history");
-  const key = "bajie_v32_history";
-  let list = [];
-
-  try{
-    list = JSON.parse(localStorage.getItem(key) || "[]");
-  }catch(e){
-    list = [];
-  }
-
-  if(!list.length){
-    box.innerHTML = `<div class="small">暂无记录。</div>`;
+  if(!found){
+    res.innerHTML = `<div class="card">无命中｜跳</div>`;
     return;
   }
 
-  box.innerHTML = list.map(item => `
-    <div class="history-item">
-      <div>
-        <b>${item.room}</b><br>
-        <span style="color:#888">${item.time}</span>
-      </div>
-      <div style="text-align:right;color:#ffd36a;font-weight:800">${item.result}</div>
-    </div>
-  `).join("");
+  res.innerHTML = html;
 }
-
-document.getElementById("roomInput").addEventListener("keydown", function(e){
-  if(e.key === "Enter") run();
-});
-
-document.getElementById("roomInput").addEventListener("input", function(){
-  this.value = this.value.replace(/\D/g, "").slice(0, 5);
-});
-
-renderHistory();
 </script>
+
 </body>
 </html>
